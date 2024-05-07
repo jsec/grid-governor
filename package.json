@@ -1,0 +1,33 @@
+{
+  "name": "grid-governor",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [],
+  "author": "Jarrod Seccombe <jarrod.seccombe@icloud.com>",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "husky",
+    "dev": "tsx",
+    "test": "ava",
+    "lint": "eslint --ext .js . --max-warnings 0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "devDependencies": {
+    "@jarsec/eslint-config": "^5.1.0",
+    "@jarsec/tsconfig": "^2.1.0",
+    "@types/node": "^20.12.10",
+    "ava": "^6.1.3",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "8.56.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "tsx": "^4.9.3",
+    "typescript": "^5.4.5"
+  }
+}
