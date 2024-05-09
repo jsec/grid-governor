@@ -9,7 +9,12 @@
   "license": "MIT",
   "scripts": {
     "prepare": "husky",
-    "dev": "node --import=tsimp/import --watch --no-warnings=ExperimentalWarning src/index.ts",
+    "build": "tsc",
+    "start": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --import=tsimp/import --watch --no-warnings=ExperimentalWarning src/index.ts",
+    "migrate:create": "tsimp src/db/scripts/migrate-create.ts && kysely-codegen",
+    "migrate:down": "tsimp src/db/scripts/migrate-down.ts && kysely-codegen",
+    "migrate:latest": "tsimp src/db/scripts/migrate-latest.ts && kysely-codegen",
+    "migrate:up": "tsimp src/db/scripts/migrate-up.ts && kysely-codegen",
     "test": "ava",
     "lint": "eslint --ext .js . --max-warnings 0"
   },
@@ -27,16 +32,21 @@
     "eslint": "8.56.0",
     "husky": "9.0.11",
     "lint-staged": "15.2.2",
+    "pino-pretty": "^11.0.0",
     "tsimp": "2.0.11",
     "typescript": "5.4.5"
   },
   "dependencies": {
-    "@fastify/sensible": "^5.6.0",
-    "@fastify/type-provider-typebox": "^4.0.0",
-    "@sinclair/typebox": "^0.32.29",
-    "dotenv": "^16.4.5",
-    "envalid": "^8.0.0",
-    "fastify": "^4.27.0",
-    "fastify-plugin": "^4.5.1"
+    "@fastify/autoload": "5.8.2",
+    "@fastify/sensible": "5.6.0",
+    "@fastify/type-provider-typebox": "4.0.0",
+    "@sinclair/typebox": "0.32.29",
+    "dotenv": "16.4.5",
+    "envalid": "8.0.0",
+    "fastify": "4.27.0",
+    "fastify-plugin": "4.5.1",
+    "kysely": "^0.27.3",
+    "kysely-codegen": "^0.15.0",
+    "mysql2": "^3.9.7"
   }
 }
