@@ -6,7 +6,7 @@ import {
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
-import { db } from '../index.js';
+import { db } from '../conn.js';
 
 export const getMigrator = () => {
   const migrator = new Migrator({

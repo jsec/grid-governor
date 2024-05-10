@@ -6,14 +6,14 @@ import { withTimestamps } from '../utils.js';
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
     .createTable('platforms')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('name', 'varchar(255)', col => col.notNull())
     .$call(withTimestamps)
     .execute();
 
   await db.schema
     .createTable('leagues')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('name', 'varchar(50)', col => col.notNull())
     .addColumn('description', 'varchar(255)', col => col.notNull())
     .$call(withTimestamps)
@@ -21,7 +21,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable('penalties')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('name', 'varchar(50)', col => col.notNull())
     .addColumn('description', 'varchar(255)', col => col.notNull())
     .$call(withTimestamps)
@@ -29,7 +29,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable('drivers')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('first_name', 'varchar(50)', col => col.notNull())
     .addColumn('last_name', 'varchar(50)', col => col.notNull())
     .addColumn('steam_id', 'varchar(100)')
@@ -39,11 +39,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable('seasons')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('name', 'varchar(50)', col => col.notNull())
     .addColumn('description', 'varchar(255)', col => col.notNull())
     .addColumn('league_id', 'integer', col => col.notNull().references('leagues.id'))
-    .addColumn('platform_id', 'integer', col => col.notNull().references('platform.id'))
+    .addColumn('platform_id', 'integer', col => col.notNull().references('platforms.id'))
     .addColumn('start_date', 'date', col => col.notNull())
     .addColumn('end_date', 'date')
     .$call(withTimestamps)
@@ -51,7 +51,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable('registrations')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('driver_id', 'integer', col => col.notNull().references('drivers.id'))
     .addColumn('season_id', 'integer', col => col.notNull().references('seasons.id'))
     .$call(withTimestamps)
@@ -59,18 +59,18 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable('races')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('name', 'varchar(50)', col => col.notNull())
     .addColumn('league_id', 'integer', col => col.notNull().references('leagues.id'))
     .addColumn('season_id', 'integer', col => col.notNull().references('seasons.id'))
     .addColumn('week', 'integer', col => col.notNull())
-    .addColumn('time', 'timestamp', col => col.notNull())
+    .addColumn('time', 'timestamptz', col => col.notNull())
     .$call(withTimestamps)
     .execute();
 
   await db.schema
     .createTable('incidents')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('race_id', 'integer', col => col.notNull().references('races.id'))
     .addColumn('driver_id', 'integer', col => col.notNull().references('drivers.id'))
     .addColumn('reporting_driver_id', 'integer', col => col.notNull().references('drivers.id'))
@@ -81,7 +81,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .createTable('rulings')
-    .addColumn('id', 'integer', col => col.primaryKey())
+    .addColumn('id', 'serial', col => col.primaryKey())
     .addColumn('incident_id', 'integer', col => col.notNull().references('incidents.id'))
     .addColumn('penalty_id', 'integer', col => col.notNull().references('penalties.id'))
     .$call(withTimestamps)
