@@ -2,7 +2,7 @@ import type {
   Generated, Insertable, Selectable, Updateable
 } from 'kysely';
 
-export interface LeagueSchema {
+export interface PenaltySchema {
   createdAt: Generated<Date>,
   description: string,
   id: Generated<number>,
@@ -10,6 +10,6 @@ export interface LeagueSchema {
   updatedAt: Generated<Date>,
 }
 
-export type League = Selectable<LeagueSchema>;
-export type NewLeague = Insertable<LeagueSchema>;
-export type LeagueUpdate = Updateable<LeagueSchema>;
+export type Penalty = Selectable<PenaltySchema>;
+export type NewPenalty = Insertable<PenaltySchema>;
+export type PenaltyUpdate = Updateable<PenaltySchema>;
