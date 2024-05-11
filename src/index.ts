@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/default
-import AutoLoad from '@fastify/autoload';
+import autoLoad from '@fastify/autoload';
 import fastify from 'fastify';
 import dns from 'node:dns';
 import { join } from 'node:path';
@@ -13,8 +13,15 @@ const server = fastify({
   logger: getLoggerByEnv[env.NODE_ENV]
 });
 
-server.register(AutoLoad, {
+// Load plugins
+server.register(autoLoad, {
   dir: join(import.meta.dirname, 'plugins')
+});
+
+// Load routes
+server.register(autoLoad, {
+  dir: join(import.meta.dirname, 'routes'),
+  matchFilter: path => path.includes('routes.ts')
 });
 
 server.get('/ping', async () => {

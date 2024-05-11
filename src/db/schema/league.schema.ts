@@ -1,13 +1,19 @@
 import type {
-  Generated, Insertable, Selectable, Updateable
+  ColumnType,
+  Generated,
+  Insertable,
+  Selectable,
+  Updateable
 } from 'kysely';
 
+export type Timestamp = ColumnType<Date, Date | string | undefined, Date | string>;
+
 export interface LeagueSchema {
-  createdAt: Generated<Date>,
+  createdAt: Timestamp,
   description: string,
   id: Generated<number>,
   name: string,
-  updatedAt: Generated<Date>,
+  updatedAt: Timestamp,
 }
 
 export type League = Selectable<LeagueSchema>;
