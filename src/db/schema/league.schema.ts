@@ -6,7 +6,7 @@ import type {
   Updateable
 } from 'kysely';
 
-export type Timestamp = ColumnType<Date, Date | string | undefined, Date | string>;
+export type Timestamp = ColumnType<Date, string | undefined, never>;
 
 export interface LeagueSchema {
   createdAt: Timestamp,
