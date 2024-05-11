@@ -10,7 +10,7 @@
   "scripts": {
     "prepare": "husky",
     "build": "tsc",
-    "start": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --import=tsimp/import --watch --no-warnings=ExperimentalWarning src/index.ts",
+    "start": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --import=tsimp/import --watch --no-warnings=ExperimentalWarning src/server.ts",
     "migrate:create": "tsimp src/db/scripts/migrate-create.ts && kysely-codegen",
     "migrate:down": "tsimp src/db/scripts/migrate-down.ts && kysely-codegen",
     "migrate:latest": "tsimp src/db/scripts/migrate-latest.ts && kysely-codegen",

@@ -3,7 +3,9 @@ import type { FastifyPluginAsyncTypebox, Static } from '@fastify/type-provider-t
 import { Type } from '@sinclair/typebox';
 import fp from 'fastify-plugin';
 
-import { createLeague, updateLeague } from '../services/league.service.js';
+import {
+  createLeague, getLeagueById, updateLeague
+} from '../services/league.service.js';
 
 const League = Type.Object({
   createdAt: Type.Unsafe<Date | string>({ format: 'date-time' }),
@@ -42,6 +44,14 @@ const updateSchema = {
   tags: [ 'League' ]
 };
 
+const getSchema = {
+  params: Params,
+  response: {
+    200: League
+  },
+  tags: [ 'League' ]
+};
+
 const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: LeagueRequest, Reply: League }>(
     '/league',
@@ -52,12 +62,20 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
+  server.get<{ Params: Params, Reply: League }>(
+    '/league/:id',
+    { schema: getSchema },
+    async (req, res) => {
+      const league = await getLeagueById(req.params.id);
+      res.status(200).send(league);
+    }
+  );
+
   server.put<{ Body: League, Params: Params, Reply: League }>(
     '/league/:id',
     { schema: updateSchema },
     async (req, res) => {
-      const { id } = req.params;
-      const update = await updateLeague(id, req.body);
+      const update = await updateLeague(req.params.id, req.body);
       res.status(200).send(update);
     }
   );

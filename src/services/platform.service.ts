@@ -35,6 +35,5 @@ export const deletePlatform = async (id: number): Promise<DeleteResult> => {
   return db
     .deleteFrom('platforms')
     .where('id', '=', id)
-    .clearReturning()
     .executeTakeFirstOrThrow();
 };
