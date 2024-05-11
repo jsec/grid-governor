@@ -1,23 +1,21 @@
 import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
+import scalar from '@scalar/fastify-api-reference';
 import fp from 'fastify-plugin';
 
 export default fp(async (server) => {
-  await server.register(swagger);
-  await server.register(swaggerUi, {
-    routePrefix: '/docs',
-    staticCSP: true,
-    transformSpecification: (spec) => { return spec; },
-    transformSpecificationClone: true,
-    transformStaticCSP: header => header,
-    uiConfig: {
-      deepLinking: false,
-      docExpansion: 'full'
-    },
-    uiHooks: {
-      onRequest: function (_req, _res, next) { next(); },
-      preHandler: function (_req, _res, next) { next(); }
+  await server.register(swagger, {
+    openapi: {
+      info: {
+        description: 'API documentation for the Grid Governor backend',
+        title: 'Grid Governor API',
+        version: '0.1.0'
+      },
+      openapi: '3.0.0',
     }
+  });
+
+  await server.register(scalar, {
+    routePrefix: '/docs'
   });
 });
 

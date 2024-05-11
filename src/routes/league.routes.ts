@@ -23,7 +23,8 @@ const createSchema = {
   }),
   response: {
     201: League,
-  }
+  },
+  tags: [ 'League' ]
 };
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
