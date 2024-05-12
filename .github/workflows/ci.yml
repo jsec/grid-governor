@@ -22,4 +22,5 @@ jobs:
       uses: ./.github/actions/node-setup
 
     - name: Typecheck
+      shell: bash
       run: tsc --no-emit
