@@ -9,6 +9,11 @@ runs:
       with:
         node-version: 20
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2.2.4
+      with:
+        version: 9
+
     - name: Get pnpm cache directory
       shell: bash
       run: |
