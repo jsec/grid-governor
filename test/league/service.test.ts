@@ -7,9 +7,9 @@ import {
   deleteLeague,
   getLeagueById,
   updateLeague
-} from '../../src/services/league.service.js';
+} from '../../src/modules/league/service.js';
 
-test('Should create a new league', async (t) => {
+test('should create a new league', async (t) => {
   const newLeague = {
     description: 'New League',
     name: 'League 1'
@@ -30,7 +30,7 @@ test('Should create a new league', async (t) => {
   });
 });
 
-test('Should return a league by id', async (t) => {
+test('should return a league by id', async (t) => {
   const existing = await createLeague({
     description: 'An existing league',
     name: 'Existing League'
@@ -54,7 +54,7 @@ test('Get should return the correct error when a league is not found by id', asy
   }, { instanceOf: NoResultError });
 });
 
-test('Should update an existing league', async (t) => {
+test('should update an existing league', async (t) => {
   const existing = await createLeague({
     description: 'Existing league',
     name: 'Existing'
@@ -80,7 +80,7 @@ test('Should update an existing league', async (t) => {
   });
 });
 
-test('Should delete an existing league', async (t) => {
+test('should delete an existing league', async (t) => {
   const existing = await createLeague({
     description: 'Existing league',
     name: 'Existing'

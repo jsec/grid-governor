@@ -1,12 +1,12 @@
-import {
+import type {
   Generated, Insertable, Selectable, Updateable
 } from 'kysely';
 
 export interface PlatformSchema {
-  created_at: Generated<Date>,
+  createdAt: Generated<Date>,
   id: Generated<number>,
   name: string,
-  updated_at: Generated<Date>,
+  updatedAt: Generated<Date>,
 }
 
 export type Platform = Selectable<PlatformSchema>;
