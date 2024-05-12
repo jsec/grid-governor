@@ -1,61 +1,22 @@
-import type { FastifyPluginAsyncTypebox, Static } from '@fastify/type-provider-typebox';
+import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
-import { Type } from '@sinclair/typebox';
 import fp from 'fastify-plugin';
 
+import type {
+  League, LeagueRequest, Params
+} from './types.js';
+
+import {
+  CreateLeagueSchema, GetLeagueSchema, UpdateLeagueSchema
+} from './schema.js';
 import {
   createLeague, getLeagueById, updateLeague
 } from './service.js';
 
-const League = Type.Object({
-  createdAt: Type.Unsafe<Date | string>({ format: 'date-time' }),
-  description: Type.String(),
-  id: Type.Integer(),
-  name: Type.String(),
-  updatedAt: Type.Unsafe<Date | string>({ format: 'date-time' }),
-});
-
-const LeagueRequest = Type.Object({
-  description: Type.String(),
-  name: Type.String(),
-});
-
-const Params = Type.Object({
-  id: Type.Integer()
-});
-
-type League = Static<typeof League>;
-type LeagueRequest = Static<typeof LeagueRequest>;
-type Params = Static<typeof Params>;
-
-const createSchema = {
-  body: LeagueRequest,
-  response: {
-    201: League,
-  },
-  tags: [ 'League' ]
-};
-
-const updateSchema = {
-  body: LeagueRequest,
-  response: {
-    200: League,
-  },
-  tags: [ 'League' ]
-};
-
-const getSchema = {
-  params: Params,
-  response: {
-    200: League
-  },
-  tags: [ 'League' ]
-};
-
 const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: LeagueRequest, Reply: League }>(
     '/league',
-    { schema: createSchema },
+    { schema: CreateLeagueSchema },
     async (req, res) => {
       const league = await createLeague(req.body);
       res.status(201).send(league);
@@ -64,7 +25,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.get<{ Params: Params, Reply: League }>(
     '/league/:id',
-    { schema: getSchema },
+    { schema: GetLeagueSchema },
     async (req, res) => {
       const league = await getLeagueById(req.params.id);
       res.status(200).send(league);
@@ -73,7 +34,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.put<{ Body: League, Params: Params, Reply: League }>(
     '/league/:id',
-    { schema: updateSchema },
+    { schema: UpdateLeagueSchema },
     async (req, res) => {
       const update = await updateLeague(req.params.id, req.body);
       res.status(200).send(update);
