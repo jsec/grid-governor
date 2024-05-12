@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Node Setup
+      uses: ./.github/actions/node-setup
+
+    - name: Typecheck
+      shell: bash
+      run: tsc --noEmit
