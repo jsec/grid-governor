@@ -15,7 +15,7 @@
     "migrate:down": "tsimp src/db/scripts/migrate-down.ts && kysely-codegen",
     "migrate:latest": "tsimp src/db/scripts/migrate-latest.ts && kysely-codegen",
     "migrate:up": "tsimp src/db/scripts/migrate-up.ts && kysely-codegen",
-    "test": "ava",
+    "test": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 ava",
     "lint": "eslint --ext .js . --max-warnings 0"
   },
   "config": {
