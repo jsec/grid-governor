@@ -2,11 +2,13 @@ import type {
   Generated, Insertable, Selectable, Updateable
 } from 'kysely';
 
+import type { Timestamp } from './schema.types.js';
+
 export interface PlatformSchema {
-  createdAt: Generated<Date>,
+  createdAt: Timestamp,
   id: Generated<number>,
   name: string,
-  updatedAt: Generated<Date>,
+  updatedAt: Timestamp,
 }
 
 export type Platform = Selectable<PlatformSchema>;
