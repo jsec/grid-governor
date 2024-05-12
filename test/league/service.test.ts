@@ -7,7 +7,7 @@ import {
   deleteLeague,
   getLeagueById,
   updateLeague
-} from '../../src/services/league.service.js';
+} from '../../src/modules/league/service.js';
 
 test('should create a new league', async (t) => {
   const newLeague = {

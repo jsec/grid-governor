@@ -5,7 +5,7 @@ import fp from 'fastify-plugin';
 
 import {
   createLeague, getLeagueById, updateLeague
-} from '../services/league.service.js';
+} from './service.js';
 
 const League = Type.Object({
   createdAt: Type.Unsafe<Date | string>({ format: 'date-time' }),

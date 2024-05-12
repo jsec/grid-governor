@@ -2,9 +2,9 @@ import { DeleteResult } from 'kysely';
 
 import type {
   NewPlatform, Platform, PlatformUpdate
-} from '../db/schema/platform.schema.js';
+} from '../../db/schema/platform.schema.js';
 
-import { db } from '../db/conn.js';
+import { db } from '../../db/conn.js';
 
 export const createPlatform = async (platform: NewPlatform): Promise<Platform> => {
   return db

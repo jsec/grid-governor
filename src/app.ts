@@ -18,8 +18,8 @@ export const createApp = () => {
 
   // Load routes
   app.register(autoLoad, {
-    dir: join(import.meta.dirname, 'routes'),
-    matchFilter: path => path.includes('routes.ts')
+    dir: join(import.meta.dirname, 'modules'),
+    matchFilter: path => path.includes('router.ts')
   });
 
   return app;

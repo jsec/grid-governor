@@ -2,9 +2,9 @@ import type { DeleteResult } from 'kysely';
 
 import type {
   League, LeagueUpdate, NewLeague
-} from '../db/schema/league.schema.js';
+} from '../../db/schema/league.schema.js';
 
-import { db } from '../db/conn.js';
+import { db } from '../../db/conn.js';
 
 export const createLeague = async (league: NewLeague): Promise<League> => {
   return db
