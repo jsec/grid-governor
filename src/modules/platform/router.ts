@@ -23,7 +23,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   );
 
   server.get<{ Params: Params, Reply: Platform }>(
-    '/league/:id',
+    '/platform/:id',
     { schema: GetPlatformSchema },
     async (req, res) => {
       const platform = await getPlatformById(req.params.id);
@@ -32,7 +32,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   );
 
   server.put<{ Body: Platform, Params: Params, Reply: Platform }>(
-    '/league/:id',
+    '/platform/:id',
     { schema: UpdatePlatformSchema },
     async (req, res) => {
       const update = await updatePlatform(req.params.id, req.body);
