@@ -1,12 +1,11 @@
 import type {
-  ColumnType,
   Generated,
   Insertable,
   Selectable,
   Updateable
 } from 'kysely';
 
-export type Timestamp = ColumnType<Date, string | undefined, never>;
+import type { Timestamp } from './schema.types.js';
 
 export interface LeagueSchema {
   createdAt: Timestamp,

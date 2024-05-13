@@ -7,7 +7,7 @@ import {
   deletePlatform,
   getPlatformById,
   updatePlatform
-} from '../../src/modules/platform/platform.service.js';
+} from '../../src/modules/platform/service.js';
 
 test('should create a new platform', async (t) => {
   const newPlatform = {
