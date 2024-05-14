@@ -15,7 +15,7 @@ import {
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: DriverRequest, Reply: Driver }>(
-    '/league',
+    '/driver',
     { schema: CreateDriverSchema },
     async (req, res) => {
       const league = await createDriver(req.body);
@@ -24,7 +24,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   );
 
   server.get<{ Params: Params, Reply: Driver }>(
-    '/league/:id',
+    '/driver/:id',
     { schema: GetDriverSchema },
     async (req, res) => {
       const league = await getDriverById(req.params.id);
@@ -33,7 +33,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   );
 
   server.put<{ Body: Driver, Params: Params, Reply: Driver }>(
-    '/league/:id',
+    '/driver/:id',
     { schema: UpdateDriverSchema },
     async (req, res) => {
       const update = await updateDriver(req.params.id, req.body);
