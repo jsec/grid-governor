@@ -7,7 +7,7 @@ export const CreateLeagueSchema = {
   response: {
     201: League,
   },
-  tags: [ 'League' ]
+  tags: [ 'Leagues' ]
 };
 
 export const UpdateLeagueSchema = {
@@ -15,7 +15,7 @@ export const UpdateLeagueSchema = {
   response: {
     200: League,
   },
-  tags: [ 'League' ]
+  tags: [ 'Leagues' ]
 };
 
 export const GetLeagueSchema = {
@@ -23,5 +23,5 @@ export const GetLeagueSchema = {
   response: {
     200: League
   },
-  tags: [ 'League' ]
+  tags: [ 'Leagues' ]
 };

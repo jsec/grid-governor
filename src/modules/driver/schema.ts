@@ -7,7 +7,7 @@ export const CreateDriverSchema = {
   response: {
     201: Driver
   },
-  tags: [ 'Driver' ]
+  tags: [ 'Drivers' ]
 };
 
 export const UpdateDriverSchema = {
@@ -15,7 +15,7 @@ export const UpdateDriverSchema = {
   response: {
     200: Driver
   },
-  tags: [ 'Driver' ]
+  tags: [ 'Drivers' ]
 };
 
 export const GetDriverSchema = {
@@ -23,5 +23,5 @@ export const GetDriverSchema = {
   response: {
     200: Driver
   },
-  tags: [ 'League' ]
+  tags: [ 'Drivers' ]
 };

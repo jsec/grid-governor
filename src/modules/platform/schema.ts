@@ -7,7 +7,7 @@ export const CreatePlatformSchema = {
   response: {
     201: Platform
   },
-  tags: [ 'Platform' ]
+  tags: [ 'Platforms' ]
 };
 
 export const UpdatePlatformSchema = {
@@ -16,7 +16,7 @@ export const UpdatePlatformSchema = {
   response: {
     200: Platform
   },
-  tags: [ 'Platform' ]
+  tags: [ 'Platforms' ]
 };
 
 export const GetPlatformSchema = {
@@ -24,5 +24,5 @@ export const GetPlatformSchema = {
   response: {
     200: Platform
   },
-  tags: [ 'Platform' ]
+  tags: [ 'Platforms' ]
 };
