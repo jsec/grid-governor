@@ -16,6 +16,7 @@
     "migrate:latest": "tsx src/db/scripts/migrate-latest.ts",
     "migrate:up": "tsx src/db/scripts/migrate-up.ts",
     "test": "vitest",
+    "test:ci": "vitest run",
     "lint": "eslint --ext .js . --max-warnings 0"
   },
   "config": {
