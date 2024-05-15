@@ -1,103 +1,85 @@
-import test from 'ava';
 import { NoResultError } from 'kysely';
-
-import { db } from '../../src/db/conn.js';
 import {
-  createPlatform,
-  deletePlatform,
-  getPlatformById,
-  updatePlatform
+  describe, expect, onTestFinished
+} from 'vitest';
+
+import {
+  createPlatform, deletePlatform, getPlatformById, updatePlatform
 } from '../../src/modules/platform/service.js';
+import { test } from '../context.js';
+import { platformBuilder } from '../data/platform.builder.js';
 
-test('should create a new platform', async (t) => {
-  const newPlatform = {
-    name: 'iRenting'
-  };
+describe('Platform service', () => {
+  test('should create a new platform', async ({ db }) => {
+    const platform = platformBuilder.one();
+    const result = await createPlatform(platform);
 
-  const result = await createPlatform(newPlatform);
+    expect(result.name).to.equal(platform.name);
+    expect(result.id).to.not.be.null;
 
-  t.like(result, {
-    name: newPlatform.name
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('platforms')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('platforms')
-      .where('id', '=', result.id)
-      .execute();
-  });
-});
+  test('should return a platform by id', async ({ db }) => {
+    const existing = await createPlatform({
+      name: 'existing platform'
+    });
 
-test('should return a platform by id', async (t) => {
-  const existing = await createPlatform({
-    name: 'Some Existing Platform'
-  });
+    const result = await getPlatformById(existing.id);
 
-  const result = await getPlatformById(existing.id);
+    expect(result.id).to.equal(existing.id);
+    expect(result.name).to.equal(existing.name);
 
-  t.like(result, existing);
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('platforms')
-      .where('id', '=', result.id)
-      .execute();
-  });
-});
-
-test('Get should return the correct error when a platform is not found by id', async (t) => {
-  await t.throwsAsync(async () => {
-    await getPlatformById(999_999);
-  }, { instanceOf: NoResultError });
-});
-
-test('should update an existing platform', async (t) => {
-  const existing = await createPlatform({
-    name: 'Test Update'
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('platforms')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  const update = {
-    name: 'Updated Platform Name'
-  };
-
-  const result = await updatePlatform(existing.id, update);
-
-  t.like(result, {
-    id: existing.id,
-    name: update.name
+  test('should return a NoResultError when a platform is not found by id', async () => {
+    await expect(getPlatformById(999_999)).rejects.toThrow(NoResultError);
   });
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('platforms')
-      .where('id', '=', existing.id)
-      .execute();
+  test('should update an existing platform', async ({ db }) => {
+    const existing = await createPlatform(platformBuilder.one());
+    existing.name = 'updated name';
+
+    const result = await updatePlatform(existing.id, existing);
+    expect(result.name).to.equal(existing.name);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('platforms')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
-});
 
-test('should delete an existing platform', async (t) => {
-  const existing = await createPlatform({
-    name: 'Platform Delete Test'
+  test('should delete an existing platform', async ({ db }) => {
+    const existing = await createPlatform(platformBuilder.one());
+
+    const result = await deletePlatform(existing.id);
+
+    expect(Number(result.numDeletedRows)).to.equal(1);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('platforms')
+        .where('id', '=', existing.id)
+        .execute();
+    });
   });
 
-  const result = await deletePlatform(existing.id);
+  test('should return 0 rows deleted when the platform is not found by id', async () => {
+    const result = await deletePlatform(999_999);
 
-  t.is(Number(result.numDeletedRows), 1);
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('platforms')
-      .where('id', '=', existing.id)
-      .execute();
+    expect(Number(result.numDeletedRows)).to.equal(0);
   });
-});
-
-test('Delete should return 0 rows deleted when the platform is not found by id', async (t) => {
-  const result = await deletePlatform(999_999);
-
-  t.is(Number(result.numDeletedRows), 0);
-});
-
-test.after.always('cleanup', async () => {
-  await db.destroy();
 });
