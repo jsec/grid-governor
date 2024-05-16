@@ -1,157 +1,143 @@
-import type { FastifyInstance } from 'fastify';
+import { StatusCodes } from 'http-status-codes';
+import {
+  describe, expect, onTestFinished
+} from 'vitest';
 
-import anyTest, { type TestFn } from 'ava';
-
-import { createApp } from '../../src/app.js';
-import { db } from '../../src/db/conn.js';
 import { createPenalty } from '../../src/modules/penalty/service.js';
+import { penaltyBuilder } from '../builders/penalty.builder.js';
+import { test } from '../context.js';
 
-const test = anyTest as TestFn<{ server: FastifyInstance }>;
+describe('Penalty API', () => {
+  describe('POST', () => {
+    test('should return a 400 when the name is not provided', async ({ app }) => {
+      const response = await app.inject({
+        method: 'POST',
+        payload: {
+          description: 'desc'
+        },
+        url: '/penalty'
+      });
 
-test.before((t) => {
-  t.context.server = createApp();
-});
+      expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
+      expect(response.statusMessage).to.equal('Bad Request');
+    });
 
-test('POST - should return a 400 when the penalty name is not provided', async (t) => {
-  const response = await t.context.server.inject({
-    method: 'POST',
-    payload: {
-      description: 'description'
-    },
-    url: '/penalty'
+    test('should return a 400 when the description is not provided', async ({ app }) => {
+      const response = await app.inject({
+        method: 'POST',
+        payload: {
+          name: 'name'
+        },
+        url: '/penalty'
+      });
+
+      expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
+      expect(response.statusMessage).to.equal('Bad Request');
+    });
+
+    test('should create a new penalty', async ({ app, db }) => {
+      const payload = penaltyBuilder.one();
+
+      const response = await app.inject({
+        method: 'POST',
+        payload,
+        url: '/penalty'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).toEqual(StatusCodes.CREATED);
+      expect(body.id).to.not.be.null;
+      expect(body.name).to.equal(payload.name);
+      expect(body.description).to.equal(payload.description);
+
+      onTestFinished(async () => {
+        await db
+          .deleteFrom('penalties')
+          .where('id', '=', body.id)
+          .execute();
+      });
+    });
   });
 
-  t.is(response.statusCode, 400, 'Expected 400');
-  t.is(response.statusMessage, 'Bad Request', 'Expected Bad Request');
-});
+  describe('GET', () => {
+    test.todo('GET - should return a 404 if no penalty with the given id exists');
 
-test('POST - should return a 400 when the penalty description is not provided', async (t) => {
-  const response = await t.context.server.inject({
-    method: 'POST',
-    payload: {
-      name: 'name'
-    },
-    url: '/penalty'
+    test('should return a penalty by id', async ({ app, db }) => {
+      const penalty = await createPenalty(penaltyBuilder.one());
+
+      const response = await app.inject({
+        method: 'GET',
+        url: `/penalty/${penalty.id}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body.id).to.equal(penalty.id);
+      expect(body.name).to.equal(penalty.name);
+      expect(body.description).to.equal(penalty.description);
+
+      onTestFinished(async () => {
+        await db
+          .deleteFrom('penalties')
+          .where('id', '=', body.id)
+          .execute();
+      });
+    });
   });
 
-  t.is(response.statusCode, 400, 'Expected 400');
-  t.is(response.statusMessage, 'Bad Request', 'Expected Bad Request');
-});
+  describe('PUT', () => {
+    test.todo('PUT - should return a 404 if no penalty with the given id exists');
 
-test('POST - should create a new penalty', async (t) => {
-  const payload = {
-    description: 'test penalty description',
-    name: 'test penalty name'
-  };
+    test('should update a penalty name', async ({ app, db }) => {
+      const penalty = await createPenalty(penaltyBuilder.one());
 
-  const response = await t.context.server.inject({
-    method: 'POST',
-    payload,
-    url: '/penalty'
+      penalty.name = 'Updated name';
+
+      const response = await app.inject({
+        method: 'PUT',
+        payload: penalty,
+        url: `/penalty/${penalty.id}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body.id).to.equal(penalty.id);
+      expect(body.name).to.equal(penalty.name);
+
+      onTestFinished(async () => {
+        await db
+          .deleteFrom('penalties')
+          .where('id', '=', body.id)
+          .execute();
+      });
+    });
+
+    test('should update a penalty description', async ({ app, db }) => {
+      const penalty = await createPenalty(penaltyBuilder.one());
+
+      penalty.description = 'Updated description';
+
+      const response = await app.inject({
+        method: 'PUT',
+        payload: penalty,
+        url: `/penalty/${penalty.id}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body.id).to.equal(penalty.id);
+      expect(body.description).to.equal(penalty.description);
+
+      onTestFinished(async () => {
+        await db
+          .deleteFrom('penalties')
+          .where('id', '=', body.id)
+          .execute();
+      });
+    });
   });
-
-  const body = response.json();
-
-  t.is(response.statusCode, 201, 'Expected 201');
-  t.like(body, payload);
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('penalties')
-      .where('id', '=', body.id)
-      .execute();
-  });
-});
-
-test.todo('GET - should return a 404 if no penalty with the given id exists');
-
-test('GET - should return a penalty by id', async (t) => {
-  const penalty = await createPenalty({
-    description: 'Some words',
-    name: 'Test Penalty - Get'
-  });
-
-  const response = await t.context.server.inject({
-    method: 'GET',
-    url: `/penalty/${penalty.id}`
-  });
-
-  const body = response.json();
-
-  t.is(response.statusCode, 200, 'Expected 200');
-  t.like(body, {
-    description: penalty.description,
-    id: penalty.id,
-    name: penalty.name
-  }, 'Expected response to match database entity');
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('penalties')
-      .where('id', '=', penalty.id)
-      .execute();
-  });
-});
-
-test.todo('PUT - should return a 404 if no penalty with the given id exists');
-
-test('PUT - should update a penalty name', async (t) => {
-  const penalty = await createPenalty({
-    description: 'Desc',
-    name: 'Name'
-  });
-
-  penalty.name = 'Updated name';
-
-  const response = await t.context.server.inject({
-    method: 'PUT',
-    payload: penalty,
-    url: `/penalty/${penalty.id}`
-  });
-
-  const body = response.json();
-
-  t.is(response.statusCode, 200, 'Expected 200');
-  t.is(body.name, penalty.name, 'Expected updated penalty name');
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('penalties')
-      .where('id', '=', penalty.id)
-      .execute();
-  });
-});
-
-test('PUT - should update a penalty description', async (t) => {
-  const penalty = await createPenalty({
-    description: 'Desc',
-    name: 'Name'
-  });
-
-  penalty.description = 'Updated description';
-
-  const response = await t.context.server.inject({
-    method: 'PUT',
-    payload: penalty,
-    url: `/penalty/${penalty.id}`
-  });
-
-  const body = response.json();
-
-  t.is(response.statusCode, 200, 'Expected 200');
-  t.is(body.description, penalty.description, 'Expected updated penalty description');
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('penalties')
-      .where('id', '=', penalty.id)
-      .execute();
-  });
-});
-
-// TODO: add tests for delete
-
-test.after.always(async (t) => {
-  t.context.server.close();
-  await db.destroy();
 });

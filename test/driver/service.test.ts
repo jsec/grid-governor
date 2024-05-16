@@ -1,110 +1,131 @@
-import test from 'ava';
 import { NoResultError } from 'kysely';
+import {
+  describe, expect, onTestFinished
+} from 'vitest';
 
-import { db } from '../../src/db/conn.js';
 import {
   createDriver, deleteDriver, getDriverById, updateDriver
 } from '../../src/modules/driver/service.js';
+import { driverBuilder } from '../builders/driver.builder.js';
+import { test } from '../context.js';
 
-test('should create a new driver', async (t) => {
-  const newDriver = {
-    discordId: 'cde',
-    firstName: 'Bob',
-    lastName: 'Jones',
-    steamId: 'abc'
-  };
+describe('Driver service', () => {
+  test('should create a new driver', async ({ db }) => {
+    const driver = driverBuilder.one();
+    const result = await createDriver(driver);
 
-  const result = await createDriver(newDriver);
+    expect(result.id).to.not.be.null;
+    expect(result).toMatchObject({
+      discordId: driver.discordId,
+      firstName: driver.firstName,
+      lastName: driver.lastName,
+      steamId: driver.steamId
+    });
 
-  t.like(result, newDriver, 'Expecting response to match request shape');
-  t.true(result.id !== null, 'Expecting a valid id');
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('drivers')
-      .where('id', '=', result.id)
-      .execute();
-  });
-});
-
-test('should return a driver by id', async (t) => {
-  const existing = await createDriver({
-    discordId: 'cde',
-    firstName: 'Bob',
-    lastName: 'Jones',
-    steamId: 'abc'
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  const result = await getDriverById(existing.id);
+  test('should return a driver by id', async ({ db }) => {
+    const driver = await createDriver(driverBuilder.one());
 
-  t.like(result, existing);
+    const result = await getDriverById(driver.id);
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('drivers')
-      .where('id', '=', result.id)
-      .execute();
-  });
-});
+    expect(result).toMatchObject({
+      discordId: driver.discordId,
+      firstName: driver.firstName,
+      id: driver.id,
+      lastName: driver.lastName,
+      steamId: driver.steamId
+    });
 
-test('Get should return the correct error when a league is not found by id', async (t) => {
-  await t.throwsAsync(async () => {
-    await getDriverById(999_999);
-  }, { instanceOf: NoResultError });
-});
-
-test('should update an existing driver', async (t) => {
-  const existing = await createDriver({
-    discordId: 'cde',
-    firstName: 'Bob',
-    lastName: 'Jones',
-    steamId: 'abc'
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  const result = await updateDriver(existing.id, {
-    ...existing,
-    lastName: 'Smith'
+  test('should return a NoResultError when a platform is not found by id', async () => {
+    await expect(getDriverById(999_999)).rejects.toThrow(NoResultError);
   });
 
-  t.like(result, {
-    ...existing,
-    lastName: 'Smith'
+  test("should update a driver's first name", async ({ db }) => {
+    const existing = await createDriver(driverBuilder.one());
+    existing.firstName = 'updated first name';
+
+    const result = await updateDriver(existing.id, existing);
+    expect(result.firstName).to.equal(existing.firstName);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('drivers')
-      .where('id', '=', existing.id)
-      .execute();
+  test("should update a driver's last name", async ({ db }) => {
+    const existing = await createDriver(driverBuilder.one());
+    existing.lastName = 'updated last name';
+
+    const result = await updateDriver(existing.id, existing);
+    expect(result.lastName).to.equal(existing.lastName);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
-});
 
-test('should delete an existing league', async (t) => {
-  const existing = await createDriver({
-    discordId: 'cde',
-    firstName: 'Bob',
-    lastName: 'Jones',
-    steamId: 'abc'
+  test("should update a driver's steam id", async ({ db }) => {
+    const existing = await createDriver(driverBuilder.one());
+    existing.steamId = '101010101';
+
+    const result = await updateDriver(existing.id, existing);
+    expect(result.steamId).to.equal(existing.steamId);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  const result = await deleteDriver(existing.id);
+  test("should update a driver's discord id", async ({ db }) => {
+    const existing = await createDriver(driverBuilder.one());
+    existing.discordId = '12345';
 
-  t.is(Number(result.numDeletedRows), 1);
+    const result = await updateDriver(existing.id, existing);
+    expect(result.discordId).to.equal(existing.discordId);
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('drivers')
-      .where('id', '=', existing.id)
-      .execute();
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
-});
 
-test('Delete should return 0 rows deleted when the league is not found by id', async (t) => {
-  const result = await deleteDriver(999_999);
+  test('should delete an existing driver', async () => {
+    const existing = await createDriver(driverBuilder.one());
 
-  t.is(Number(result.numDeletedRows), 0);
-});
+    const result = await deleteDriver(existing.id);
 
-test.after.always('cleanup', async () => {
-  await db.destroy();
+    expect(Number(result.numDeletedRows)).to.equal(1);
+  });
+
+  test('should return 0 rows deleted when the driver is not found by id', async () => {
+    const result = await deleteDriver(999_999);
+
+    expect(Number(result.numDeletedRows)).to.equal(0);
+  });
 });

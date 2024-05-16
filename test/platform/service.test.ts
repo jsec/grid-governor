@@ -6,8 +6,8 @@ import {
 import {
   createPlatform, deletePlatform, getPlatformById, updatePlatform
 } from '../../src/modules/platform/service.js';
+import { platformBuilder } from '../builders/platform.builder.js';
 import { test } from '../context.js';
-import { platformBuilder } from '../data/platform.builder.js';
 
 describe('Platform service', () => {
   test('should create a new platform', async ({ db }) => {
