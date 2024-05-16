@@ -1,109 +1,93 @@
-import test from 'ava';
 import { NoResultError } from 'kysely';
-
-import { db } from '../../src/db/conn.js';
 import {
-  createLeague,
-  deleteLeague,
-  getLeagueById,
-  updateLeague
+  describe, expect, onTestFinished
+} from 'vitest';
+
+import {
+  createLeague, deleteLeague, getLeagueById, updateLeague
 } from '../../src/modules/league/service.js';
+import { test } from '../context.js';
+import { leagueBuilder } from '../data/league.builder.js';
 
-test('should create a new league', async (t) => {
-  const newLeague = {
-    description: 'New League',
-    name: 'League 1'
-  };
+describe('League service', () => {
+  test('should create a new league', async ({ db }) => {
+    const league = leagueBuilder.one();
+    const result = await createLeague(league);
 
-  const result = await createLeague(newLeague);
+    expect(result.id).to.not.be.null;
+    expect(result.name).to.equal(league.name);
+    expect(result.description).to.equal(league.description);
 
-  t.like(result, {
-    description: newLeague.description,
-    name: newLeague.name
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('leagues')
-      .where('id', '=', result.id)
-      .execute();
-  });
-});
+  test('should return a league by id', async ({ db }) => {
+    const existing = await createLeague(leagueBuilder.one());
 
-test('should return a league by id', async (t) => {
-  const existing = await createLeague({
-    description: 'An existing league',
-    name: 'Existing League'
-  });
+    const result = await getLeagueById(existing.id);
 
-  const result = await getLeagueById(existing.id);
+    expect(result.id).to.equal(existing.id);
+    expect(result.name).to.equal(existing.name);
+    expect(result.description).to.equal(existing.description);
 
-  t.like(result, existing);
-
-  t.teardown(async () => {
-    await db
-      .deleteFrom('leagues')
-      .where('id', '=', result.id)
-      .execute();
-  });
-});
-
-test('Get should return the correct error when a league is not found by id', async (t) => {
-  await t.throwsAsync(async () => {
-    await getLeagueById(999_999);
-  }, { instanceOf: NoResultError });
-});
-
-test('should update an existing league', async (t) => {
-  const existing = await createLeague({
-    description: 'Existing league',
-    name: 'Existing'
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  const update = {
-    description: 'Existing league with updated description'
-  };
-
-  const result = await updateLeague(existing.id, update);
-
-  t.like(result, {
-    description: update.description,
-    id: existing.id,
-    name: existing.name
+  test('should return a NoResultError when a platform is not found by id', async () => {
+    await expect(getLeagueById(999_999)).rejects.toThrow(NoResultError);
   });
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('leagues')
-      .where('id', '=', existing.id)
-      .execute();
+  test('should update a league name', async ({ db }) => {
+    const existing = await createLeague(leagueBuilder.one());
+    existing.name = 'updated name';
+
+    const result = await updateLeague(existing.id, existing);
+    expect(result.name).to.equal(existing.name);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
-});
 
-test('should delete an existing league', async (t) => {
-  const existing = await createLeague({
-    description: 'Existing league',
-    name: 'Existing'
+  test('should update a league description', async ({ db }) => {
+    const existing = await createLeague(leagueBuilder.one());
+    existing.description = 'updated description';
+
+    const result = await updateLeague(existing.id, existing);
+    expect(result.name).to.equal(existing.name);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', result.id)
+        .execute();
+    });
   });
 
-  const result = await deleteLeague(existing.id);
+  test('should delete an existing league', async () => {
+    const existing = await createLeague(leagueBuilder.one());
 
-  t.is(Number(result.numDeletedRows), 1);
+    const result = await deleteLeague(existing.id);
 
-  t.teardown(async () => {
-    await db
-      .deleteFrom('leagues')
-      .where('id', '=', existing.id)
-      .execute();
+    expect(Number(result.numDeletedRows)).to.equal(1);
   });
-});
 
-test('Delete should return 0 rows deleted when the league is not found by id', async (t) => {
-  const result = await deleteLeague(999_999);
+  test('should return 0 rows deleted when the league is not found by id', async () => {
+    const result = await deleteLeague(999_999);
 
-  t.is(Number(result.numDeletedRows), 0);
-});
-
-test.after.always('cleanup', async () => {
-  await db.destroy();
+    expect(Number(result.numDeletedRows)).to.equal(0);
+  });
 });

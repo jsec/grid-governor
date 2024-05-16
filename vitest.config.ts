@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     server: {
       deps: {
-        inline: ['@fastify/autoload']
+        inline: [ '@fastify/autoload' ]
       }
     }
   },
