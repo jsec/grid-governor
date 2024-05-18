@@ -1,7 +1,7 @@
 import closeWithGrace, { type CloseWithGraceAsyncCallback } from 'close-with-grace';
 
 import { createApp } from './app.js';
-import { env } from './shared/env.js';
+import { env } from './common/env.js';
 
 const app = createApp();
 
