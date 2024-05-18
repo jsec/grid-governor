@@ -2,8 +2,10 @@ import type {
   Generated, Insertable, Selectable, Updateable
 } from 'kysely';
 
+import type { Timestamp } from './schema.types.js';
+
 export interface SeasonSchema {
-  createdAt: Generated<Date>,
+  createdAt: Timestamp,
   description: string,
   endDate: Date | null,
   id: Generated<number>,
@@ -11,7 +13,7 @@ export interface SeasonSchema {
   name: string,
   platformId: number,
   startDate: Date,
-  updatedAt: Generated<Date>,
+  updatedAt: Timestamp,
 }
 
 export type Season = Selectable<SeasonSchema>;

@@ -5,7 +5,7 @@ import pg from 'pg';
 
 import type { Database } from './schema/schema.js';
 
-import { env } from '../shared/env.js';
+import { env } from '../common/env.js';
 
 const dialect = new PostgresDialect({
   pool: new pg.Pool({

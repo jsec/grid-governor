@@ -3,8 +3,8 @@ import autoLoad from '@fastify/autoload';
 import fastify from 'fastify';
 import { join } from 'node:path';
 
-import { env } from './shared/env.js';
-import { getLoggerByEnv } from './shared/logger.js';
+import { env } from './common/env.js';
+import { getLoggerByEnv } from './common/logger.js';
 
 export const createApp = () => {
   const app = fastify({

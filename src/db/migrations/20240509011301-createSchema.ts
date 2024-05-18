@@ -1,7 +1,7 @@
 /* eslint-disable unicorn/filename-case */
 import { type Kysely } from 'kysely';
 
-import { withTimestamps } from '../utils.js';
+import { withTimestamps } from '../builders/timestamp.js';
 
 export async function up(db: Kysely<unknown>): Promise<void> {
   await db.schema
