@@ -1,64 +1,70 @@
 import type { DeleteResult } from 'kysely';
 
 import {
-  ResultAsync, fromPromise
+  Result,
+  ResultAsync,
+  errAsync,
+  okAsync
 } from 'neverthrow';
 
 import type {
   NewSeason, Season, SeasonUpdate
 } from '../../db/schema/season.schema.js';
-import type { DatabaseError } from '../../types/errors/database.errors.js';
 
 import { db } from '../../db/conn.js';
-import { isDatabaseError } from '../../types/guards.js';
+import { AppError, ErrorCode } from '../../types/errors/app.error.js';
+import { isPostgresError } from '../../types/guards.js';
 
-const handleDatabaseError = (err: unknown) => {
-  if (isDatabaseError(err)) {
-    return err;
+const handleDatabaseError = (err: unknown): AppError => {
+  if (isPostgresError(err)) {
+    return AppError.fromPostgresError(err);
   }
 
-  throw err;
+  return AppError.fromError(err as Error, ErrorCode.DATABASE_ERROR);
 };
 
-export const createSeason = (season: NewSeason): ResultAsync<Season, DatabaseError> => {
-  const result = db
-    .insertInto('seasons')
+export const createSeason = (season: NewSeason): ResultAsync<Season, AppError> => {
+  return ResultAsync.fromThrowable(() => db.insertInto('seasons')
     .values(season)
     .returningAll()
-    .executeTakeFirstOrThrow();
-
-  return fromPromise(result, handleDatabaseError);
+    .executeTakeFirstOrThrow(),
+  handleDatabaseError)();
 };
 
-export const getSeasonById = (id: number): ResultAsync<Season, DatabaseError> => {
-  const result = db
+export const getSeasonById = (id: number): ResultAsync<Season, AppError> => {
+  return ResultAsync.fromThrowable(() => db
     .selectFrom('seasons')
     .where('id', '=', id)
     .selectAll()
-    .executeTakeFirstOrThrow();
-
-  return fromPromise(result, handleDatabaseError);
+    .executeTakeFirstOrThrow(), handleDatabaseError)();
 };
 
 export const updateSeason = (
   id: number,
   season: SeasonUpdate
-): ResultAsync<Season, DatabaseError> => {
-  const result = db
-    .updateTable('seasons')
+): ResultAsync<Season, AppError> => {
+  return ResultAsync.fromThrowable(() => db.updateTable('seasons')
     .where('id', '=', id)
     .set(season)
     .returningAll()
-    .executeTakeFirstOrThrow();
-
-  return fromPromise(result, handleDatabaseError);
+    .executeTakeFirstOrThrow(), handleDatabaseError)();
 };
 
-export const deleteSeason = (id: number): ResultAsync<DeleteResult, DatabaseError> => {
-  const result = db
+export const deleteSeason = async (id: number): Promise<Result<DeleteResult, AppError>> => {
+  const result = await db
     .deleteFrom('seasons')
     .where('id', '=', id)
     .executeTakeFirstOrThrow();
 
-  return fromPromise(result, handleDatabaseError);
+  if (Number(result.numDeletedRows) === 0) {
+    return errAsync(
+      new AppError(
+        ErrorCode.NOT_FOUND,
+        `Season with id ${id} was not found`,
+        'Not Found'
+      )
+    );
+  }
+
+  return okAsync(result);
 };

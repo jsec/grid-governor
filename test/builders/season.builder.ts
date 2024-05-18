@@ -17,6 +17,7 @@ export const seasonRecordBuilder = build('season', {
     createdAt: perBuild(() => new Date().toISOString()),
     description: perBuild(() => faker.company.catchPhrase()),
     endDate: perBuild(() => new Date()),
+    id: perBuild(() => faker.number.int()),
     leagueId: perBuild(() => 3),
     name: perBuild(() => faker.company.name()),
     platformId: perBuild(() => 4),
