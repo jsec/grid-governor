@@ -2,9 +2,10 @@ import {
   describe, expect, test
 } from 'vitest';
 
-import { isRecord } from '../../src/types/guards.js';
+import { type DatabaseError, PostgresErrorCode } from '../../src/types/errors/database.errors.js';
+import { isDatabaseError, isRecord } from '../../src/types/guards.js';
 
-describe.only('Type guards', () => {
+describe('Type guards', () => {
   describe('isRecord', () => {
     test('should return false if the value is an array', () => {
       const value = [ 3 ];
@@ -23,8 +24,7 @@ describe.only('Type guards', () => {
 
     test('should return false if the value is null', () => {
       // eslint-disable-next-line unicorn/no-null
-      const nullValue = null;
-      expect(isRecord(nullValue)).to.be.false;
+      expect(isRecord(null)).to.be.false;
     });
 
     test('should return false if the value is a primitive', () => {
@@ -37,6 +37,24 @@ describe.only('Type guards', () => {
       };
 
       expect(isRecord(value)).to.be.true;
+    });
+  });
+
+  describe('isDatabaseError', () => {
+    test('should return false for regular JavaScript errors', () => {
+      const error = new Error('some generic error');
+      expect(isDatabaseError(error)).to.be.false;
+    });
+
+    test('should return true for a ForeignKeyViolation error', () => {
+      const error: DatabaseError = {
+        code: PostgresErrorCode.ForeignKeyViolation,
+        column: '12',
+        detail: 'you cannot do that, mmkay?',
+        table: 'taybull'
+      };
+
+      expect(isDatabaseError(error)).to.be.true;
     });
   });
 });
