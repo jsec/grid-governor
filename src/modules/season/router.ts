@@ -16,7 +16,7 @@ import {
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: SeasonRequest, Reply: Season }>(
-    '/driver',
+    '/season',
     { schema: CreateSeasonSchema },
     async (req, res) => {
       const result = await createSeason(req.body);
@@ -29,7 +29,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   );
 
   server.get<{ Params: Params, Reply: Season }>(
-    '/driver/:id',
+    '/season/:id',
     { schema: GetSeasonSchema },
     async (req, res) => {
       const result = await getSeasonById(req.params.id);
@@ -42,7 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   );
 
   server.put<{ Body: Season, Params: Params, Reply: Season }>(
-    '/driver/:id',
+    '/season/:id',
     { schema: UpdateSeasonSchema },
     async (req, res) => {
       const result = await updateSeason(req.params.id, req.body);
