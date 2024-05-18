@@ -3,7 +3,7 @@ import {
 } from 'vitest';
 
 import { type DatabaseError, PostgresErrorCode } from '../../src/types/errors/database.errors.js';
-import { isDatabaseError, isRecord } from '../../src/types/guards.js';
+import { isPostgresError, isRecord } from '../../src/types/guards.js';
 
 describe('Type guards', () => {
   describe('isRecord', () => {
@@ -40,10 +40,10 @@ describe('Type guards', () => {
     });
   });
 
-  describe('isDatabaseError', () => {
+  describe('isPostgresError', () => {
     test('should return false for regular JavaScript errors', () => {
       const error = new Error('some generic error');
-      expect(isDatabaseError(error)).to.be.false;
+      expect(isPostgresError(error)).to.be.false;
     });
 
     test('should return true for a ForeignKeyViolation error', () => {
@@ -54,7 +54,8 @@ describe('Type guards', () => {
         table: 'taybull'
       };
 
-      expect(isDatabaseError(error)).to.be.true;
+      expect(isPostgresError(error)).to.be.true;
     });
   });
 });
+
