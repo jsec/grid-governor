@@ -39,7 +39,7 @@ export class AppError extends Error {
     return new AppError(ErrorCode.DATABASE_ERROR, err.detail, err.code);
   }
 
-  deriveStatusCode(): StatusCodes {
+  get statusCode(): StatusCodes {
     switch (this.code) {
       case ErrorCode.DATABASE_ERROR: {
         return StatusCodes.BAD_REQUEST;

@@ -23,6 +23,6 @@ export default fp<FastifyPluginAsyncTypebox>(async (app) => {
       return this.send(result.value);
     }
 
-    return this.status(result.error.deriveStatusCode()).send(result.error);
+    return this.status(result.error.statusCode).send(result.error);
   });
 });
