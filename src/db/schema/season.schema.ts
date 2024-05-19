@@ -2,17 +2,17 @@ import type {
   Generated, Insertable, Selectable, Updateable
 } from 'kysely';
 
-import type { Timestamp } from './schema.types.js';
+import type { DateTime, Timestamp } from './schema.types.js';
 
 export interface SeasonSchema {
   createdAt: Timestamp,
   description: string,
-  endDate: Date | null,
+  endDate: DateTime,
   id: Generated<number>,
   leagueId: number,
   name: string,
   platformId: number,
-  startDate: Date,
+  startDate: DateTime,
   updatedAt: Timestamp,
 }
 

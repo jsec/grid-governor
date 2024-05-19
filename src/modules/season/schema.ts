@@ -1,3 +1,4 @@
+import { ErrorSchema } from '../../types/responses.js';
 import {
   Params, Season, SeasonRequest
 } from './types.js';
@@ -5,7 +6,10 @@ import {
 export const CreateSeasonSchema = {
   body: SeasonRequest,
   response: {
-    201: Season
+    201: Season,
+    400: ErrorSchema,
+    409: ErrorSchema,
+    500: ErrorSchema,
   },
   tags: [ 'Seasons' ]
 };

@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes';
+
 import type { PostgresError } from './database.errors.js';
 
 export enum ErrorCode {
@@ -20,5 +22,19 @@ export class AppError extends Error {
 
   static fromPostgresError(err: PostgresError): AppError {
     return new AppError(ErrorCode.DATABASE_ERROR, err.detail, err.code);
+  }
+
+  deriveStatusCode(): StatusCodes {
+    switch (this.code) {
+      case ErrorCode.DATABASE_ERROR: {
+        return StatusCodes.BAD_REQUEST;
+      }
+      case ErrorCode.NOT_FOUND: {
+        return StatusCodes.NOT_FOUND;
+      }
+      default: {
+        return StatusCodes.INTERNAL_SERVER_ERROR;
+      }
+    }
   }
 }
