@@ -94,7 +94,7 @@ describe('Season service', () => {
     expect(result.isErr()).to.be.true;
 
     const error = result._unsafeUnwrapErr();
-    expect(error.code).to.equal(ErrorCode.DATABASE_ERROR);
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
     expect(error.message).to.equal('no result');
   });
 
@@ -143,7 +143,7 @@ describe('Season service', () => {
     const result = await updateSeason(season.id, season);
     const error = result._unsafeUnwrapErr();
 
-    expect(error.code).to.equal(ErrorCode.DATABASE_ERROR);
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
     expect(error.message).to.equal('no result');
   });
 

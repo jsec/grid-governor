@@ -20,7 +20,11 @@ const handleDatabaseError = (err: unknown): AppError => {
     return AppError.fromPostgresError(err);
   }
 
-  return AppError.fromError(err as Error, ErrorCode.DATABASE_ERROR);
+  const code = (err as Error).message === 'no result'
+    ? ErrorCode.NOT_FOUND
+    : ErrorCode.DATABASE_ERROR;
+
+  return AppError.fromError(err as Error, code);
 };
 
 export const createSeason = (season: NewSeason): ResultAsync<Season, AppError> => {
