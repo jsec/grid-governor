@@ -13,26 +13,13 @@ import type {
 
 import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';
-import { isPostgresError } from '../../types/guards.js';
-
-const handleDatabaseError = (err: unknown): AppError => {
-  if (isPostgresError(err)) {
-    return AppError.fromPostgresError(err);
-  }
-
-  const code = (err as Error).message === 'no result'
-    ? ErrorCode.NOT_FOUND
-    : ErrorCode.DATABASE_ERROR;
-
-  return AppError.fromError(err as Error, code);
-};
 
 export const createSeason = (season: NewSeason): ResultAsync<Season, AppError> => {
   return ResultAsync.fromThrowable(() => db.insertInto('seasons')
     .values(season)
     .returningAll()
     .executeTakeFirstOrThrow(),
-  handleDatabaseError)();
+  AppError.fromDatabaseError)();
 };
 
 export const getSeasonById = (id: number): ResultAsync<Season, AppError> => {
@@ -40,7 +27,7 @@ export const getSeasonById = (id: number): ResultAsync<Season, AppError> => {
     .selectFrom('seasons')
     .where('id', '=', id)
     .selectAll()
-    .executeTakeFirstOrThrow(), handleDatabaseError)();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
 export const updateSeason = (
@@ -51,7 +38,7 @@ export const updateSeason = (
     .where('id', '=', id)
     .set(season)
     .returningAll()
-    .executeTakeFirstOrThrow(), handleDatabaseError)();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
 export const deleteSeason = async (id: number): Promise<Result<DeleteResult, AppError>> => {

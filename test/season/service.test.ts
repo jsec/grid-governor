@@ -9,7 +9,7 @@ import {
   createSeason, deleteSeason, getSeasonById, updateSeason
 } from '../../src/modules/season/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
-import { PostgresErrorCode } from '../../src/types/errors/database.errors.js';
+import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { leagueBuilder } from '../builders/league.builder.js';
 import { platformBuilder } from '../builders/platform.builder.js';
 import { seasonBuilder, seasonRecordBuilder } from '../builders/season.builder.js';

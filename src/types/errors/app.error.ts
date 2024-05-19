@@ -1,6 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
+import { NoResultError } from 'kysely';
 
-import type { PostgresError } from './database.errors.js';
+import type { PostgresError } from './postgres.error.js';
+
+import { isPostgresError } from '../guards.js';
 
 export enum ErrorCode {
   DATABASE_ERROR = 'databaseError',
@@ -14,6 +17,18 @@ export class AppError extends Error {
     super(message);
     this.code = code;
     this.name = name;
+  }
+
+  static fromDatabaseError(err: unknown): AppError {
+    if (isPostgresError(err)) {
+      return AppError.fromPostgresError(err);
+    }
+
+    const code = err instanceof NoResultError
+      ? ErrorCode.NOT_FOUND
+      : ErrorCode.DATABASE_ERROR;
+
+    return AppError.fromError(err as Error, code);
   }
 
   static fromError(err: Error, code: ErrorCode): AppError {

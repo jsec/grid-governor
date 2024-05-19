@@ -1,4 +1,4 @@
-import type { PostgresError } from './errors/database.errors.js';
+import type { PostgresError } from './errors/postgres.error.js';
 
 export const isRecord = (value: unknown): value is Record<string, unknown> => {
   return value !== null && typeof value === 'object' && !Array.isArray(value);

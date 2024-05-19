@@ -2,7 +2,7 @@ import {
   describe, expect, test
 } from 'vitest';
 
-import { type PostgresError, PostgresErrorCode } from '../../src/types/errors/database.errors.js';
+import { type PostgresError, PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { isPostgresError, isRecord } from '../../src/types/guards.js';
 
 describe('Type guards', () => {
