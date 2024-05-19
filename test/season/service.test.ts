@@ -162,7 +162,13 @@ describe('Season service', () => {
     const existing = created._unsafeUnwrap();
     existing.name = 'Updated Name';
 
-    const result = await updateSeason(existing.id, existing);
+    // TODO: figure out how to handle the typing between Date/string conversions
+    // Probably default to using timestamp strings, screw the date formatting
+    const result = await updateSeason(existing.id, {
+      ...existing,
+      endDate: existing.endDate.toISOString(),
+      startDate: existing.startDate.toISOString()
+    });
     const season = result._unsafeUnwrap();
     expect(season.name).to.equal(existing.name);
 
@@ -199,7 +205,13 @@ describe('Season service', () => {
     const existing = created._unsafeUnwrap();
     existing.description = 'Updated Description';
 
-    const result = await updateSeason(existing.id, existing);
+    // TODO: figure out how to handle the typing between Date/string conversions
+    // Probably default to using timestamp strings, screw the date formatting
+    const result = await updateSeason(existing.id, {
+      ...existing,
+      endDate: existing.endDate.toISOString(),
+      startDate: existing.startDate.toISOString()
+    });
     const season = result._unsafeUnwrap();
     expect(season.description).to.equal(existing.description);
 

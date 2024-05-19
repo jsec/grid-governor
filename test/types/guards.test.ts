@@ -2,7 +2,7 @@ import {
   describe, expect, test
 } from 'vitest';
 
-import { type DatabaseError, PostgresErrorCode } from '../../src/types/errors/database.errors.js';
+import { type PostgresError, PostgresErrorCode } from '../../src/types/errors/database.errors.js';
 import { isPostgresError, isRecord } from '../../src/types/guards.js';
 
 describe('Type guards', () => {
@@ -47,7 +47,7 @@ describe('Type guards', () => {
     });
 
     test('should return true for a ForeignKeyViolation error', () => {
-      const error: DatabaseError = {
+      const error: PostgresError = {
         code: PostgresErrorCode.ForeignKeyViolation,
         column: '12',
         detail: 'you cannot do that, mmkay?',
