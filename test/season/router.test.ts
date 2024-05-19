@@ -262,32 +262,113 @@ describe('Season API', () => {
   });
 
   describe('PUT', () => {
-    test('should return a 400 if the startDate is updated to a date in the past', async ({ app }) => {
-      // TODO
+    test('should return a 404 if no season with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'PUT',
+        payload: seasonBuilder.one(),
+        url: '/season/999999'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      // TODO: this kinda sucks, fix this
+      expect(body.message).to.equal('no result');
     });
 
-    test('should return a 400 if the endDate is updated to a date in the past', async ({ app }) => {
-      // TODO
+    test("should update a season's name", async ({ app, db }) => {
+      const [league, platform] = await Promise.all([
+        createLeague(leagueBuilder.one()),
+        createPlatform(platformBuilder.one())
+      ]);
+
+      const created = await createSeason(seasonBuilder.one({
+        overrides: {
+          leagueId: league.id,
+          platformId: platform.id
+        }
+      }));
+
+      const existing = created._unsafeUnwrap();
+      existing.name = 'Some new name';
+
+      const response = await app.inject({
+        method: 'PUT',
+        payload: existing,
+        url: `/season/${existing.id}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body.name).to.equal(existing.name);
+
+      onTestFinished(async () => {
+        await db
+          .deleteFrom('seasons')
+          .where('id', '=', existing.id)
+          .execute();
+
+        await db
+          .deleteFrom('leagues')
+          .where('id', '=', league.id)
+          .execute();
+
+        await db
+          .deleteFrom('platforms')
+          .where('id', '=', platform.id)
+          .execute();
+      });
     });
 
-    test('should return a 409 if the name is updated to an already existing season name', async ({ app }) => {
-      // TODO
+    test("should update a season's description", async ({ app, db }) => {
+      const [league, platform] = await Promise.all([
+        createLeague(leagueBuilder.one()),
+        createPlatform(platformBuilder.one())
+      ]);
+
+      const created = await createSeason(seasonBuilder.one({
+        overrides: {
+          leagueId: league.id,
+          platformId: platform.id
+        }
+      }));
+
+      const existing = created._unsafeUnwrap();
+      existing.description = 'Some new description';
+
+      const response = await app.inject({
+        method: 'PUT',
+        payload: existing,
+        url: `/season/${existing.id}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body.description).to.equal(existing.description);
+
+      onTestFinished(async () => {
+        await db
+          .deleteFrom('seasons')
+          .where('id', '=', existing.id)
+          .execute();
+
+        await db
+          .deleteFrom('leagues')
+          .where('id', '=', league.id)
+          .execute();
+
+        await db
+          .deleteFrom('platforms')
+          .where('id', '=', platform.id)
+          .execute();
+      });
     });
 
-    test("should update a season's name", async ({ app }) => {
-      // TODO
-    });
-
-    test("should update a season's description", async ({ app }) => {
-      // TODO
-    });
-
-    test("should update a season's start date", async ({ app }) => {
-      // TODO
-    });
-
-    test("should update a season's end date", async ({ app }) => {
-      // TODO
-    });
+    // TODO: add tests for startDate and endDate
   });
+
+  // TODO: add delete tests
 });
