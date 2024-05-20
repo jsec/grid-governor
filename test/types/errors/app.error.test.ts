@@ -69,4 +69,16 @@ describe('App Error', () => {
       });
     });
   });
+
+  describe('statusCode', () => {
+    test('should return a 400 for DATABASE_ERROR codes', () => {
+      const error = new AppError(ErrorCode.DATABASE_ERROR, 'broken');
+      expect(error.statusCode).to.equal(400);
+    });
+
+    test('should return a 404 for NOT_FOUND codes', () => {
+      const error = new AppError(ErrorCode.NOT_FOUND, 'whoops');
+      expect(error.statusCode).to.equal(404);
+    });
+  });
 });
