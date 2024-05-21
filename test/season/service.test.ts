@@ -2,7 +2,6 @@ import {
   describe, expect, onTestFinished
 } from 'vitest';
 
-import { db } from '../../src/db/conn.js';
 import { createLeague } from '../../src/modules/league/service.js';
 import { createPlatform } from '../../src/modules/platform/service.js';
 import {
@@ -50,7 +49,7 @@ describe('Season service', () => {
     });
   });
 
-  test('should create a new season', async () => {
+  test('should create a new season', async ({ db }) => {
     const league = await createLeague(leagueBuilder.one());
     const platform = await createPlatform(platformBuilder.one());
 
@@ -91,14 +90,13 @@ describe('Season service', () => {
 
   test('should return an error when retrieving a season with an invalid id', async () => {
     const result = await getSeasonById(999_999);
-    expect(result.isErr()).to.be.true;
 
     const error = result._unsafeUnwrapErr();
     expect(error.code).to.equal(ErrorCode.NOT_FOUND);
     expect(error.message).to.equal('no result');
   });
 
-  test('should return a season by id', async () => {
+  test('should return a season by id', async ({ db }) => {
     const league = await createLeague(leagueBuilder.one());
     const platform = await createPlatform(platformBuilder.one());
 
@@ -147,7 +145,7 @@ describe('Season service', () => {
     expect(error.message).to.equal('no result');
   });
 
-  test("should update a season's name", async () => {
+  test("should update a season's name", async ({ db }) => {
     const league = await createLeague(leagueBuilder.one());
     const platform = await createPlatform(platformBuilder.one());
 
@@ -190,7 +188,7 @@ describe('Season service', () => {
     });
   });
 
-  test("should update a season's description", async () => {
+  test("should update a season's description", async ({ db }) => {
     const league = await createLeague(leagueBuilder.one());
     const platform = await createPlatform(platformBuilder.one());
 
@@ -242,7 +240,7 @@ describe('Season service', () => {
     expect(error.message).to.include('was not found');
   });
 
-  test('should delete an existing season', async () => {
+  test('should delete an existing season', async ({ db }) => {
     const league = await createLeague(leagueBuilder.one());
     const platform = await createPlatform(platformBuilder.one());
 
