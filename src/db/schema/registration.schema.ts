@@ -2,12 +2,14 @@ import type {
   Generated, Insertable, Selectable, Updateable
 } from 'kysely';
 
+import type { Timestamp } from './schema.types.js';
+
 export interface RegistrationSchema {
-  createdAt: Generated<Date>,
+  createdAt: Timestamp,
   driverId: number,
   id: Generated<number>,
   seasonId: number,
-  updatedAt: Generated<Date>,
+  updatedAt: Timestamp,
 }
 
 export type Registration = Selectable<RegistrationSchema>;
