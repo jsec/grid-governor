@@ -28,5 +28,6 @@ export const GetRegistrationSchema = {
   response: {
     200: Registration,
     404: ErrorSchema
-  }
+  },
+  tags: [ 'Registrations' ]
 };

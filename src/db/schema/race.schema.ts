@@ -2,14 +2,16 @@ import type {
   Generated, Insertable, Selectable, Updateable
 } from 'kysely';
 
+import type { DateTime, Timestamp } from './schema.types.js';
+
 export interface RaceSchema {
-  createdAt: Generated<Date>,
+  createdAt: Timestamp,
   id: Generated<number>,
   leagueId: number,
   name: string,
   seasonId: number,
-  time: Date,
-  updatedAt: Generated<Date>,
+  time: DateTime,
+  updatedAt: Timestamp,
   week: number,
 }
 
