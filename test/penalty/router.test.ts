@@ -5,7 +5,7 @@ import {
 
 import { createPenalty } from '../../src/modules/penalty/service.js';
 import { penaltyBuilder } from '../builders/penalty.builder.js';
-import { test } from '../context.js';
+import { test } from '../contexts/base.context.js';
 
 describe('Penalty API', () => {
   describe('POST', () => {

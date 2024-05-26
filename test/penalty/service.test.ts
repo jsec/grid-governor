@@ -7,7 +7,7 @@ import {
   createPenalty, deletePenalty, getPenaltyById, updatePenalty
 } from '../../src/modules/penalty/service.js';
 import { penaltyBuilder } from '../builders/penalty.builder.js';
-import { test } from '../context.js';
+import { test } from '../contexts/base.context.js';
 
 describe('Penalty service', () => {
   test('should create a new penalty', async ({ db }) => {

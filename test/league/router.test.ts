@@ -5,7 +5,7 @@ import {
 
 import { createLeague } from '../../src/modules/league/service.js';
 import { leagueBuilder } from '../builders/league.builder.js';
-import { test } from '../context.js';
+import { test } from '../contexts/base.context.js';
 
 describe('League API', () => {
   describe('POST', () => {

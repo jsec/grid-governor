@@ -7,7 +7,7 @@ import {
   createDriver, deleteDriver, getDriverById, updateDriver
 } from '../../src/modules/driver/service.js';
 import { driverBuilder } from '../builders/driver.builder.js';
-import { test } from '../context.js';
+import { test } from '../contexts/base.context.js';
 
 describe('Driver service', () => {
   test('should create a new driver', async ({ db }) => {

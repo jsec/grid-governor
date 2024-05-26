@@ -58,9 +58,7 @@ describe('Registration API', () => {
       expect(body.message).to.include('driver_id');
     });
 
-    test('should return a 400 when the seasonId is invalid', async ({
-      app, db, driver
-    }) => {
+    test('should return a 400 when the seasonId is invalid', async ({ app, driver }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {

@@ -7,7 +7,7 @@ import {
   createLeague, deleteLeague, getLeagueById, updateLeague
 } from '../../src/modules/league/service.js';
 import { leagueBuilder } from '../builders/league.builder.js';
-import { test } from '../context.js';
+import { test } from '../contexts/base.context.js';
 
 describe('League service', () => {
   test('should create a new league', async ({ db }) => {
