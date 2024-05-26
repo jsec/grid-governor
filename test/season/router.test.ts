@@ -3,14 +3,11 @@ import {
   describe, expect, onTestFinished
 } from 'vitest';
 
-import { createLeague } from '../../src/modules/league/service.js';
-import { createPlatform } from '../../src/modules/platform/service.js';
+import { db } from '../../src/db/conn.js';
 import { createSeason } from '../../src/modules/season/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
-import { leagueBuilder } from '../builders/league.builder.js';
-import { platformBuilder } from '../builders/platform.builder.js';
 import { seasonBuilder } from '../builders/season.builder.js';
-import { test } from '../context.js';
+import { test } from '../contexts/season.context.js';
 
 describe('Season API', () => {
   describe('POST', () => {
@@ -118,9 +115,7 @@ describe('Season API', () => {
     });
 
     // eslint-disable-next-line @stylistic/max-len
-    test('should return a 400 when no platform with supplied platformId exists', async ({ app, db }) => {
-      const league = await createLeague(leagueBuilder.one());
-
+    test('should return a 400 when no platform with supplied platformId exists', async ({ app, league }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
@@ -140,19 +135,11 @@ describe('Season API', () => {
       expect(response.statusMessage).to.equal('Bad Request');
       expect(body.name).to.equal(PostgresErrorCode.ForeignKeyViolation);
       expect(body.message).to.include('platform_id');
-
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-      });
     });
 
-    test('should create a new season', async ({ app, db }) => {
-      const league = await createLeague(leagueBuilder.one());
-      const platform = await createPlatform(platformBuilder.one());
-
+    test('should create a new season', async ({
+      app, db, league, platform
+    }) => {
       const season = seasonBuilder.one({
         overrides: {
           leagueId: league.id,
@@ -177,22 +164,10 @@ describe('Season API', () => {
         platformId: season.platformId
       });
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', body.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', platform.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('seasons')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
@@ -211,12 +186,9 @@ describe('Season API', () => {
       expect(body.message).to.equal('no result');
     });
 
-    test('should return a season by id', async ({ app, db }) => {
-      const [league, platform] = await Promise.all([
-        createLeague(leagueBuilder.one()),
-        createPlatform(platformBuilder.one())
-      ]);
-
+    test('should return a season by id', async ({
+      app, db, league, platform
+    }) => {
       const created = await createSeason(seasonBuilder.one({
         overrides: {
           leagueId: league.id,
@@ -242,22 +214,10 @@ describe('Season API', () => {
         platformId: season.platformId
       });
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', season.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', platform.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('seasons')
+        .where('id', '=', season.id)
+        .execute();
     });
   });
 
@@ -277,12 +237,9 @@ describe('Season API', () => {
       expect(body.message).to.equal('no result');
     });
 
-    test("should update a season's name", async ({ app, db }) => {
-      const [league, platform] = await Promise.all([
-        createLeague(leagueBuilder.one()),
-        createPlatform(platformBuilder.one())
-      ]);
-
+    test("should update a season's name", async ({
+      app, league, platform,
+    }) => {
       const created = await createSeason(seasonBuilder.one({
         overrides: {
           leagueId: league.id,
@@ -304,30 +261,15 @@ describe('Season API', () => {
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body.name).to.equal(existing.name);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', existing.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', platform.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('seasons')
+        .where('id', '=', existing.id)
+        .execute();
     });
 
-    test("should update a season's description", async ({ app, db }) => {
-      const [league, platform] = await Promise.all([
-        createLeague(leagueBuilder.one()),
-        createPlatform(platformBuilder.one())
-      ]);
-
+    test("should update a season's description", async ({
+      app, db, league, platform
+    }) => {
       const created = await createSeason(seasonBuilder.one({
         overrides: {
           leagueId: league.id,
@@ -349,22 +291,10 @@ describe('Season API', () => {
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body.description).to.equal(existing.description);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', existing.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', platform.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('seasons')
+        .where('id', '=', existing.id)
+        .execute();
     });
 
     // TODO: add tests for startDate and endDate
