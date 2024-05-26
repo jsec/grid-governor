@@ -1,19 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
-import {
-  describe, expect, onTestFinished
-} from 'vitest';
+import { describe, expect } from 'vitest';
 
-import { createDriver } from '../../src/modules/driver/service.js';
-import { createLeague } from '../../src/modules/league/service.js';
-import { createPlatform } from '../../src/modules/platform/service.js';
 import { createRegistration } from '../../src/modules/registration/service.js';
-import { createSeason } from '../../src/modules/season/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
-import { driverBuilder } from '../builders/driver.builder.js';
-import { leagueBuilder } from '../builders/league.builder.js';
-import { platformBuilder } from '../builders/platform.builder.js';
 import { registrationBuilder } from '../builders/registration.builder.js';
-import { seasonBuilder } from '../builders/season.builder.js';
 import { test } from '../contexts/registration.context.js';
 
 describe('Registration API', () => {
