@@ -14,7 +14,7 @@ import { leagueBuilder } from '../builders/league.builder.js';
 import { platformBuilder } from '../builders/platform.builder.js';
 import { registrationBuilder } from '../builders/registration.builder.js';
 import { seasonBuilder } from '../builders/season.builder.js';
-import { test } from '../context.js';
+import { test } from '../contexts/registration.context.js';
 
 describe('Registration API', () => {
   describe('POST', () => {
@@ -68,9 +68,9 @@ describe('Registration API', () => {
       expect(body.message).to.include('driver_id');
     });
 
-    test('should return a 400 when the seasonId is invalid', async ({ app, db }) => {
-      const driver = await createDriver(driverBuilder.one());
-
+    test('should return a 400 when the seasonId is invalid', async ({
+      app, db, driver
+    }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
@@ -86,31 +86,11 @@ describe('Registration API', () => {
       expect(response.statusMessage).to.equal('Bad Request');
       expect(body.name).to.equal(PostgresErrorCode.ForeignKeyViolation);
       expect(body.message).to.include('season_id');
-
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', driver.id)
-          .execute();
-      });
     });
 
-    test('should create a new registration', async ({ app, db }) => {
-      const [platform, league, driver] = await Promise.all([
-        createPlatform(platformBuilder.one()),
-        createLeague(leagueBuilder.one()),
-        createDriver(driverBuilder.one())
-      ]);
-
-      const seasonResult = await createSeason(seasonBuilder.one({
-        overrides: {
-          leagueId: league.id,
-          platformId: platform.id
-        }
-      }));
-
-      const season = seasonResult._unsafeUnwrap();
-
+    test('should create a new registration', async ({
+      app, db, driver, season
+    }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
@@ -129,27 +109,10 @@ describe('Registration API', () => {
         seasonId: season.id
       });
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('registrations')
-          .where('id', '=', body.id)
-          .execute();
-
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', season.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', driver.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('registrations')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
@@ -167,22 +130,9 @@ describe('Registration API', () => {
       expect(body.message).to.equal('no result');
     });
 
-    test('should return a registration by id', async ({ app, db }) => {
-      const [platform, league, driver] = await Promise.all([
-        createPlatform(platformBuilder.one()),
-        createLeague(leagueBuilder.one()),
-        createDriver(driverBuilder.one())
-      ]);
-
-      const seasonResult = await createSeason(seasonBuilder.one({
-        overrides: {
-          leagueId: league.id,
-          platformId: platform.id
-        }
-      }));
-
-      const season = seasonResult._unsafeUnwrap();
-
+    test('should return a registration by id', async ({
+      app, db, driver, season
+    }) => {
       const registrationResult = await createRegistration(registrationBuilder.one({
         overrides: {
           driverId: driver.id,
@@ -206,27 +156,10 @@ describe('Registration API', () => {
         seasonId: registration.seasonId
       });
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('registrations')
-          .where('id', '=', body.id)
-          .execute();
-
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', season.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', driver.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('registrations')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
