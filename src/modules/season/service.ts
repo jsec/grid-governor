@@ -9,7 +9,7 @@ import {
 
 import type {
   NewSeason, Season, SeasonUpdate
-} from '../../db/schema/season.schema.js';
+} from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';
@@ -22,7 +22,9 @@ export const createSeason = (season: NewSeason): ResultAsync<Season, AppError> =
   AppError.fromDatabaseError)();
 };
 
-export const getSeasonById = (id: number): ResultAsync<Season, AppError> => {
+type NewType = Season;
+
+export const getSeasonById = (id: number): ResultAsync<NewType, AppError> => {
   return ResultAsync.fromThrowable(() => db
     .selectFrom('seasons')
     .where('id', '=', id)

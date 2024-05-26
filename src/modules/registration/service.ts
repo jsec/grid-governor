@@ -7,7 +7,7 @@ import {
 
 import type {
   NewRegistration, Registration, RegistrationUpdate
-} from '../../db/schema/registration.schema.js';
+} from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';

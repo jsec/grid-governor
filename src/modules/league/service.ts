@@ -2,7 +2,7 @@ import type { DeleteResult } from 'kysely';
 
 import type {
   League, LeagueUpdate, NewLeague
-} from '../../db/schema/league.schema.js';
+} from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
 

@@ -3,7 +3,7 @@ import {
 } from 'kysely';
 import pg from 'pg';
 
-import type { Database } from './schema/schema.js';
+import type { Database } from './schema.js';
 
 import { env } from '../common/env.js';
 

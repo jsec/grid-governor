@@ -6,7 +6,7 @@ import {
 
 import type {
   NewRace, Race, RaceUpdate
-} from '../../db/schema/race.schema.js';
+} from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';

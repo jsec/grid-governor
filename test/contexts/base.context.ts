@@ -3,7 +3,7 @@ import type { Kysely } from 'kysely';
 
 import { test as base } from 'vitest';
 
-import type { Database } from '../../src/db/schema/schema.js';
+import type { Database } from '../../src/db/schema.js';
 
 import { createApp } from '../../src/app.js';
 import { db } from '../../src/db/conn.js';

@@ -2,7 +2,7 @@ import type { DeleteResult } from 'kysely';
 
 import type {
   Driver, DriverUpdate, NewDriver
-} from '../../db/schema/driver.schema.js';
+} from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
 

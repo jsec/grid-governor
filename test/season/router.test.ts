@@ -1,7 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { describe, expect } from 'vitest';
 
-import { db } from '../../src/db/conn.js';
 import { createSeason } from '../../src/modules/season/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { seasonBuilder } from '../builders/season.builder.js';
@@ -236,7 +235,7 @@ describe('Season API', () => {
     });
 
     test("should update a season's name", async ({
-      app, league, platform,
+      app, db, league, platform,
     }) => {
       const created = await createSeason(seasonBuilder.one({
         overrides: {

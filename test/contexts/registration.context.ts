@@ -1,9 +1,9 @@
 /* eslint-disable no-empty-pattern */
 import { test as base } from 'vitest';
 
-import type { League } from '../../src/db/schema/league.schema.js';
-import type { Platform } from '../../src/db/schema/platform.schema.js';
-import type { Season } from '../../src/db/schema/season.schema.js';
+import type {
+  League, Platform, Season
+} from '../../src/db/types.js';
 import type { Driver } from '../../src/modules/driver/types.js';
 import type { BaseContext } from './base.context.js';
 

@@ -2,7 +2,7 @@ import { DeleteResult } from 'kysely';
 
 import type {
   NewPlatform, Platform, PlatformUpdate
-} from '../../db/schema/platform.schema.js';
+} from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
 

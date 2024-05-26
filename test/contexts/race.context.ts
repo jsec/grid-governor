@@ -1,7 +1,7 @@
 /* eslint-disable no-empty-pattern */
 import { test as base } from 'vitest';
 
-import type { Season } from '../../src/db/schema/season.schema.js';
+import type { Season } from '../../src/db/types.js';
 import type { League } from '../../src/modules/league/types.js';
 import type { Platform } from '../../src/modules/platform/types.js';
 import type { BaseContext } from './base.context.js';

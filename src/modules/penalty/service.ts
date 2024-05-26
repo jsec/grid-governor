@@ -2,7 +2,7 @@ import type { DeleteResult } from 'kysely';
 
 import type {
   NewPenalty, Penalty, PenaltyUpdate
-} from '../../db/schema/penalty.schema.js';
+} from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
 
