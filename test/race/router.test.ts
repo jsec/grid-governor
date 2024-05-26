@@ -1,18 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import {
-  describe, expect, onTestFinished
-} from 'vitest';
+import { describe, expect } from 'vitest';
 
-import { createLeague } from '../../src/modules/league/service.js';
-import { createPlatform } from '../../src/modules/platform/service.js';
 import { createRace } from '../../src/modules/race/service.js';
-import { createSeason } from '../../src/modules/season/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
-import { leagueBuilder } from '../builders/league.builder.js';
-import { platformBuilder } from '../builders/platform.builder.js';
-import { raceBuilder, raceRecordBuilder } from '../builders/race.builder.js';
-import { seasonBuilder } from '../builders/season.builder.js';
-import { test } from '../context.js';
+import { raceBuilder } from '../builders/race.builder.js';
+import { test } from '../contexts/race.context.js';
 
 describe('Race API', () => {
   describe('POST', () => {
@@ -92,13 +84,13 @@ describe('Race API', () => {
       expect(body.message).to.include("must have required property 'week'");
     });
 
-    test('should return a 400 when the leagueId is invalid', async ({ app }) => {
+    test('should return a 400 when the leagueId is invalid', async ({ app, season }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
           leagueId: 12,
           name: 'Race',
-          seasonId: 1,
+          seasonId: season.id,
           time: new Date().toISOString(),
           week: 4
         },
@@ -113,9 +105,7 @@ describe('Race API', () => {
       expect(body.message).to.include('league_id');
     });
 
-    test('should return a 400 when the seasonId is invalid', async ({ app, db }) => {
-      const league = await createLeague(leagueBuilder.one());
-
+    test('should return a 400 when the seasonId is invalid', async ({ app, league }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
@@ -134,30 +124,11 @@ describe('Race API', () => {
       expect(response.statusMessage).to.equal('Bad Request');
       expect(body.name).to.equal(PostgresErrorCode.ForeignKeyViolation);
       expect(body.message).to.include('season_id');
-
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-      });
     });
 
-    test('should create a new race', async ({ app, db }) => {
-      const [platform, league] = await Promise.all([
-        createPlatform(platformBuilder.one()),
-        createLeague(leagueBuilder.one()),
-      ]);
-
-      const seasonResult = await createSeason(seasonBuilder.one({
-        overrides: {
-          leagueId: league.id,
-          platformId: platform.id
-        }
-      }));
-
-      const season = seasonResult._unsafeUnwrap();
-
+    test('should create a new race', async ({
+      app, db, league, season
+    }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
@@ -181,27 +152,10 @@ describe('Race API', () => {
         week: 4
       });
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('races')
-          .where('id', '=', body.id)
-          .execute();
-
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', season.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', platform.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('races')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
@@ -219,21 +173,9 @@ describe('Race API', () => {
       expect(body.message).to.equal('no result');
     });
 
-    test('should return a race by id', async ({ app, db }) => {
-      const [platform, league] = await Promise.all([
-        createPlatform(platformBuilder.one()),
-        createLeague(leagueBuilder.one()),
-      ]);
-
-      const seasonResult = await createSeason(seasonBuilder.one({
-        overrides: {
-          leagueId: league.id,
-          platformId: platform.id
-        }
-      }));
-
-      const season = seasonResult._unsafeUnwrap();
-
+    test('should return a race by id', async ({
+      app, db, league, season
+    }) => {
       const raceResult = await createRace(raceBuilder.one({
         overrides: {
           leagueId: league.id,
@@ -258,27 +200,10 @@ describe('Race API', () => {
         week: race.week
       });
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('races')
-          .where('id', '=', body.id)
-          .execute();
-
-        await db
-          .deleteFrom('seasons')
-          .where('id', '=', season.id)
-          .execute();
-
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', league.id)
-          .execute();
-
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', platform.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('races')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 

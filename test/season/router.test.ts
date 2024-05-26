@@ -1,7 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import {
-  describe, expect, onTestFinished
-} from 'vitest';
+import { describe, expect } from 'vitest';
 
 import { db } from '../../src/db/conn.js';
 import { createSeason } from '../../src/modules/season/service.js';
