@@ -1,32 +1,32 @@
 import { ErrorSchema } from '../../types/responses.js';
 import {
-  Params, Race, RaceRequest
+  Params, Ruling, RulingRequest
 } from './types.js';
 
-export const CreateRaceSchema = {
-  body: RaceRequest,
+export const CreateRulingSchema = {
+  body: RulingRequest,
   response: {
-    201: Race,
+    201: Ruling,
     400: ErrorSchema
   },
-  tags: [ 'Races' ]
+  tags: [ 'Rulings' ]
 };
 
-export const UpdateRaceSchema = {
-  body: RaceRequest,
+export const UpdateRulingSchema = {
+  body: RulingRequest,
   response: {
-    200: Race,
+    200: Ruling,
     400: ErrorSchema,
     404: ErrorSchema,
     409: ErrorSchema
   },
-  tags: [ 'Races' ]
+  tags: [ 'Rulings' ]
 };
 
-export const GetRaceSchema = {
+export const GetRulingSchema = {
   params: Params,
   response: {
-    200: Race,
+    200: Ruling,
     404: ErrorSchema
   },
   tags: [ 'Races' ]
