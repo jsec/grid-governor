@@ -29,5 +29,5 @@ export const GetRulingSchema = {
     200: Ruling,
     404: ErrorSchema
   },
-  tags: [ 'Races' ]
+  tags: [ 'Rulings' ]
 };
