@@ -8,7 +8,7 @@ import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { incidentBuilder, incidentRecordBuilder } from '../builders/incident.builder.js';
 import { test } from '../contexts/incident.context.js';
 
-describe('Registration service', () => {
+describe('Incident service', () => {
   test('should return an error when the provided driverId is invalid',
     async ({ race, reportingDriver }) => {
       const incident = incidentBuilder.one({

@@ -11,7 +11,7 @@ export const incidentBuilder = build('incident', {
   }
 });
 
-export const incidentRecordBuilder = build('incident', {
+export const incidentRecordBuilder = build('incidentRecord', {
   fields: {
     createdAt: perBuild(() => new Date().toISOString()),
     description: perBuild(() => faker.company.catchPhrase()),

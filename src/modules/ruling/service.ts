@@ -45,7 +45,7 @@ export const deleteRuling = async (id: number): Promise<Result<DeleteResult, App
     return errAsync(
       new AppError(
         ErrorCode.NOT_FOUND,
-        `Race with id ${id} was not found`,
+        `Ruling with id ${id} was not found`,
         'Not Found'
       )
     );
