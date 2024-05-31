@@ -49,7 +49,7 @@ export const deleteIncident = async (id: number): Promise<Result<DeleteResult, A
     return errAsync(
       new AppError(
         ErrorCode.NOT_FOUND,
-        `Race with id ${id} was not found`,
+        `Incident with id ${id} was not found`,
         'Not Found'
       )
     );
