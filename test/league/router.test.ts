@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import {
-  describe, expect, onTestFinished
+  describe, expect
 } from 'vitest';
 
 import { createLeague } from '../../src/modules/league/service.js';
@@ -51,20 +51,19 @@ describe('League API', () => {
       expect(body.name).to.equal(payload.name);
       expect(body.description).to.equal(payload.description);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
   describe('GET', () => {
     test.todo('GET - should return a 404 if no league with the given id exists');
 
-    test('should return a league by id', async ({ app, db }) => {
-      const league = await createLeague(leagueBuilder.one());
+    test.only('should return a league by id', async ({ app, db }) => {
+      const leagueResult = await createLeague(leagueBuilder.one());
+      const league = leagueResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
@@ -78,12 +77,10 @@ describe('League API', () => {
       expect(body.name).to.equal(league.name);
       expect(body.description).to.equal(league.description);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
@@ -91,7 +88,8 @@ describe('League API', () => {
     test.todo('PUT - should return a 404 if no league with the given id exists');
 
     test('should update a league name', async ({ app, db }) => {
-      const league = await createLeague(leagueBuilder.one());
+      const leagueResult = await createLeague(leagueBuilder.one());
+      const league = leagueResult._unsafeUnwrap();
 
       league.name = 'Updated name';
 
@@ -107,16 +105,15 @@ describe('League API', () => {
       expect(body.id).to.equal(league.id);
       expect(body.name).to.equal(league.name);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', body.id)
+        .execute();
     });
 
     test('should update a league description', async ({ app, db }) => {
-      const league = await createLeague(leagueBuilder.one());
+      const leagueResult = await createLeague(leagueBuilder.one());
+      const league = leagueResult._unsafeUnwrap();
 
       league.description = 'Updated description';
 
@@ -132,12 +129,10 @@ describe('League API', () => {
       expect(body.id).to.equal(league.id);
       expect(body.description).to.equal(league.description);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('leagues')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 });

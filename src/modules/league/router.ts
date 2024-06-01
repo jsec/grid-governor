@@ -17,27 +17,27 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: LeagueRequest, Reply: League }>(
     '/league',
     { schema: CreateLeagueSchema },
-    async (req, res) => {
-      const league = await createLeague(req.body);
-      res.status(201).send(league);
+    async (request, reply) => {
+      const result = await createLeague(request.body);
+      return reply.result(result);
     }
   );
 
   server.get<{ Params: Params, Reply: League }>(
     '/league/:id',
     { schema: GetLeagueSchema },
-    async (req, res) => {
-      const league = await getLeagueById(req.params.id);
-      res.status(200).send(league);
+    async (request, reply) => {
+      const league = await getLeagueById(request.params.id);
+      return reply.result(league);
     }
   );
 
   server.put<{ Body: League, Params: Params, Reply: League }>(
     '/league/:id',
     { schema: UpdateLeagueSchema },
-    async (req, res) => {
-      const update = await updateLeague(req.params.id, req.body);
-      res.status(200).send(update);
+    async (request, reply) => {
+      const update = await updateLeague(request.params.id, request.body);
+      return reply.result(update);
     }
   );
 };

@@ -12,6 +12,7 @@ export const leagueRecordBuilder = build('leagueRecord', {
   fields: {
     createdAt: perBuild(() => new Date().toISOString()),
     description: perBuild(() => faker.company.catchPhrase()),
+    id: perBuild(() => faker.number.int()),
     name: perBuild(() => faker.company.name()),
     updatedAt: perBuild(() => new Date().toISOString())
   }

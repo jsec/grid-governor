@@ -103,13 +103,7 @@ describe('Race service', () => {
   });
 
   test('should return an error when deleting a registration with an invalid id', async () => {
-    const race = raceRecordBuilder.one({
-      overrides: {
-        id: 999_999
-      }
-    });
-
-    const result = await deleteRace(race.id);
+    const result = await deleteRace(999_999);
     const error = result._unsafeUnwrapErr();
 
     expect(error.code).to.equal(ErrorCode.NOT_FOUND);

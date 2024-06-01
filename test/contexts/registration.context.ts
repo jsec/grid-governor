@@ -34,7 +34,9 @@ export const test = base.extend<RegistrationContext>({
     await deleteDriver(driver.id);
   },
   league: async ({ }, use) => {
-    const league = await createLeague(leagueBuilder.one());
+    const leagueResult = await createLeague(leagueBuilder.one());
+    const league = leagueResult._unsafeUnwrap();
+
     await use(league);
     await deleteLeague(league.id);
   },

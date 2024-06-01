@@ -22,10 +22,10 @@ export const test = base.extend<SeasonContext>({
   app: createApp(),
   db: db,
   league: async ({ }, use) => {
-    const league = await createLeague(leagueBuilder.one());
+    const leagueResult = await createLeague(leagueBuilder.one());
+    const league = leagueResult._unsafeUnwrap();
 
     await use(league);
-
     await deleteLeague(league.id);
   },
   platform: async ({ }, use) => {

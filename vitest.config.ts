@@ -7,6 +7,10 @@ export default defineConfig({
       include: [ 'src/**/*.ts' ],
       provider: 'v8'
     },
+    reporters: [
+      'default',
+      'hanging-process'
+    ],
     server: {
       deps: {
         inline: [ '@fastify/autoload' ]

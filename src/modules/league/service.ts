@@ -1,40 +1,57 @@
 import type { DeleteResult } from 'kysely';
 
+import {
+  Result, ResultAsync, errAsync, okAsync
+} from 'neverthrow';
+
 import type {
   League, LeagueUpdate, NewLeague
 } from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
+import { AppError, ErrorCode } from '../../types/errors/app.error.js';
 
-export const createLeague = async (league: NewLeague): Promise<League> => {
-  return db
+export const createLeague = (league: NewLeague): ResultAsync<League, AppError> => {
+  return ResultAsync.fromThrowable(() => db
     .insertInto('leagues')
     .values(league)
     .returningAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const getLeagueById = async (id: number): Promise<League> => {
-  return db
+export const getLeagueById = (id: number): ResultAsync<League, AppError> => {
+  return ResultAsync.fromThrowable(() => db
     .selectFrom('leagues')
     .where('id', '=', id)
     .selectAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const updateLeague = async (id: number, league: LeagueUpdate): Promise<League> => {
-  return db
+export const updateLeague = (id: number, league: LeagueUpdate): ResultAsync<League, AppError> => {
+  return ResultAsync.fromThrowable(() => db
     .updateTable('leagues')
     .where('id', '=', id)
     .set(league)
     .returningAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const deleteLeague = async (id: number): Promise<DeleteResult> => {
-  return db
+export const deleteLeague = async (id: number): Promise<Result<DeleteResult, AppError>> => {
+  const result = await db
     .deleteFrom('leagues')
     .where('id', '=', id)
     .clearReturning()
     .executeTakeFirstOrThrow();
+
+  if (Number(result.numDeletedRows) === 0) {
+    return errAsync(
+      new AppError(
+        ErrorCode.NOT_FOUND,
+        `League with id ${id} was not found`,
+        'Not Found'
+      )
+    );
+  }
+
+  return okAsync(result);
 };
