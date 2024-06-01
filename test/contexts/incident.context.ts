@@ -1,11 +1,10 @@
 /* eslint-disable no-empty-pattern */
 import { test as base } from 'vitest';
 
+import type { Race, Season } from '../../src/db/types.js';
 import type { Driver } from '../../src/modules/driver/types.js';
 import type { League } from '../../src/modules/league/types.js';
 import type { Platform } from '../../src/modules/platform/types.js';
-import type { Race } from '../../src/modules/race/types.js';
-import type { Season } from '../../src/modules/season/types.js';
 import type { BaseContext } from './base.context.js';
 
 import { createApp } from '../../src/app.js';

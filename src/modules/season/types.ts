@@ -3,12 +3,12 @@ import { type Static, Type } from '@sinclair/typebox';
 export const Season = Type.Object({
   createdAt: Type.Unsafe<Date | string>({ format: 'date-time' }),
   description: Type.String(),
-  endDate: Type.Unsafe<Date | string>({ format: 'date-time' }),
+  endDate: Type.Unsafe<string>({ format: 'date-time' }),
   id: Type.Integer(),
   leagueId: Type.Integer(),
   name: Type.String(),
   platformId: Type.Integer(),
-  startDate: Type.Unsafe<Date | string>({ format: 'date-time' }),
+  startDate: Type.Unsafe<string>({ format: 'date-time' }),
   updatedAt: Type.Unsafe<Date | string>({ format: 'date-time' }),
 });
 

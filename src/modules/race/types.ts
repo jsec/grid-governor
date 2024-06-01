@@ -6,7 +6,7 @@ export const Race = Type.Object({
   leagueId: Type.Number(),
   name: Type.String(),
   seasonId: Type.Number(),
-  time: Type.Unsafe<Date | string>({ format: 'date-time' }),
+  time: Type.Unsafe<string>({ format: 'date-time' }),
   updatedAt: Type.Unsafe<Date | string>({ format: 'date-time' }),
   week: Type.Number(),
 });
