@@ -1,39 +1,58 @@
-import { DeleteResult } from 'kysely';
+import type { DeleteResult } from 'kysely';
+
+import {
+  Result, ResultAsync, errAsync, okAsync
+} from 'neverthrow';
 
 import type {
   NewPlatform, Platform, PlatformUpdate
 } from '../../db/types.js';
 
 import { db } from '../../db/conn.js';
+import { AppError, ErrorCode } from '../../types/errors/app.error.js';
 
-export const createPlatform = async (platform: NewPlatform): Promise<Platform> => {
-  return db
+export const createPlatform = (platform: NewPlatform): ResultAsync<Platform, AppError> => {
+  return ResultAsync.fromThrowable(() => db
     .insertInto('platforms')
     .values(platform)
     .returningAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const getPlatformById = async (id: number): Promise<Platform> => {
-  return db
+export const getPlatformById = (id: number): ResultAsync<Platform, AppError> => {
+  return ResultAsync.fromThrowable(() => db
     .selectFrom('platforms')
     .where('id', '=', id)
     .selectAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const updatePlatform = async (id: number, league: PlatformUpdate): Promise<Platform> => {
-  return db
+export const updatePlatform = (
+  id: number, league: PlatformUpdate
+): ResultAsync<Platform, AppError> => {
+  return ResultAsync.fromThrowable(() => db
     .updateTable('platforms')
     .where('id', '=', id)
     .set(league)
     .returningAll()
-    .executeTakeFirstOrThrow();
+    .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const deletePlatform = async (id: number): Promise<DeleteResult> => {
-  return db
+export const deletePlatform = async (id: number): Promise<Result<DeleteResult, AppError>> => {
+  const result = await db
     .deleteFrom('platforms')
     .where('id', '=', id)
     .executeTakeFirstOrThrow();
+
+  if (Number(result.numDeletedRows) === 0) {
+    return errAsync(
+      new AppError(
+        ErrorCode.NOT_FOUND,
+        `Platform with id ${id} was not found`,
+        'Not Found'
+      )
+    );
+  }
+
+  return okAsync(result);
 };

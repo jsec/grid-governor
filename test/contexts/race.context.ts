@@ -32,7 +32,8 @@ export const test = base.extend<RaceContext>({
     await deleteLeague(league.id);
   },
   platform: async ({ }, use) => {
-    const platform = await createPlatform(platformBuilder.one());
+    const platformResult = await createPlatform(platformBuilder.one());
+    const platform = platformResult._unsafeUnwrap();
     await use(platform);
     await deletePlatform(platform.id);
   },

@@ -1,85 +1,83 @@
-import { NoResultError } from 'kysely';
 import {
-  describe, expect, onTestFinished
+  describe, expect
 } from 'vitest';
 
 import {
   createPlatform, deletePlatform, getPlatformById, updatePlatform
 } from '../../src/modules/platform/service.js';
+import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { platformBuilder } from '../builders/platform.builder.js';
 import { test } from '../contexts/base.context.js';
 
 describe('Platform service', () => {
   test('should create a new platform', async ({ db }) => {
-    const platform = platformBuilder.one();
-    const result = await createPlatform(platform);
+    const newPlatform = platformBuilder.one();
+    const platformResult = await createPlatform(newPlatform);
+    const platform = platformResult._unsafeUnwrap();
 
-    expect(result.name).to.equal(platform.name);
-    expect(result.id).to.not.be.null;
+    expect(platform.name).to.equal(newPlatform.name);
+    expect(platform.id).to.not.be.null;
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('platforms')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    await db
+      .deleteFrom('platforms')
+      .where('id', '=', platform.id)
+      .execute();
+  });
+
+  test('should return an error when retrieving a platform with an invalid id', async () => {
+    const result = await getPlatformById(999_999);
+
+    const error = result._unsafeUnwrapErr();
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
+    expect(error.message).to.equal('no result');
   });
 
   test('should return a platform by id', async ({ db }) => {
-    const existing = await createPlatform({
-      name: 'existing platform'
-    });
+    const platformResult = await createPlatform(platformBuilder.one());
+    const existing = platformResult._unsafeUnwrap();
 
     const result = await getPlatformById(existing.id);
+    const driver = result._unsafeUnwrap();
 
-    expect(result.id).to.equal(existing.id);
-    expect(result.name).to.equal(existing.name);
+    expect(driver).toMatchObject(existing);
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('platforms')
-        .where('id', '=', result.id)
-        .execute();
-    });
-  });
-
-  test('should return a NoResultError when a platform is not found by id', async () => {
-    await expect(getPlatformById(999_999)).rejects.toThrow(NoResultError);
+    await db
+      .deleteFrom('platforms')
+      .where('id', '=', existing.id)
+      .execute();
   });
 
   test('should update an existing platform', async ({ db }) => {
-    const existing = await createPlatform(platformBuilder.one());
+    const createResult = await createPlatform(platformBuilder.one());
+    const existing = createResult._unsafeUnwrap();
     existing.name = 'updated name';
 
-    const result = await updatePlatform(existing.id, existing);
-    expect(result.name).to.equal(existing.name);
+    const updateResult = await updatePlatform(existing.id, existing);
+    const updated = updateResult._unsafeUnwrap();
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('platforms')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    expect(updated.name).to.equal(existing.name);
+
+    await db
+      .deleteFrom('platforms')
+      .where('id', '=', existing.id)
+      .execute();
   });
 
-  test('should delete an existing platform', async ({ db }) => {
-    const existing = await createPlatform(platformBuilder.one());
-
-    const result = await deletePlatform(existing.id);
-
-    expect(Number(result.numDeletedRows)).to.equal(1);
-
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('platforms')
-        .where('id', '=', existing.id)
-        .execute();
-    });
-  });
-
-  test('should return 0 rows deleted when the platform is not found by id', async () => {
+  test('should return an error when deleting a platform with an invalid id', async () => {
     const result = await deletePlatform(999_999);
+    const error = result._unsafeUnwrapErr();
 
-    expect(Number(result.numDeletedRows)).to.equal(0);
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
+    expect(error.message).to.include('Platform with id 999999 was not found');
+  });
+
+  test('should delete an existing platform', async () => {
+    const result = await createPlatform(platformBuilder.one());
+    const { id: platformId } = result._unsafeUnwrap();
+
+    const deleteResult = await deletePlatform(platformId);
+    const { numDeletedRows } = deleteResult._unsafeUnwrap();
+
+    expect(Number(numDeletedRows)).to.equal(1);
   });
 });

@@ -16,27 +16,27 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: PlatformRequest, Reply: Platform }>(
     '/platform',
     { schema: CreatePlatformSchema },
-    async (req, res) => {
-      const platform = await createPlatform(req.body);
-      res.status(201).send(platform);
+    async (request, reply) => {
+      const platform = await createPlatform(request.body);
+      return reply.result(platform);
     }
   );
 
   server.get<{ Params: Params, Reply: Platform }>(
     '/platform/:id',
     { schema: GetPlatformSchema },
-    async (req, res) => {
-      const platform = await getPlatformById(req.params.id);
-      res.status(200).send(platform);
+    async (request, reply) => {
+      const platform = await getPlatformById(request.params.id);
+      return reply.result(platform);
     }
   );
 
   server.put<{ Body: Platform, Params: Params, Reply: Platform }>(
     '/platform/:id',
     { schema: UpdatePlatformSchema },
-    async (req, res) => {
-      const update = await updatePlatform(req.params.id, req.body);
-      res.status(200).send(update);
+    async (request, reply) => {
+      const update = await updatePlatform(request.params.id, request.body);
+      return reply.result(update);
     }
   );
 };

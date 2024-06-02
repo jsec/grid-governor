@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import {
-  describe, expect, onTestFinished
+  describe, expect
 } from 'vitest';
 
 import { createPlatform } from '../../src/modules/platform/service.js';
@@ -35,20 +35,30 @@ describe('Platform API', () => {
       expect(body.name).to.equal(payload.name);
       expect(body.id).to.not.be.null;
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('platforms')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
   describe('GET', () => {
-    test.todo('GET - should return a 404 if no platform with the given id exists');
+    test('GET - should return a 404 if no platform with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/platform/999999'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal('no result');
+    });
 
     test('should return a platform by id', async ({ app, db }) => {
-      const platform = await createPlatform(platformBuilder.one());
+      const createResult = await createPlatform(platformBuilder.one());
+      const platform = createResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
@@ -61,20 +71,31 @@ describe('Platform API', () => {
       expect(body.id).to.equal(platform.id);
       expect(body.name).to.equal(platform.name);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('platforms')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
   describe('PUT', () => {
-    test.todo('PUT - should return a 404 if no platform with the given id exists');
+    test('PUT - should return a 404 if no platform with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'PUT',
+        payload: platformBuilder.one(),
+        url: '/platform/999999'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal('no result');
+    });
 
     test('should update a platform name', async ({ app, db }) => {
-      const platform = await createPlatform(platformBuilder.one());
+      const createResult = await createPlatform(platformBuilder.one());
+      const platform = createResult._unsafeUnwrap();
 
       platform.name = 'Updated name';
 
@@ -90,12 +111,10 @@ describe('Platform API', () => {
       expect(body.id).to.equal(platform.id);
       expect(body.name).to.equal(platform.name);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('platforms')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('platforms')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 });

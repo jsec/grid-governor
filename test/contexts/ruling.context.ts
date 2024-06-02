@@ -74,7 +74,8 @@ export const test = base.extend<RulingContext>({
     await deletePenalty(penalty.id);
   },
   platform: async ({ }, use) => {
-    const platform = await createPlatform(platformBuilder.one());
+    const platformResult = await createPlatform(platformBuilder.one());
+    const platform = platformResult._unsafeUnwrap();
     await use(platform);
     await deletePlatform(platform.id);
   },
