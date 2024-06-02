@@ -59,9 +59,20 @@ describe('League API', () => {
   });
 
   describe('GET', () => {
-    test.todo('GET - should return a 404 if no league with the given id exists');
+    test('GET - should return a 404 if no league with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/league/999999'
+      });
 
-    test.only('should return a league by id', async ({ app, db }) => {
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal('no result');
+    });
+
+    test('should return a league by id', async ({ app, db }) => {
       const leagueResult = await createLeague(leagueBuilder.one());
       const league = leagueResult._unsafeUnwrap();
 
@@ -85,7 +96,19 @@ describe('League API', () => {
   });
 
   describe('PUT', () => {
-    test.todo('PUT - should return a 404 if no league with the given id exists');
+    test('PUT - should return a 404 if no league with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'PUT',
+        payload: leagueBuilder.one(),
+        url: '/league/999999'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal('no result');
+    });
 
     test('should update a league name', async ({ app, db }) => {
       const leagueResult = await createLeague(leagueBuilder.one());
