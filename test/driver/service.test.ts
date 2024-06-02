@@ -1,131 +1,155 @@
-import { NoResultError } from 'kysely';
 import {
-  describe, expect, onTestFinished
+  describe, expect
 } from 'vitest';
 
 import {
   createDriver, deleteDriver, getDriverById, updateDriver
 } from '../../src/modules/driver/service.js';
-import { driverBuilder } from '../builders/driver.builder.js';
+import { ErrorCode } from '../../src/types/errors/app.error.js';
+import { driverBuilder, driverRecordBuilder } from '../builders/driver.builder.js';
 import { test } from '../contexts/base.context.js';
 
 describe('Driver service', () => {
   test('should create a new driver', async ({ db }) => {
-    const driver = driverBuilder.one();
-    const result = await createDriver(driver);
+    const newDriver = driverBuilder.one();
+    const result = await createDriver(newDriver);
 
-    expect(result.id).to.not.be.null;
-    expect(result).toMatchObject({
-      discordId: driver.discordId,
-      firstName: driver.firstName,
-      lastName: driver.lastName,
-      steamId: driver.steamId
+    const driver = result._unsafeUnwrap();
+
+    expect(driver.id).to.not.be.null;
+    expect(driver).toMatchObject({
+      discordId: newDriver.discordId,
+      firstName: newDriver.firstName,
+      lastName: newDriver.lastName,
+      steamId: newDriver.steamId
     });
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('drivers')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    await db
+      .deleteFrom('drivers')
+      .where('id', '=', driver.id)
+      .execute();
+  });
+
+  test('should return an error when retrieving a driver with an invalid id', async () => {
+    const result = await getDriverById(999_999);
+
+    const error = result._unsafeUnwrapErr();
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
+    expect(error.message).to.equal('no result');
   });
 
   test('should return a driver by id', async ({ db }) => {
-    const driver = await createDriver(driverBuilder.one());
+    const driverResult = await createDriver(driverBuilder.one());
+    const existing = driverResult._unsafeUnwrap();
 
-    const result = await getDriverById(driver.id);
+    const result = await getDriverById(existing.id);
+    const driver = result._unsafeUnwrap();
 
-    expect(result).toMatchObject({
-      discordId: driver.discordId,
-      firstName: driver.firstName,
-      id: driver.id,
-      lastName: driver.lastName,
-      steamId: driver.steamId
-    });
+    expect(driver).toMatchObject(existing);
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('drivers')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    await db
+      .deleteFrom('drivers')
+      .where('id', '=', driver.id)
+      .execute();
   });
 
-  test('should return a NoResultError when a platform is not found by id', async () => {
-    await expect(getDriverById(999_999)).rejects.toThrow(NoResultError);
+  test('should return an error when updating a driver with an invalid id', async () => {
+    const driver = driverRecordBuilder.one({
+      overrides: {
+        id: 999_999
+      }
+    });
+
+    const result = await updateDriver(driver.id, driver);
+
+    const error = result._unsafeUnwrapErr();
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
+    expect(error.message).to.equal('no result');
   });
 
   test("should update a driver's first name", async ({ db }) => {
-    const existing = await createDriver(driverBuilder.one());
-    existing.firstName = 'updated first name';
+    const createResult = await createDriver(driverBuilder.one());
+    const created = createResult._unsafeUnwrap();
 
-    const result = await updateDriver(existing.id, existing);
-    expect(result.firstName).to.equal(existing.firstName);
+    created.firstName = 'updated first name';
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('drivers')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    const updateResult = await updateDriver(created.id, created);
+    const update = updateResult._unsafeUnwrap();
+
+    expect(update.firstName).to.equal(created.firstName);
+
+    await db
+      .deleteFrom('drivers')
+      .where('id', '=', update.id)
+      .execute();
   });
 
   test("should update a driver's last name", async ({ db }) => {
-    const existing = await createDriver(driverBuilder.one());
-    existing.lastName = 'updated last name';
+    const createResult = await createDriver(driverBuilder.one());
+    const created = createResult._unsafeUnwrap();
 
-    const result = await updateDriver(existing.id, existing);
-    expect(result.lastName).to.equal(existing.lastName);
+    created.lastName = 'updated last name';
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('drivers')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    const updateResult = await updateDriver(created.id, created);
+    const update = updateResult._unsafeUnwrap();
+
+    expect(update.lastName).to.equal(created.lastName);
+
+    await db
+      .deleteFrom('drivers')
+      .where('id', '=', update.id)
+      .execute();
   });
 
   test("should update a driver's steam id", async ({ db }) => {
-    const existing = await createDriver(driverBuilder.one());
-    existing.steamId = '101010101';
+    const createResult = await createDriver(driverBuilder.one());
+    const created = createResult._unsafeUnwrap();
 
-    const result = await updateDriver(existing.id, existing);
-    expect(result.steamId).to.equal(existing.steamId);
+    created.steamId = '12345';
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('drivers')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    const updateResult = await updateDriver(created.id, created);
+    const update = updateResult._unsafeUnwrap();
+
+    expect(update.steamId).to.equal(created.steamId);
+
+    await db
+      .deleteFrom('drivers')
+      .where('id', '=', update.id)
+      .execute();
   });
 
   test("should update a driver's discord id", async ({ db }) => {
-    const existing = await createDriver(driverBuilder.one());
-    existing.discordId = '12345';
+    const createResult = await createDriver(driverBuilder.one());
+    const created = createResult._unsafeUnwrap();
 
-    const result = await updateDriver(existing.id, existing);
-    expect(result.discordId).to.equal(existing.discordId);
+    created.discordId = '12345';
 
-    onTestFinished(async () => {
-      await db
-        .deleteFrom('drivers')
-        .where('id', '=', result.id)
-        .execute();
-    });
+    const updateResult = await updateDriver(created.id, created);
+    const update = updateResult._unsafeUnwrap();
+
+    expect(update.discordId).to.equal(created.discordId);
+
+    await db
+      .deleteFrom('drivers')
+      .where('id', '=', update.id)
+      .execute();
+  });
+
+  test('should return an error when deleting a driver with an invalid id', async () => {
+    const result = await deleteDriver(999_999);
+    const error = result._unsafeUnwrapErr();
+
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
+    expect(error.message).to.include('Driver with id 999999 was not found');
   });
 
   test('should delete an existing driver', async () => {
-    const existing = await createDriver(driverBuilder.one());
+    const result = await createDriver(driverBuilder.one());
+    const { id: driverId } = result._unsafeUnwrap();
 
-    const result = await deleteDriver(existing.id);
+    const deleteResult = await deleteDriver(driverId);
+    const { numDeletedRows } = deleteResult._unsafeUnwrap();
 
-    expect(Number(result.numDeletedRows)).to.equal(1);
-  });
-
-  test('should return 0 rows deleted when the driver is not found by id', async () => {
-    const result = await deleteDriver(999_999);
-
-    expect(Number(result.numDeletedRows)).to.equal(0);
+    expect(Number(numDeletedRows)).to.equal(1);
   });
 });

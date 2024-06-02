@@ -29,7 +29,8 @@ export const test = base.extend<RegistrationContext>({
   app: createApp(),
   db: db,
   driver: async ({ }, use) => {
-    const driver = await createDriver(driverBuilder.one());
+    const driverResult = await createDriver(driverBuilder.one());
+    const driver = driverResult._unsafeUnwrap();
     await use(driver);
     await deleteDriver(driver.id);
   },

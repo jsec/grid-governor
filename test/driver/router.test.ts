@@ -4,7 +4,7 @@ import {
 } from 'vitest';
 
 import { createDriver } from '../../src/modules/driver/service.js';
-import { driverBuilder } from '../builders/driver.builder.js';
+import { driverBuilder, driverRecordBuilder } from '../builders/driver.builder.js';
 import { test } from '../contexts/base.context.js';
 
 describe('Driver API', () => {
@@ -100,10 +100,22 @@ describe('Driver API', () => {
   });
 
   describe('GET', () => {
-    test.todo('GET - should return a 404 if no driver with the given id exists');
+    test('GET - should return a 404 if no driver with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'GET',
+        url: '/driver/999999'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal('no result');
+    });
 
     test('should return a driver by id', async ({ app, db }) => {
-      const driver = await createDriver(driverBuilder.one());
+      const driverResult = await createDriver(driverBuilder.one());
+      const driver = driverResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
@@ -121,20 +133,31 @@ describe('Driver API', () => {
         steamId: driver.steamId
       });
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
   describe('PUT', () => {
-    test.todo('PUT - should return a 404 if no driver with the given id exists');
+    test('PUT - should return a 404 if no driver with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'PUT',
+        payload: driverBuilder.one(),
+        url: '/driver/999999'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal('no result');
+    });
 
     test("should update a driver's first name", async ({ app, db }) => {
-      const driver = await createDriver(driverBuilder.one());
+      const driverResult = await createDriver(driverBuilder.one());
+      const driver = driverResult._unsafeUnwrap();
 
       driver.firstName = 'Updated first name';
 
@@ -150,16 +173,15 @@ describe('Driver API', () => {
       expect(body.id).to.equal(driver.id);
       expect(body.firstName).to.equal(driver.firstName);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', body.id)
+        .execute();
     });
 
     test("should update a driver's last name", async ({ app, db }) => {
-      const driver = await createDriver(driverBuilder.one());
+      const driverResult = await createDriver(driverBuilder.one());
+      const driver = driverResult._unsafeUnwrap();
 
       driver.lastName = 'Updated last name';
 
@@ -175,16 +197,15 @@ describe('Driver API', () => {
       expect(body.id).to.equal(driver.id);
       expect(body.lastName).to.equal(driver.lastName);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', body.id)
+        .execute();
     });
 
     test("should update a driver's steam id", async ({ app, db }) => {
-      const driver = await createDriver(driverBuilder.one());
+      const driverResult = await createDriver(driverBuilder.one());
+      const driver = driverResult._unsafeUnwrap();
 
       driver.steamId = 'abcdefghi';
 
@@ -200,16 +221,15 @@ describe('Driver API', () => {
       expect(body.id).to.equal(driver.id);
       expect(body.steamId).to.equal(driver.steamId);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', body.id)
+        .execute();
     });
 
     test("should update a driver's discord id", async ({ app, db }) => {
-      const driver = await createDriver(driverBuilder.one());
+      const driverResult = await createDriver(driverBuilder.one());
+      const driver = driverResult._unsafeUnwrap();
 
       driver.discordId = '17284182';
 
@@ -225,12 +245,10 @@ describe('Driver API', () => {
       expect(body.id).to.equal(driver.id);
       expect(body.discordId).to.equal(driver.discordId);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('drivers')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('drivers')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 });

@@ -41,7 +41,8 @@ export const test = base.extend<RulingContext>({
   app: createApp(),
   db: db,
   driver: async ({ }, use) => {
-    const driver = await createDriver(driverBuilder.one());
+    const driverResult = await createDriver(driverBuilder.one());
+    const driver = driverResult._unsafeUnwrap();
     await use(driver);
     await deleteDriver(driver.id);
   },
@@ -90,7 +91,8 @@ export const test = base.extend<RulingContext>({
     await deleteRace(race.id);
   },
   reportingDriver: async ({ }, use) => {
-    const driver = await createDriver(driverBuilder.one());
+    const driverResult = await createDriver(driverBuilder.one());
+    const driver = driverResult._unsafeUnwrap();
     await use(driver);
     await deleteDriver(driver.id);
   },

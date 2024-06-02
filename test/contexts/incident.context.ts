@@ -33,7 +33,8 @@ export const test = base.extend<IncidentContext>({
   app: createApp(),
   db: db,
   driver: async ({ }, use) => {
-    const driver = await createDriver(driverBuilder.one());
+    const driverResult = await createDriver(driverBuilder.one());
+    const driver = driverResult._unsafeUnwrap();
     await use(driver);
     await deleteDriver(driver.id);
   },
@@ -63,7 +64,8 @@ export const test = base.extend<IncidentContext>({
     await deleteRace(race.id);
   },
   reportingDriver: async ({ }, use) => {
-    const driver = await createDriver(driverBuilder.one());
+    const driverResult = await createDriver(driverBuilder.one());
+    const driver = driverResult._unsafeUnwrap();
     await use(driver);
     await deleteDriver(driver.id);
   },
@@ -76,7 +78,6 @@ export const test = base.extend<IncidentContext>({
     }));
 
     const season = seasonResult._unsafeUnwrap();
-
     await use(season);
     await deleteSeason(season.id);
   }
