@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import {
-  describe, expect, onTestFinished
+  describe, expect
 } from 'vitest';
 
 import { createPenalty } from '../../src/modules/penalty/service.js';
@@ -51,20 +51,31 @@ describe('Penalty API', () => {
       expect(body.name).to.equal(payload.name);
       expect(body.description).to.equal(payload.description);
 
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('penalties')
-          .where('id', '=', body.id)
-          .execute();
-      });
+      await db
+        .deleteFrom('penalties')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
   describe('GET', () => {
-    test.todo('GET - should return a 404 if no penalty with the given id exists');
+    test('should return a 404 if no penalty with the given id exists',
+      async ({ app }) => {
+        const response = await app.inject({
+          method: 'GET',
+          url: '/penalty/999999'
+        });
+
+        const body = response.json();
+
+        expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+        expect(response.statusMessage).to.equal('Not Found');
+        expect(body.message).to.equal('no result');
+      });
 
     test('should return a penalty by id', async ({ app, db }) => {
-      const penalty = await createPenalty(penaltyBuilder.one());
+      const penaltyResult = await createPenalty(penaltyBuilder.one());
+      const penalty = penaltyResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
@@ -74,24 +85,37 @@ describe('Penalty API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body.id).to.equal(penalty.id);
-      expect(body.name).to.equal(penalty.name);
-      expect(body.description).to.equal(penalty.description);
-
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('penalties')
-          .where('id', '=', body.id)
-          .execute();
+      expect(body).toMatchObject({
+        description: penalty.description,
+        id: penalty.id,
+        name: penalty.name
       });
+
+      await db
+        .deleteFrom('penalties')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 
   describe('PUT', () => {
-    test.todo('PUT - should return a 404 if no penalty with the given id exists');
+    test('should return a 404 if no penalty with the given id exists', async ({ app }) => {
+      const response = await app.inject({
+        method: 'PUT',
+        payload: penaltyBuilder.one(),
+        url: '/penalty/999999'
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal('no result');
+    });
 
     test('should update a penalty name', async ({ app, db }) => {
-      const penalty = await createPenalty(penaltyBuilder.one());
+      const penaltyResult = await createPenalty(penaltyBuilder.one());
+      const penalty = penaltyResult._unsafeUnwrap();
 
       penalty.name = 'Updated name';
 
@@ -104,19 +128,20 @@ describe('Penalty API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body.id).to.equal(penalty.id);
-      expect(body.name).to.equal(penalty.name);
-
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('penalties')
-          .where('id', '=', body.id)
-          .execute();
+      expect(body).toMatchObject({
+        id: penalty.id,
+        name: penalty.name
       });
+
+      await db
+        .deleteFrom('penalties')
+        .where('id', '=', body.id)
+        .execute();
     });
 
     test('should update a penalty description', async ({ app, db }) => {
-      const penalty = await createPenalty(penaltyBuilder.one());
+      const penaltyResult = await createPenalty(penaltyBuilder.one());
+      const penalty = penaltyResult._unsafeUnwrap();
 
       penalty.description = 'Updated description';
 
@@ -129,15 +154,15 @@ describe('Penalty API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body.id).to.equal(penalty.id);
-      expect(body.description).to.equal(penalty.description);
-
-      onTestFinished(async () => {
-        await db
-          .deleteFrom('penalties')
-          .where('id', '=', body.id)
-          .execute();
+      expect(body).toMatchObject({
+        description: penalty.description,
+        id: penalty.id
       });
+
+      await db
+        .deleteFrom('penalties')
+        .where('id', '=', body.id)
+        .execute();
     });
   });
 });

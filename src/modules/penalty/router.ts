@@ -17,27 +17,27 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: PenaltyRequest, Reply: Penalty }>(
     '/penalty',
     { schema: CreatePenaltySchema },
-    async (req, res) => {
-      const penalty = await createPenalty(req.body);
-      res.status(201).send(penalty);
+    async (request, reply) => {
+      const penalty = await createPenalty(request.body);
+      return reply.result(penalty);
     }
   );
 
   server.get<{ Params: Params, Reply: Penalty }>(
     '/penalty/:id',
     { schema: GetPenaltySchema },
-    async (req, res) => {
-      const penalty = await getPenaltyById(req.params.id);
-      res.status(200).send(penalty);
+    async (request, reply) => {
+      const penalty = await getPenaltyById(request.params.id);
+      return reply.result(penalty);
     }
   );
 
   server.put<{ Body: Penalty, Params: Params, Reply: Penalty }>(
     '/penalty/:id',
     { schema: UpdatePenaltySchema },
-    async (req, res) => {
-      const update = await updatePenalty(req.params.id, req.body);
-      res.status(200).send(update);
+    async (request, reply) => {
+      const update = await updatePenalty(request.params.id, request.body);
+      return reply.result(update);
     }
   );
 };

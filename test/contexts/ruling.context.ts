@@ -69,7 +69,8 @@ export const test = base.extend<RulingContext>({
     await deleteLeague(league.id);
   },
   penalty: async ({ }, use) => {
-    const penalty = await createPenalty(penaltyBuilder.one());
+    const penaltyResult = await createPenalty(penaltyBuilder.one());
+    const penalty = penaltyResult._unsafeUnwrap();
     await use(penalty);
     await deletePenalty(penalty.id);
   },

@@ -1,4 +1,3 @@
-import { NoResultError } from 'kysely';
 import {
   describe, expect, onTestFinished
 } from 'vitest';
@@ -6,88 +5,104 @@ import {
 import {
   createPenalty, deletePenalty, getPenaltyById, updatePenalty
 } from '../../src/modules/penalty/service.js';
+import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { penaltyBuilder } from '../builders/penalty.builder.js';
 import { test } from '../contexts/base.context.js';
 
 describe('Penalty service', () => {
   test('should create a new penalty', async ({ db }) => {
-    const penalty = penaltyBuilder.one();
-    const result = await createPenalty(penalty);
+    const newPenalty = penaltyBuilder.one();
+    const result = await createPenalty(newPenalty);
 
-    expect(result.id).to.not.be.null;
-    expect(result.name).to.equal(penalty.name);
-    expect(result.description).to.equal(penalty.description);
+    const penalty = result._unsafeUnwrap();
+
+    expect(penalty.id).to.not.be.null;
+    expect(penalty).toMatchObject({
+      description: newPenalty.description,
+      name: newPenalty.name
+    });
 
     onTestFinished(async () => {
       await db
         .deleteFrom('penalties')
-        .where('id', '=', result.id)
+        .where('id', '=', penalty.id)
         .execute();
     });
+  });
+
+  test('should return an error when retrieving a penalty with an invalid id', async () => {
+    const result = await getPenaltyById(999_999);
+
+    const error = result._unsafeUnwrapErr();
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
+    expect(error.message).to.equal('no result');
   });
 
   test('should return a penalty by id', async ({ db }) => {
-    const existing = await createPenalty(penaltyBuilder.one());
+    const created = await createPenalty(penaltyBuilder.one());
+    const penalty = created._unsafeUnwrap();
 
-    const result = await getPenaltyById(existing.id);
-
-    expect(result.id).to.equal(existing.id);
-    expect(result.name).to.equal(existing.name);
-    expect(result.description).to.equal(existing.description);
+    const result = await getPenaltyById(penalty.id);
+    expect(result._unsafeUnwrap()).toMatchObject(penalty);
 
     onTestFinished(async () => {
       await db
         .deleteFrom('penalties')
-        .where('id', '=', result.id)
+        .where('id', '=', penalty.id)
         .execute();
     });
-  });
-
-  test('should return a NoResultError when a penalty is not found by id', async () => {
-    await expect(getPenaltyById(999_999)).rejects.toThrow(NoResultError);
   });
 
   test('should update a penalty name', async ({ db }) => {
     const existing = await createPenalty(penaltyBuilder.one());
-    existing.name = 'updated name';
+    const penalty = existing._unsafeUnwrap();
+    penalty.name = 'updated name';
 
-    const result = await updatePenalty(existing.id, existing);
-    expect(result.name).to.equal(existing.name);
+    const result = await updatePenalty(penalty.id, penalty);
+    const updatedPenalty = result._unsafeUnwrap();
+
+    expect(updatedPenalty.name).to.equal(penalty.name);
 
     onTestFinished(async () => {
       await db
         .deleteFrom('penalties')
-        .where('id', '=', result.id)
+        .where('id', '=', penalty.id)
         .execute();
     });
   });
 
   test('should update a penalty description', async ({ db }) => {
     const existing = await createPenalty(penaltyBuilder.one());
-    existing.description = 'updated description';
+    const penalty = existing._unsafeUnwrap();
+    penalty.description = 'updated description';
 
-    const result = await updatePenalty(existing.id, existing);
-    expect(result.name).to.equal(existing.name);
+    const result = await updatePenalty(penalty.id, penalty);
+    const updatedPenalty = result._unsafeUnwrap();
+
+    expect(updatedPenalty.description).to.equal(penalty.description);
 
     onTestFinished(async () => {
       await db
         .deleteFrom('penalties')
-        .where('id', '=', result.id)
+        .where('id', '=', penalty.id)
         .execute();
     });
   });
 
-  test('should delete an existing penalty', async () => {
-    const existing = await createPenalty(penaltyBuilder.one());
+  test('should return an error when deleting a penalty with an invalid id', async () => {
+    const result = await deletePenalty(999_999);
+    const error = result._unsafeUnwrapErr();
 
-    const result = await deletePenalty(existing.id);
-
-    expect(Number(result.numDeletedRows)).to.equal(1);
+    expect(error.code).to.equal(ErrorCode.NOT_FOUND);
+    expect(error.message).to.include('Penalty with id 999999 was not found');
   });
 
-  test('should return 0 rows deleted when the penalty is not found by id', async () => {
-    const result = await deletePenalty(999_999);
+  test('should delete an existing penalty', async () => {
+    const existing = await createPenalty(penaltyBuilder.one());
+    const { id: penaltyId } = existing._unsafeUnwrap();
 
-    expect(Number(result.numDeletedRows)).to.equal(0);
+    const result = await deletePenalty(penaltyId);
+    const { numDeletedRows } = result._unsafeUnwrap();
+    expect(Number(numDeletedRows)).to.equal(1);
   });
 });
