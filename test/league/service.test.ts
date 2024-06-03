@@ -7,7 +7,7 @@ import {
 } from '../../src/modules/league/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { leagueBuilder, leagueRecordBuilder } from '../builders/league.builder.js';
-import { test } from '../contexts/base.context.js';
+import { test } from '../context.js';
 
 describe('League service', () => {
   test('should create a new league', async ({ db }) => {

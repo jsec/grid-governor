@@ -5,7 +5,7 @@ import {
 
 import { createDriver } from '../../src/modules/driver/service.js';
 import { driverBuilder } from '../builders/driver.builder.js';
-import { test } from '../contexts/base.context.js';
+import { test } from '../context.js';
 
 describe('Driver API', () => {
   describe('POST', () => {

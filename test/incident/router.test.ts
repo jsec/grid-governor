@@ -4,7 +4,7 @@ import { describe, expect } from 'vitest';
 import { createIncident } from '../../src/modules/incident/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { incidentBuilder } from '../builders/incident.builder.js';
-import { test } from '../contexts/incident.context.js';
+import { test } from '../context.js';
 
 describe('Incident API', () => {
   describe('POST', () => {

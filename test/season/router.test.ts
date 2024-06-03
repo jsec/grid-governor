@@ -4,7 +4,7 @@ import { describe, expect } from 'vitest';
 import { createSeason } from '../../src/modules/season/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { seasonBuilder } from '../builders/season.builder.js';
-import { test } from '../contexts/season.context.js';
+import { test } from '../context.js';
 
 describe('Season API', () => {
   describe('POST', () => {

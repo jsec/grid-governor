@@ -6,7 +6,7 @@ import {
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { rulingBuilder, rulingRecordBuilder } from '../builders/ruling.builder.js';
-import { test } from '../contexts/ruling.context.js';
+import { test } from '../context.js';
 
 describe('Ruling service', () => {
   test('should return an error when the provided incidentId is invalid',

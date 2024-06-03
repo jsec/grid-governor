@@ -6,7 +6,7 @@ import {
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { incidentBuilder, incidentRecordBuilder } from '../builders/incident.builder.js';
-import { test } from '../contexts/incident.context.js';
+import { test } from '../context.js';
 
 describe('Incident service', () => {
   test('should return an error when the provided driverId is invalid',

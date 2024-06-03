@@ -5,7 +5,7 @@ import {
 
 import { createPlatform } from '../../src/modules/platform/service.js';
 import { platformBuilder } from '../builders/platform.builder.js';
-import { test } from '../contexts/base.context.js';
+import { test } from '../context.js';
 
 describe('Platform API', () => {
   describe('POST', () => {

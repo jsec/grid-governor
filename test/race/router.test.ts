@@ -4,7 +4,7 @@ import { describe, expect } from 'vitest';
 import { createRace } from '../../src/modules/race/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { raceBuilder } from '../builders/race.builder.js';
-import { test } from '../contexts/race.context.js';
+import { test } from '../context.js';
 
 describe('Race API', () => {
   describe('POST', () => {

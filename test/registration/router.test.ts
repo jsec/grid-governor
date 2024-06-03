@@ -4,7 +4,7 @@ import { describe, expect } from 'vitest';
 import { createRegistration } from '../../src/modules/registration/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { registrationBuilder } from '../builders/registration.builder.js';
-import { test } from '../contexts/registration.context.js';
+import { test } from '../context.js';
 
 describe('Registration API', () => {
   describe('POST', () => {

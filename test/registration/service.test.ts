@@ -9,7 +9,7 @@ import {
   registrationBuilder,
   registrationRecordBuilder
 } from '../builders/registration.builder.js';
-import { test } from '../contexts/registration.context.js';
+import { test } from '../context.js';
 
 describe('Registration service', () => {
   test('should return an error when the provided driverId is invalid', async () => {

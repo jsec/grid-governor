@@ -6,7 +6,7 @@ import {
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import { seasonBuilder, seasonRecordBuilder } from '../builders/season.builder.js';
-import { test } from '../contexts/season.context.js';
+import { test } from '../context.js';
 
 describe('Season service', () => {
   test('should return an error when the provided leagueId is invalid', async () => {

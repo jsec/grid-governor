@@ -7,7 +7,7 @@ import {
 } from '../../src/modules/penalty/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { penaltyBuilder } from '../builders/penalty.builder.js';
-import { test } from '../contexts/base.context.js';
+import { test } from '../context.js';
 
 describe('Penalty service', () => {
   test('should create a new penalty', async ({ db }) => {

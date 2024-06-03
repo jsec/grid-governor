@@ -3,8 +3,8 @@ import { describe, expect } from 'vitest';
 
 import { createRuling } from '../../src/modules/ruling/service.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
-import { rulingBuilder, rulingRecordBuilder } from '../builders/ruling.builder.js';
-import { test } from '../contexts/ruling.context.js';
+import { rulingBuilder } from '../builders/ruling.builder.js';
+import { test } from '../context.js';
 
 describe('Incident API', () => {
   describe('POST', () => {

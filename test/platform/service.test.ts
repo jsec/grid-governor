@@ -7,7 +7,7 @@ import {
 } from '../../src/modules/platform/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { platformBuilder } from '../builders/platform.builder.js';
-import { test } from '../contexts/base.context.js';
+import { test } from '../context.js';
 
 describe('Platform service', () => {
   test('should create a new platform', async ({ db }) => {
