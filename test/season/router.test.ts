@@ -154,7 +154,7 @@ describe('Season API', () => {
 
       expect(response.statusCode).to.equal(StatusCodes.CREATED);
       expect(body.id).to.not.be.null;
-      expect(body).toMatchObject({
+      expect(body).to.include({
         description: season.description,
         leagueId: season.leagueId,
         name: season.name,
@@ -203,7 +203,7 @@ describe('Season API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body).toMatchObject({
+      expect(body).to.include({
         description: season.description,
         id: season.id,
         leagueId: season.leagueId,

@@ -51,7 +51,7 @@ describe('Registration service', () => {
     const registration = result._unsafeUnwrap();
 
     expect(registration.id).to.not.be.null;
-    expect(registration).toMatchObject({
+    expect(registration).to.include({
       driverId: driver.id,
       seasonId: season.id
     });
@@ -82,7 +82,11 @@ describe('Registration service', () => {
     const registration = created._unsafeUnwrap();
 
     const result = await getRegistrationById(registration.id);
-    expect(result._unsafeUnwrap()).toMatchObject(registration);
+    expect(result._unsafeUnwrap()).to.include({
+      driverId: registration.driverId,
+      id: registration.id,
+      seasonId: registration.seasonId
+    });
 
     await db
       .deleteFrom('registrations')

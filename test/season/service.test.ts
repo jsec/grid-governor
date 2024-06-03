@@ -49,7 +49,7 @@ describe('Season service', () => {
     const season = result._unsafeUnwrap();
 
     expect(season.id).to.not.be.null;
-    expect(season).toMatchObject({
+    expect(season).to.include({
       leagueId: newSeason.leagueId,
       name: newSeason.name,
       platformId: newSeason.platformId,
@@ -83,7 +83,12 @@ describe('Season service', () => {
     const season = created._unsafeUnwrap();
     const result = await getSeasonById(season.id);
 
-    expect(result._unsafeUnwrap()).toMatchObject(season);
+    expect(result._unsafeUnwrap()).to.include({
+      description: season.description,
+      leagueId: season.leagueId,
+      name: season.name,
+      platformId: season.platformId
+    });
 
     await db
       .deleteFrom('seasons')

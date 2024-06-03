@@ -85,7 +85,7 @@ describe('Penalty API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body).toMatchObject({
+      expect(body).to.include({
         description: penalty.description,
         id: penalty.id,
         name: penalty.name
@@ -128,7 +128,7 @@ describe('Penalty API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body).toMatchObject({
+      expect(body).to.include({
         id: penalty.id,
         name: penalty.name
       });
@@ -154,7 +154,7 @@ describe('Penalty API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body).toMatchObject({
+      expect(body).to.include({
         description: penalty.description,
         id: penalty.id
       });

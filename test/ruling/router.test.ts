@@ -96,7 +96,7 @@ describe('Incident API', () => {
 
       expect(response.statusCode).to.equal(StatusCodes.CREATED);
       expect(body.id).not.to.be.null;
-      expect(body).toMatchObject({
+      expect(body).to.include({
         incidentId: incident.id,
         penaltyId: penalty.id
       });
@@ -142,7 +142,7 @@ describe('Incident API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body).toMatchObject({
+      expect(body).to.include({
         id: ruling.id,
         incidentId: incident.id,
         penaltyId: penalty.id

@@ -17,7 +17,7 @@ describe('Penalty service', () => {
     const penalty = result._unsafeUnwrap();
 
     expect(penalty.id).to.not.be.null;
-    expect(penalty).toMatchObject({
+    expect(penalty).to.include({
       description: newPenalty.description,
       name: newPenalty.name
     });
@@ -43,7 +43,11 @@ describe('Penalty service', () => {
     const penalty = created._unsafeUnwrap();
 
     const result = await getPenaltyById(penalty.id);
-    expect(result._unsafeUnwrap()).toMatchObject(penalty);
+    expect(result._unsafeUnwrap()).to.include({
+      description: penalty.description,
+      id: penalty.id,
+      name: penalty.name
+    });
 
     onTestFinished(async () => {
       await db

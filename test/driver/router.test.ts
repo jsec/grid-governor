@@ -83,7 +83,7 @@ describe('Driver API', () => {
       expect(response.statusCode).toEqual(StatusCodes.CREATED);
       expect(body.id).to.not.be.null;
 
-      expect(body).toMatchObject({
+      expect(body).to.include({
         discordId: payload.discordId,
         firstName: payload.firstName,
         lastName: payload.lastName,
@@ -125,7 +125,7 @@ describe('Driver API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body).toMatchObject({
+      expect(body).to.include({
         discordId: driver.discordId,
         firstName: driver.firstName,
         id: driver.id,

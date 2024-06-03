@@ -39,7 +39,10 @@ describe('Platform service', () => {
     const result = await getPlatformById(existing.id);
     const driver = result._unsafeUnwrap();
 
-    expect(driver).toMatchObject(existing);
+    expect(driver).to.include({
+      id: existing.id,
+      name: existing.name
+    });
 
     await db
       .deleteFrom('platforms')

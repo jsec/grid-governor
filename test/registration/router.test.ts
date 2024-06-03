@@ -92,7 +92,7 @@ describe('Registration API', () => {
 
       expect(response.statusCode).to.equal(StatusCodes.CREATED);
       expect(body.id).not.to.be.null;
-      expect(body).toMatchObject({
+      expect(body).to.include({
         driverId: driver.id,
         seasonId: season.id
       });
@@ -138,7 +138,7 @@ describe('Registration API', () => {
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
-      expect(body).toMatchObject({
+      expect(body).to.include({
         driverId: registration.driverId,
         id: registration.id,
         seasonId: registration.seasonId

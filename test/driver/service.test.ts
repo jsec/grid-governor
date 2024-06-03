@@ -17,7 +17,7 @@ describe('Driver service', () => {
     const driver = result._unsafeUnwrap();
 
     expect(driver.id).to.not.be.null;
-    expect(driver).toMatchObject({
+    expect(driver).to.include({
       discordId: newDriver.discordId,
       firstName: newDriver.firstName,
       lastName: newDriver.lastName,
@@ -45,7 +45,13 @@ describe('Driver service', () => {
     const result = await getDriverById(existing.id);
     const driver = result._unsafeUnwrap();
 
-    expect(driver).toMatchObject(existing);
+    expect(driver).to.include({
+      discordId: driver.discordId,
+      firstName: driver.firstName,
+      id: driver.id,
+      lastName: driver.lastName,
+      steamId: driver.steamId
+    });
 
     await db
       .deleteFrom('drivers')

@@ -17,7 +17,7 @@ describe('App Error', () => {
 
       const appError = AppError.fromPostgresError(error);
 
-      expect(appError).toMatchObject({
+      expect(appError).to.include({
         code: ErrorCode.DATABASE_ERROR,
         message: "You can't do that",
         // TODO: fix this
@@ -37,7 +37,7 @@ describe('App Error', () => {
       // TODO: should this be called fromServiceError?
       const appError = AppError.fromDatabaseError(error);
 
-      expect(appError).toMatchObject({
+      expect(appError).to.include({
         code: ErrorCode.DATABASE_ERROR,
         message: "You can't do that",
         name: '23503'
@@ -62,7 +62,7 @@ describe('App Error', () => {
       const error = new Error('things went poorly');
       const appError = AppError.fromDatabaseError(error);
 
-      expect(appError).toMatchObject({
+      expect(appError).to.include({
         code: ErrorCode.DATABASE_ERROR,
         message: 'things went poorly',
         name: 'AppError'

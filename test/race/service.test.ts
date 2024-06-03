@@ -48,7 +48,7 @@ describe('Race service', () => {
     const race = result._unsafeUnwrap();
 
     expect(race.id).to.not.be.null;
-    expect(race).toMatchObject({
+    expect(race).to.include({
       leagueId: league.id,
       seasonId: season.id
     });
@@ -80,7 +80,13 @@ describe('Race service', () => {
     const race = created._unsafeUnwrap();
 
     const result = await getRaceById(race.id);
-    expect(result._unsafeUnwrap()).toMatchObject(race);
+    expect(result._unsafeUnwrap()).to.include({
+      id: race.id,
+      leagueId: race.leagueId,
+      name: race.name,
+      seasonId: race.seasonId,
+      week: race.week
+    });
 
     await db
       .deleteFrom('races')

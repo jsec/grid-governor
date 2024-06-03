@@ -54,7 +54,7 @@ describe('Ruling service', () => {
     const ruling = result._unsafeUnwrap();
 
     expect(ruling.id).to.not.be.null;
-    expect(ruling).toMatchObject({
+    expect(ruling).to.include({
       incidentId: incident.id,
       penaltyId: penalty.id
     });
@@ -86,7 +86,11 @@ describe('Ruling service', () => {
     const ruling = created._unsafeUnwrap();
 
     const result = await getRulingById(ruling.id);
-    expect(result._unsafeUnwrap()).toMatchObject(ruling);
+    expect(result._unsafeUnwrap()).to.include({
+      id: ruling.id,
+      incidentId: ruling.incidentId,
+      penaltyId: ruling.penaltyId
+    });
 
     await db
       .deleteFrom('rulings')

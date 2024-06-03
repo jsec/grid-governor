@@ -17,7 +17,7 @@ describe('League service', () => {
     const league = result._unsafeUnwrap();
 
     expect(league.id).to.not.be.null;
-    expect(league).toMatchObject({
+    expect(league).to.include({
       description: newLeague.description,
       name: newLeague.name
     });
@@ -43,7 +43,11 @@ describe('League service', () => {
     const league = created._unsafeUnwrap();
 
     const result = await getLeagueById(league.id);
-    expect(result._unsafeUnwrap()).toMatchObject(league);
+    expect(result._unsafeUnwrap()).to.include({
+      description: league.description,
+      id: league.id,
+      name: league.name
+    });
 
     onTestFinished(async () => {
       await db
