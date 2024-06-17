@@ -120,7 +120,7 @@ describe('League service', () => {
     const { id: leagueId } = existing._unsafeUnwrap();
 
     const result = await deleteLeague(leagueId);
-    const { numDeletedRows } = result._unsafeUnwrap();
-    expect(Number(numDeletedRows)).to.equal(1);
+    const { status } = result._unsafeUnwrap();
+    expect(status).to.equal('OK');
   });
 });

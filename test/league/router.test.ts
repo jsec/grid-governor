@@ -96,7 +96,7 @@ describe('League API', () => {
   });
 
   describe('PUT', () => {
-    test('PUT - should return a 404 if no league with the given id exists', async ({ app }) => {
+    test('should return a 404 if no league with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'PUT',
         payload: leagueBuilder.one(),
@@ -156,6 +156,41 @@ describe('League API', () => {
         .deleteFrom('leagues')
         .where('id', '=', body.id)
         .execute();
+    });
+  });
+
+  describe('DELETE', () => {
+    test('should return a 404 if no league with the given id exists', async ({ app }) => {
+      const leagueId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/league/${leagueId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`League with id ${leagueId} was not found`);
+    });
+
+    test('should delete an existing league', async ({ app }) => {
+      const leagueResult = await createLeague(leagueBuilder.one());
+
+      const { id: leagueId } = leagueResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/league/${leagueId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
     });
   });
 });

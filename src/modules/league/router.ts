@@ -10,7 +10,7 @@ import {
   CreateLeagueSchema, GetLeagueSchema, UpdateLeagueSchema
 } from './schema.js';
 import {
-  createLeague, getLeagueById, updateLeague
+  createLeague, deleteLeague, getLeagueById, updateLeague
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
@@ -38,6 +38,14 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const update = await updateLeague(request.params.id, request.body);
       return reply.result(update);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/league/:id',
+    async (request, reply) => {
+      const result = await deleteLeague(request.params.id);
+      return reply.result(result);
     }
   );
 };

@@ -7,6 +7,7 @@ import {
 import type {
   League, LeagueUpdate, NewLeague
 } from '../../db/types.js';
+import type { DeleteStatus } from '../../types/db.js';
 
 import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';
@@ -36,7 +37,7 @@ export const updateLeague = (id: number, league: LeagueUpdate): ResultAsync<Leag
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const deleteLeague = async (id: number): Promise<Result<DeleteResult, AppError>> => {
+export const deleteLeague = async (id: number): Promise<Result<DeleteStatus, AppError>> => {
   const result = await db
     .deleteFrom('leagues')
     .where('id', '=', id)
@@ -53,5 +54,5 @@ export const deleteLeague = async (id: number): Promise<Result<DeleteResult, App
     );
   }
 
-  return okAsync(result);
+  return okAsync({ status: 'OK' });
 };
