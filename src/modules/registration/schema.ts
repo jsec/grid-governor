@@ -1,3 +1,4 @@
+import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import {
   Params, Registration, RegistrationRequest
@@ -28,6 +29,14 @@ export const GetRegistrationSchema = {
   response: {
     200: Registration,
     404: ErrorSchema
+  },
+  tags: [ 'Registrations' ]
+};
+
+export const DeleteRegistrationSchema = {
+  params: Params,
+  response: {
+    200: DeleteStatus
   },
   tags: [ 'Registrations' ]
 };

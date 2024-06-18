@@ -3,7 +3,7 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import fp from 'fastify-plugin';
 
 import {
-  CreatePlatformSchema, GetPlatformSchema, UpdatePlatformSchema
+  CreatePlatformSchema, DeletePlatformSchema, GetPlatformSchema, UpdatePlatformSchema
 } from './schema.js';
 import {
   createPlatform, deletePlatform, getPlatformById, updatePlatform
@@ -42,6 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/platform/:id',
+    { schema: DeletePlatformSchema },
     async (request, reply) => {
       const result = await deletePlatform(request.params.id);
       return reply.result(result);

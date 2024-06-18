@@ -3,7 +3,7 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import fp from 'fastify-plugin';
 
 import {
-  CreateSeasonSchema, GetSeasonSchema, UpdateSeasonSchema
+  CreateSeasonSchema, DeleteSeasonSchema, GetSeasonSchema, UpdateSeasonSchema
 } from './schema.js';
 import {
   createSeason, deleteSeason, getSeasonById, updateSeason
@@ -43,6 +43,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/season/:id',
+    { schema: DeleteSeasonSchema },
     async (request, reply) => {
       const result = await deleteSeason(request.params.id);
       return reply.result(result);

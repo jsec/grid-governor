@@ -7,7 +7,10 @@ import type {
 } from './types.js';
 
 import {
-  CreateRegistrationSchema, GetRegistrationSchema, UpdateRegistrationSchema
+  CreateRegistrationSchema,
+  DeleteRegistrationSchema,
+  GetRegistrationSchema,
+  UpdateRegistrationSchema
 } from './schema.js';
 import {
   createRegistration, deleteRegistration, getRegistrationById, updateRegistration
@@ -43,6 +46,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/registration/:id',
+    { schema: DeleteRegistrationSchema },
     async (request, reply) => {
       const result = await deleteRegistration(request.params.id);
       return reply.result(result);

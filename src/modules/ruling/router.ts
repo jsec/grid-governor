@@ -7,7 +7,7 @@ import type {
 } from './types.js';
 
 import {
-  CreateRulingSchema, GetRulingSchema, UpdateRulingSchema
+  CreateRulingSchema, DeleteRulingSchema, GetRulingSchema, UpdateRulingSchema
 } from './schema.js';
 import {
   createRuling, deleteRuling, getRulingById, updateRuling
@@ -43,6 +43,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/ruling/:id',
+    { schema: DeleteRulingSchema },
     async (request, reply) => {
       const result = await deleteRuling(request.params.id);
       return reply.result(result);

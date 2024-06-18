@@ -7,7 +7,7 @@ import type {
 } from './types.js';
 
 import {
-  CreateDriverSchema, GetDriverSchema, UpdateDriverSchema
+  CreateDriverSchema, DeleteDriverSchema, GetDriverSchema, UpdateDriverSchema
 } from './schema.js';
 import {
   createDriver, deleteDriver, getDriverById, updateDriver
@@ -43,6 +43,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/driver/:id',
+    { schema: DeleteDriverSchema },
     async (request, reply) => {
       const result = await deleteDriver(request.params.id);
       return reply.result(result);

@@ -1,3 +1,4 @@
+import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import {
   Incident, IncidentRequest, Params
@@ -28,6 +29,14 @@ export const GetIncidentSchema = {
   response: {
     200: Incident,
     404: ErrorSchema
+  },
+  tags: [ 'Incidents' ]
+};
+
+export const DeleteIncidentSchema = {
+  params: Params,
+  response: {
+    200: DeleteStatus
   },
   tags: [ 'Incidents' ]
 };

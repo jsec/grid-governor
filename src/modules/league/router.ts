@@ -7,7 +7,7 @@ import type {
 } from './types.js';
 
 import {
-  CreateLeagueSchema, GetLeagueSchema, UpdateLeagueSchema
+  CreateLeagueSchema, DeleteLeagueSchema, GetLeagueSchema, UpdateLeagueSchema
 } from './schema.js';
 import {
   createLeague, deleteLeague, getLeagueById, updateLeague
@@ -43,6 +43,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/league/:id',
+    { schema: DeleteLeagueSchema },
     async (request, reply) => {
       const result = await deleteLeague(request.params.id);
       return reply.result(result);

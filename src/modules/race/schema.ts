@@ -1,3 +1,4 @@
+import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import {
   Params, Race, RaceRequest
@@ -28,6 +29,14 @@ export const GetRaceSchema = {
   response: {
     200: Race,
     404: ErrorSchema
+  },
+  tags: [ 'Races' ]
+};
+
+export const DeleteRaceSchema = {
+  params: Params,
+  response: {
+    200: DeleteStatus
   },
   tags: [ 'Races' ]
 };

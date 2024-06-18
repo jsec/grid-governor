@@ -7,7 +7,7 @@ import type {
 } from './types.js';
 
 import {
-  CreateIncidentSchema, GetIncidentSchema, UpdateIncidentSchema
+  CreateIncidentSchema, DeleteIncidentSchema, GetIncidentSchema, UpdateIncidentSchema
 } from './schema.js';
 import {
   createIncident, deleteIncident, getIncidentById, updateIncident
@@ -43,6 +43,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/incident/:id',
+    { schema: DeleteIncidentSchema },
     async (request, reply) => {
       const result = await deleteIncident(request.params.id);
       return reply.result(result);

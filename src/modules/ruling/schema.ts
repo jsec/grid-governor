@@ -1,3 +1,4 @@
+import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import {
   Params, Ruling, RulingRequest
@@ -28,6 +29,14 @@ export const GetRulingSchema = {
   response: {
     200: Ruling,
     404: ErrorSchema
+  },
+  tags: [ 'Rulings' ]
+};
+
+export const DeleteRulingSchema = {
+  params: Params,
+  response: {
+    200: DeleteStatus
   },
   tags: [ 'Rulings' ]
 };

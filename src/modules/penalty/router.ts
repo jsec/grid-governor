@@ -7,7 +7,7 @@ import type {
 } from './types.js';
 
 import {
-  CreatePenaltySchema, GetPenaltySchema, UpdatePenaltySchema
+  CreatePenaltySchema, DeletePenaltySchema, GetPenaltySchema, UpdatePenaltySchema
 } from './schema.js';
 import {
   createPenalty, deletePenalty, getPenaltyById, updatePenalty
@@ -43,6 +43,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
 
   server.delete<{ Params: Params }>(
     '/penalty/:id',
+    { schema: DeletePenaltySchema },
     async (request, reply) => {
       const result = await deletePenalty(request.params.id);
       return reply.result(result);
