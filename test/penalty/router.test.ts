@@ -165,4 +165,39 @@ describe('Penalty API', () => {
         .execute();
     });
   });
+
+  describe('DELETE', () => {
+    test('should return a 404 if no penalty with the given id exists', async ({ app }) => {
+      const penaltyId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/penalty/${penaltyId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`Penalty with id ${penaltyId} was not found`);
+    });
+
+    test('should delete an existing penalty', async ({ app }) => {
+      const penaltyResult = await createPenalty(penaltyBuilder.one());
+
+      const { id: penaltyId } = penaltyResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/penalty/${penaltyId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
+    });
+  });
 });

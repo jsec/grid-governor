@@ -6,7 +6,7 @@ import {
   CreatePlatformSchema, GetPlatformSchema, UpdatePlatformSchema
 } from './schema.js';
 import {
-  createPlatform, getPlatformById, updatePlatform
+  createPlatform, deletePlatform, getPlatformById, updatePlatform
 } from './service.js';
 import {
   Params, Platform, type PlatformRequest
@@ -37,6 +37,14 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const update = await updatePlatform(request.params.id, request.body);
       return reply.result(update);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/platform/:id',
+    async (request, reply) => {
+      const result = await deletePlatform(request.params.id);
+      return reply.result(result);
     }
   );
 };

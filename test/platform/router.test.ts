@@ -117,4 +117,39 @@ describe('Platform API', () => {
         .execute();
     });
   });
+
+  describe('DELETE', () => {
+    test('should return a 404 if no platform with the given id exists', async ({ app }) => {
+      const platformId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/platform/${platformId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`Platform with id ${platformId} was not found`);
+    });
+
+    test('should delete an existing platform', async ({ app }) => {
+      const platformResult = await createPlatform(platformBuilder.one());
+
+      const { id: platformId } = platformResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/platform/${platformId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
+    });
+  });
 });

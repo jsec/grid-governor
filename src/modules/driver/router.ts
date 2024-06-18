@@ -10,7 +10,7 @@ import {
   CreateDriverSchema, GetDriverSchema, UpdateDriverSchema
 } from './schema.js';
 import {
-  createDriver, getDriverById, updateDriver
+  createDriver, deleteDriver, getDriverById, updateDriver
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
@@ -38,6 +38,14 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const update = await updateDriver(request.params.id, request.body);
       return reply.result(update);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/driver/:id',
+    async (request, reply) => {
+      const result = await deleteDriver(request.params.id);
+      return reply.result(result);
     }
   );
 };

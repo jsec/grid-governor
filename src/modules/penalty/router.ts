@@ -10,7 +10,7 @@ import {
   CreatePenaltySchema, GetPenaltySchema, UpdatePenaltySchema
 } from './schema.js';
 import {
-  createPenalty, getPenaltyById, updatePenalty
+  createPenalty, deletePenalty, getPenaltyById, updatePenalty
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
@@ -38,6 +38,14 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const update = await updatePenalty(request.params.id, request.body);
       return reply.result(update);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/penalty/:id',
+    async (request, reply) => {
+      const result = await deletePenalty(request.params.id);
+      return reply.result(result);
     }
   );
 };

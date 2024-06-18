@@ -1,5 +1,3 @@
-import type { DeleteResult } from 'kysely';
-
 import {
   Result, ResultAsync, errAsync, okAsync
 } from 'neverthrow';

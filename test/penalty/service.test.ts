@@ -106,7 +106,7 @@ describe('Penalty service', () => {
     const { id: penaltyId } = existing._unsafeUnwrap();
 
     const result = await deletePenalty(penaltyId);
-    const { numDeletedRows } = result._unsafeUnwrap();
-    expect(Number(numDeletedRows)).to.equal(1);
+    const { status } = result._unsafeUnwrap();
+    expect(status).to.equal('OK');
   });
 });

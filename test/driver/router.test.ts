@@ -251,4 +251,39 @@ describe('Driver API', () => {
         .execute();
     });
   });
+
+  describe('DELETE', () => {
+    test('should return a 404 if no driver with the given id exists', async ({ app }) => {
+      const driverId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/driver/${driverId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`Driver with id ${driverId} was not found`);
+    });
+
+    test('should delete an existing driver', async ({ app }) => {
+      const driverResult = await createDriver(driverBuilder.one());
+
+      const { id: driverId } = driverResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/driver/${driverId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
+    });
+  });
 });

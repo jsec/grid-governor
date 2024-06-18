@@ -1,10 +1,9 @@
-import type { DeleteResult } from 'kysely';
-
 import {
   Result, ResultAsync, errAsync, okAsync
 } from 'neverthrow';
 
 import type { NewRuling, RulingUpdate } from '../../db/types.js';
+import type { DeleteStatus } from '../../types/db.js';
 import type { Ruling } from './types.js';
 
 import { db } from '../../db/conn.js';
@@ -35,7 +34,7 @@ export const updateRuling = (id: number, ruling: RulingUpdate): ResultAsync<Ruli
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const deleteRuling = async (id: number): Promise<Result<DeleteResult, AppError>> => {
+export const deleteRuling = async (id: number): Promise<Result<DeleteStatus, AppError>> => {
   const result = await db
     .deleteFrom('rulings')
     .where('id', '=', id)
@@ -51,5 +50,5 @@ export const deleteRuling = async (id: number): Promise<Result<DeleteResult, App
     );
   }
 
-  return okAsync(result);
+  return okAsync({ status: 'OK' });
 };

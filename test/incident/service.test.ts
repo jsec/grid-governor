@@ -147,7 +147,7 @@ describe('Incident service', () => {
   });
 
   test('should delete an existing incident', async ({
-    db, driver, race, reportingDriver
+    driver, race, reportingDriver
   }) => {
     const existing = await createIncident(incidentBuilder.one({
       overrides: {
@@ -162,13 +162,8 @@ describe('Incident service', () => {
     const incidentId = existing._unsafeUnwrap().id;
 
     const deleteResult = await deleteIncident(incidentId);
-    const { numDeletedRows } = deleteResult._unsafeUnwrap();
+    const { status } = deleteResult._unsafeUnwrap();
 
-    expect(Number(numDeletedRows)).to.equal(1);
-
-    await db
-      .deleteFrom('incidents')
-      .where('id', '=', incidentId)
-      .execute();
+    expect(status).to.equal('OK');
   });
 });

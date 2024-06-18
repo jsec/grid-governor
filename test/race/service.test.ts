@@ -116,9 +116,7 @@ describe('Race service', () => {
     expect(error.message).to.include('Race with id 999999 was not found');
   });
 
-  test('should delete an existing race', async ({
-    db, league, season
-  }) => {
+  test('should delete an existing race', async ({ league, season }) => {
     const created = await createRace(raceBuilder.one({
       overrides: {
         leagueId: league.id,
@@ -129,13 +127,8 @@ describe('Race service', () => {
     const race = created._unsafeUnwrap();
 
     const deleteResult = await deleteRace(race.id);
-    const { numDeletedRows } = deleteResult._unsafeUnwrap();
+    const { status } = deleteResult._unsafeUnwrap();
 
-    expect(Number(numDeletedRows)).to.equal(1);
-
-    await db
-      .deleteFrom('races')
-      .where('id', '=', race.id)
-      .execute();
+    expect(status).to.equal('OK');
   });
 });

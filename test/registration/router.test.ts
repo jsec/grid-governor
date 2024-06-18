@@ -167,5 +167,45 @@ describe('Registration API', () => {
     });
   });
 
-  // TODO: add delete tests
+  describe('DELETE', () => {
+    test('should return a 404 if no registration with the given id exists', async ({ app }) => {
+      const registrationId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/registration/${registrationId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`Registration with id ${registrationId} was not found`);
+    });
+
+    test('should delete an existing registration', async ({
+      app, driver, season
+    }) => {
+      const registrationResult = await createRegistration(registrationBuilder.one({
+        overrides: {
+          driverId: driver.id,
+          seasonId: season.id
+        }
+      }));
+
+      const { id: registrationId } = registrationResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/registration/${registrationId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
+    });
+  });
 });

@@ -154,8 +154,7 @@ describe('Driver service', () => {
     const { id: driverId } = result._unsafeUnwrap();
 
     const deleteResult = await deleteDriver(driverId);
-    const { numDeletedRows } = deleteResult._unsafeUnwrap();
-
-    expect(Number(numDeletedRows)).to.equal(1);
+    const { status } = deleteResult._unsafeUnwrap();
+    expect(status).to.equal('OK');
   });
 });

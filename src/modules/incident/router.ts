@@ -10,11 +10,11 @@ import {
   CreateIncidentSchema, GetIncidentSchema, UpdateIncidentSchema
 } from './schema.js';
 import {
-  createIncident, getIncidentById, updateIncident
+  createIncident, deleteIncident, getIncidentById, updateIncident
 } from './service.js';
 
-const router: FastifyPluginAsyncTypebox = async (app) => {
-  app.post<{ Body: IncidentRequest }>(
+const router: FastifyPluginAsyncTypebox = async (server) => {
+  server.post<{ Body: IncidentRequest }>(
     '/incident',
     { schema: CreateIncidentSchema },
     async (request, reply) => {
@@ -23,7 +23,7 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.get<{ Params: Params }>(
+  server.get<{ Params: Params }>(
     '/incident/:id',
     { schema: GetIncidentSchema },
     async (request, reply) => {
@@ -32,11 +32,19 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.put<{ Body: Incident, Params: Params }>(
+  server.put<{ Body: Incident, Params: Params }>(
     '/incident/:id',
     { schema: UpdateIncidentSchema },
     async (request, reply) => {
       const result = await updateIncident(request.params.id, request.body);
+      return reply.result(result);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/incident/:id',
+    async (request, reply) => {
+      const result = await deleteIncident(request.params.id);
       return reply.result(result);
     }
   );

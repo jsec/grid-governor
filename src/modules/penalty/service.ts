@@ -1,5 +1,3 @@
-import type { DeleteResult } from 'kysely';
-
 import {
   Result, ResultAsync, errAsync, okAsync
 } from 'neverthrow';
@@ -7,6 +5,7 @@ import {
 import type {
   NewPenalty, Penalty, PenaltyUpdate
 } from '../../db/types.js';
+import type { DeleteStatus } from '../../types/db.js';
 
 import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';
@@ -38,7 +37,7 @@ export const updatePenalty = (
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const deletePenalty = async (id: number): Promise<Result<DeleteResult, AppError>> => {
+export const deletePenalty = async (id: number): Promise<Result<DeleteStatus, AppError>> => {
   const result = await db
     .deleteFrom('penalties')
     .where('id', '=', id)
@@ -55,5 +54,5 @@ export const deletePenalty = async (id: number): Promise<Result<DeleteResult, Ap
     );
   }
 
-  return okAsync(result);
+  return okAsync({ status: 'OK' });
 };

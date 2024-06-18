@@ -10,11 +10,11 @@ import {
   CreateRaceSchema, GetRaceSchema, UpdateRaceSchema
 } from './schema.js';
 import {
-  createRace, getRaceById, updateRace
+  createRace, deleteRace, getRaceById, updateRace
 } from './service.js';
 
-const router: FastifyPluginAsyncTypebox = async (app) => {
-  app.post<{ Body: RaceRequest }>(
+const router: FastifyPluginAsyncTypebox = async (server) => {
+  server.post<{ Body: RaceRequest }>(
     '/race',
     { schema: CreateRaceSchema },
     async (request, reply) => {
@@ -23,7 +23,7 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.get<{ Params: Params }>(
+  server.get<{ Params: Params }>(
     '/race/:id',
     { schema: GetRaceSchema },
     async (request, reply) => {
@@ -32,11 +32,19 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.put<{ Body: Race, Params: Params }>(
+  server.put<{ Body: Race, Params: Params }>(
     '/race/:id',
     { schema: UpdateRaceSchema },
     async (request, reply) => {
       const result = await updateRace(request.params.id, request.body);
+      return reply.result(result);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/race/:id',
+    async (request, reply) => {
+      const result = await deleteRace(request.params.id);
       return reply.result(result);
     }
   );

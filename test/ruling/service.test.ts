@@ -131,8 +131,8 @@ describe('Ruling service', () => {
     const rulingId = existing._unsafeUnwrap().id;
 
     const deleteResult = await deleteRuling(rulingId);
-    const { numDeletedRows } = deleteResult._unsafeUnwrap();
+    const { status } = deleteResult._unsafeUnwrap();
 
-    expect(Number(numDeletedRows)).to.equal(1);
+    expect(status).to.equal('OK');
   });
 });

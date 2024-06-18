@@ -79,8 +79,7 @@ describe('Platform service', () => {
     const { id: platformId } = result._unsafeUnwrap();
 
     const deleteResult = await deletePlatform(platformId);
-    const { numDeletedRows } = deleteResult._unsafeUnwrap();
-
-    expect(Number(numDeletedRows)).to.equal(1);
+    const { status } = deleteResult._unsafeUnwrap();
+    expect(status).to.equal('OK');
   });
 });

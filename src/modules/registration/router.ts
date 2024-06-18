@@ -10,11 +10,11 @@ import {
   CreateRegistrationSchema, GetRegistrationSchema, UpdateRegistrationSchema
 } from './schema.js';
 import {
-  createRegistration, getRegistrationById, updateRegistration
+  createRegistration, deleteRegistration, getRegistrationById, updateRegistration
 } from './service.js';
 
-const router: FastifyPluginAsyncTypebox = async (app) => {
-  app.post<{ Body: RegistrationRequest }>(
+const router: FastifyPluginAsyncTypebox = async (server) => {
+  server.post<{ Body: RegistrationRequest }>(
     '/registration',
     { schema: CreateRegistrationSchema },
     async (request, reply) => {
@@ -23,7 +23,7 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.get<{ Params: Params }>(
+  server.get<{ Params: Params }>(
     '/registration/:id',
     { schema: GetRegistrationSchema },
     async (request, reply) => {
@@ -32,11 +32,19 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.put<{ Body: Registration, Params: Params }>(
+  server.put<{ Body: Registration, Params: Params }>(
     '/registration/:id',
     { schema: UpdateRegistrationSchema },
     async (request, reply) => {
       const result = await updateRegistration(request.params.id, request.body);
+      return reply.result(result);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/registration/:id',
+    async (request, reply) => {
+      const result = await deleteRegistration(request.params.id);
       return reply.result(result);
     }
   );

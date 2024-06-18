@@ -193,8 +193,8 @@ describe('Season service', () => {
     const seasonId = created._unsafeUnwrap().id;
 
     const deleteResult = await deleteSeason(seasonId);
-    const { numDeletedRows } = deleteResult._unsafeUnwrap();
+    const { status } = deleteResult._unsafeUnwrap();
 
-    expect(Number(numDeletedRows)).to.equal(1);
+    expect(status).to.equal('OK');
   });
 });

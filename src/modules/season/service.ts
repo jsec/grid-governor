@@ -1,5 +1,3 @@
-import type { DeleteResult } from 'kysely';
-
 import {
   Result,
   ResultAsync,
@@ -10,6 +8,7 @@ import {
 import type {
   NewSeason, Season, SeasonUpdate
 } from '../../db/types.js';
+import type { DeleteStatus } from '../../types/db.js';
 
 import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';
@@ -43,7 +42,7 @@ export const updateSeason = (
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };
 
-export const deleteSeason = async (id: number): Promise<Result<DeleteResult, AppError>> => {
+export const deleteSeason = async (id: number): Promise<Result<DeleteStatus, AppError>> => {
   const result = await db
     .deleteFrom('seasons')
     .where('id', '=', id)
@@ -59,5 +58,5 @@ export const deleteSeason = async (id: number): Promise<Result<DeleteResult, App
     );
   }
 
-  return okAsync(result);
+  return okAsync({ status: 'OK' });
 };

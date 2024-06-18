@@ -10,11 +10,11 @@ import {
   CreateRulingSchema, GetRulingSchema, UpdateRulingSchema
 } from './schema.js';
 import {
-  createRuling, getRulingById, updateRuling
+  createRuling, deleteRuling, getRulingById, updateRuling
 } from './service.js';
 
-const router: FastifyPluginAsyncTypebox = async (app) => {
-  app.post<{ Body: RulingRequest }>(
+const router: FastifyPluginAsyncTypebox = async (server) => {
+  server.post<{ Body: RulingRequest }>(
     '/ruling',
     { schema: CreateRulingSchema },
     async (request, reply) => {
@@ -23,7 +23,7 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.get<{ Params: Params }>(
+  server.get<{ Params: Params }>(
     '/ruling/:id',
     { schema: GetRulingSchema },
     async (request, reply) => {
@@ -32,11 +32,19 @@ const router: FastifyPluginAsyncTypebox = async (app) => {
     }
   );
 
-  app.put<{ Body: Ruling, Params: Params }>(
+  server.put<{ Body: Ruling, Params: Params }>(
     '/ruling/:id',
     { schema: UpdateRulingSchema },
     async (request, reply) => {
       const result = await updateRuling(request.params.id, request.body);
+      return reply.result(result);
+    }
+  );
+
+  server.delete<{ Params: Params }>(
+    '/ruling/:id',
+    async (request, reply) => {
+      const result = await deleteRuling(request.params.id);
       return reply.result(result);
     }
   );

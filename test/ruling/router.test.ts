@@ -171,5 +171,45 @@ describe('Incident API', () => {
     });
   });
 
-  // TODO: delete tests
+  describe('DELETE', () => {
+    test('should return a 404 if no ruling with the given id exists', async ({ app }) => {
+      const rulingId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/ruling/${rulingId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`Ruling with id ${rulingId} was not found`);
+    });
+
+    test('should delete an existing ruling', async ({
+      app, incident, penalty
+    }) => {
+      const rulingResult = await createRuling(rulingBuilder.one({
+        overrides: {
+          incidentId: incident.id,
+          penaltyId: penalty.id
+        }
+      }));
+
+      const { id: rulingId } = rulingResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/ruling/${rulingId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
+    });
+  });
 });

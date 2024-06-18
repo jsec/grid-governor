@@ -297,5 +297,45 @@ describe('Season API', () => {
     // TODO: add tests for startDate and endDate
   });
 
-  // TODO: add delete tests
+  describe('DELETE', () => {
+    test('should return a 404 if no season with the given id exists', async ({ app }) => {
+      const seasonId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/season/${seasonId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`Season with id ${seasonId} was not found`);
+    });
+
+    test('should delete an existing season', async ({
+      app, league, platform
+    }) => {
+      const seasonResult = await createSeason(seasonBuilder.one({
+        overrides: {
+          leagueId: league.id,
+          platformId: platform.id
+        }
+      }));
+
+      const { id: seasonId } = seasonResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/season/${seasonId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
+    });
+  });
 });

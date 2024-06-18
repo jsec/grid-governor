@@ -122,9 +122,7 @@ describe('Registration service', () => {
     expect(error.message).to.include('Registration with id 999999 was not found');
   });
 
-  test('should delete an existing registration', async ({
-    db, driver, season
-  }) => {
+  test('should delete an existing registration', async ({ driver, season }) => {
     const existing = await createRegistration(registrationBuilder.one({
       overrides: {
         driverId: driver.id,
@@ -135,13 +133,8 @@ describe('Registration service', () => {
     const registrationId = existing._unsafeUnwrap().id;
 
     const deleteResult = await deleteRegistration(registrationId);
-    const { numDeletedRows } = deleteResult._unsafeUnwrap();
+    const { status } = deleteResult._unsafeUnwrap();
 
-    expect(Number(numDeletedRows)).to.equal(1);
-
-    await db
-      .deleteFrom('registrations')
-      .where('id', '=', registrationId)
-      .execute();
+    expect(status).to.equal('OK');
   });
 });

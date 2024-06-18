@@ -265,4 +265,47 @@ describe('Incident API', () => {
       expect(body.message).to.equal('no result');
     });
   });
+
+  describe('DELETE', () => {
+    test('should return a 404 if no incident with the given id exists', async ({ app }) => {
+      const incidentId = 999_999;
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/incident/${incidentId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.NOT_FOUND);
+      expect(response.statusMessage).to.equal('Not Found');
+      expect(body.message).to.equal(`Incident with id ${incidentId} was not found`);
+    });
+
+    test('delete an existing incident', async ({
+      app, driver, race, reportingDriver
+    }) => {
+      const incidentResult = await createIncident(incidentBuilder.one({
+        overrides: {
+          driverId: driver.id,
+          raceId: race.id,
+          reportingDriverId: reportingDriver.id
+        }
+      }));
+
+      const { id: incidentId } = incidentResult._unsafeUnwrap();
+
+      const response = await app.inject({
+        method: 'DELETE',
+        url: `/incident/${incidentId}`
+      });
+
+      const body = response.json();
+
+      expect(response.statusCode).to.equal(StatusCodes.OK);
+      expect(body).toMatchObject({
+        status: 'OK'
+      });
+    });
+  });
 });
