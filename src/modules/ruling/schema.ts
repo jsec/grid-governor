@@ -19,7 +19,6 @@ export const UpdateRulingSchema = {
     200: Ruling,
     400: ErrorSchema,
     404: ErrorSchema,
-    409: ErrorSchema
   },
   tags: [ 'Rulings' ]
 };

@@ -19,7 +19,6 @@ export const UpdateIncidentSchema = {
     200: Incident,
     400: ErrorSchema,
     404: ErrorSchema,
-    409: ErrorSchema
   },
   tags: [ 'Incidents' ]
 };
@@ -36,7 +35,8 @@ export const GetIncidentSchema = {
 export const DeleteIncidentSchema = {
   params: Params,
   response: {
-    200: DeleteStatus
+    200: DeleteStatus,
+    404: ErrorSchema
   },
   tags: [ 'Incidents' ]
 };

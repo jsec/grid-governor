@@ -19,7 +19,6 @@ export const UpdateRegistrationSchema = {
     200: Registration,
     400: ErrorSchema,
     404: ErrorSchema,
-    409: ErrorSchema
   },
   tags: [ 'Registrations' ]
 };

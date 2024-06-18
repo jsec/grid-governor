@@ -9,8 +9,6 @@ export const CreateSeasonSchema = {
   response: {
     201: Season,
     400: ErrorSchema,
-    409: ErrorSchema,
-    500: ErrorSchema,
   },
   tags: [ 'Seasons' ]
 };
@@ -18,7 +16,9 @@ export const CreateSeasonSchema = {
 export const UpdateSeasonSchema = {
   body: SeasonRequest,
   response: {
-    200: Season
+    200: Season,
+    400: ErrorSchema,
+    404: ErrorSchema
   },
   tags: [ 'Seasons' ]
 };

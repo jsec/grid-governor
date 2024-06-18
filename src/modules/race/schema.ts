@@ -19,7 +19,6 @@ export const UpdateRaceSchema = {
     200: Race,
     400: ErrorSchema,
     404: ErrorSchema,
-    409: ErrorSchema
   },
   tags: [ 'Races' ]
 };
