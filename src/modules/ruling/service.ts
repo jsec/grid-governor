@@ -29,7 +29,10 @@ export const updateRuling = (id: number, ruling: RulingUpdate): ResultAsync<Ruli
   return ResultAsync.fromThrowable(() => db
     .updateTable('rulings')
     .where('id', '=', id)
-    .set(ruling)
+    .set({
+      ...ruling,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

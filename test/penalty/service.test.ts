@@ -57,6 +57,24 @@ describe('Penalty service', () => {
     });
   });
 
+  test('should modify the updatedAt timestamp when updating a penalty', async ({ db }) => {
+    const existing = await createPenalty(penaltyBuilder.one());
+    const penalty = existing._unsafeUnwrap();
+    penalty.name = 'updated name';
+
+    const result = await updatePenalty(penalty.id, penalty);
+    const updated = result._unsafeUnwrap();
+
+    expect(updated.updatedAt).to.not.equal(penalty.updatedAt);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('penalties')
+        .where('id', '=', penalty.id)
+        .execute();
+    });
+  });
+
   test('should update a penalty name', async ({ db }) => {
     const existing = await createPenalty(penaltyBuilder.one());
     const penalty = existing._unsafeUnwrap();

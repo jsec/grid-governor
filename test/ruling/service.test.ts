@@ -112,6 +112,28 @@ describe('Ruling service', () => {
     expect(error.message).to.equal('no result');
   });
 
+  test('should modify the updatedAt timestamp when updating a ruling', async ({
+    db, incident, penalty
+  }) => {
+    const createResult = await createRuling(rulingBuilder.one({
+      overrides: {
+        incidentId: incident.id,
+        penaltyId: penalty.id
+      }
+    }));
+
+    const ruling = createResult._unsafeUnwrap();
+
+    const updateResult = await updateRuling(ruling.id, ruling);
+    const update = updateResult._unsafeUnwrap();
+    expect(update.updatedAt).to.not.equal(ruling.updatedAt);
+
+    await db
+      .deleteFrom('rulings')
+      .where('id', '=', ruling.id)
+      .execute();
+  });
+
   test('should return an error when deleting a ruling with an invalid id', async () => {
     const result = await deleteRuling(999_999);
     const error = result._unsafeUnwrapErr();

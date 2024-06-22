@@ -108,6 +108,28 @@ describe('Registration service', () => {
     expect(error.message).to.equal('no result');
   });
 
+  test('should modify the updatedAt timestamp when updating a registration', async ({
+    db, driver, season
+  }) => {
+    const created = await createRegistration(registrationBuilder.one({
+      overrides: {
+        driverId: driver.id,
+        seasonId: season.id
+      }
+    }));
+    const registration = created._unsafeUnwrap();
+
+    const updateResult = await updateRegistration(registration.id, registration);
+    const update = updateResult._unsafeUnwrap();
+
+    expect(update.updatedAt).to.not.equal(registration.updatedAt);
+
+    await db
+      .deleteFrom('registrations')
+      .where('id', '=', registration.id)
+      .execute();
+  });
+
   test('should return an error when deleting a registration with an invalid id', async () => {
     const registration = registrationRecordBuilder.one({
       overrides: {

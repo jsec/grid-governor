@@ -108,6 +108,30 @@ describe('Race service', () => {
     expect(error.message).to.equal('no result');
   });
 
+  test('should modify the updatedAt timestamp when updating a race', async ({
+    db, league, season
+  }) => {
+    const created = await createRace(raceBuilder.one({
+      overrides: {
+        leagueId: league.id,
+        seasonId: season.id
+      }
+    }));
+
+    const race = created._unsafeUnwrap();
+    race.name = 'updated name';
+
+    const result = await updateRace(race.id, race);
+    const updated = result._unsafeUnwrap();
+
+    expect(updated.updatedAt).to.not.equal(race.updatedAt);
+
+    await db
+      .deleteFrom('races')
+      .where('id', '=', race.id)
+      .execute();
+  });
+
   test('should return an error when deleting a registration with an invalid id', async () => {
     const result = await deleteRace(999_999);
     const error = result._unsafeUnwrapErr();

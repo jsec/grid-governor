@@ -50,6 +50,22 @@ describe('Platform service', () => {
       .execute();
   });
 
+  test('should modify the updatedAt timestamp when updating a platform', async ({ db }) => {
+    const createResult = await createPlatform(platformBuilder.one());
+    const existing = createResult._unsafeUnwrap();
+    existing.name = 'updated name';
+
+    const updateResult = await updatePlatform(existing.id, existing);
+    const updated = updateResult._unsafeUnwrap();
+
+    expect(updated.updatedAt).to.not.equal(existing.updatedAt);
+
+    await db
+      .deleteFrom('platforms')
+      .where('id', '=', existing.id)
+      .execute();
+  });
+
   test('should update an existing platform', async ({ db }) => {
     const createResult = await createPlatform(platformBuilder.one());
     const existing = createResult._unsafeUnwrap();

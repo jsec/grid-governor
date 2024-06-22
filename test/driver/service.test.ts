@@ -73,6 +73,23 @@ describe('Driver service', () => {
     expect(error.message).to.equal('no result');
   });
 
+  test('should modify the updatedAt timestamp when updating a driver', async ({ db }) => {
+    const createResult = await createDriver(driverBuilder.one());
+    const created = createResult._unsafeUnwrap();
+
+    created.lastName = 'Test last name';
+
+    const updateResult = await updateDriver(created.id, created);
+    const update = updateResult._unsafeUnwrap();
+
+    expect(update.updatedAt).to.not.equal(created.updatedAt);
+
+    await db
+      .deleteFrom('drivers')
+      .where('id', '=', update.id)
+      .execute();
+  });
+
   test("should update a driver's first name", async ({ db }) => {
     const createResult = await createDriver(driverBuilder.one());
     const created = createResult._unsafeUnwrap();

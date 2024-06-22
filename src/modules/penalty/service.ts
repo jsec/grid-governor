@@ -32,7 +32,10 @@ export const updatePenalty = (
   return ResultAsync.fromThrowable(() => db
     .updateTable('penalties')
     .where('id', '=', id)
-    .set(penalty)
+    .set({
+      ...penalty,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

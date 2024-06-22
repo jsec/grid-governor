@@ -138,6 +138,32 @@ describe('Incident service', () => {
     expect(error.message).to.equal('no result');
   });
 
+  test('should modify the updatedAt timestamp when updating an incident', async ({
+    db, driver, race, reportingDriver
+  }) => {
+    const createResult = await createIncident(incidentBuilder.one({
+      overrides: {
+        description: 'He dun goofed',
+        driverId: driver.id,
+        lapNumber: 5,
+        raceId: race.id,
+        reportingDriverId: reportingDriver.id
+      }
+    }));
+    const incident = createResult._unsafeUnwrap();
+
+    incident.description = 'updated description';
+    const updateResult = await updateIncident(incident.id, incident);
+    const update = updateResult._unsafeUnwrap();
+
+    expect(update.updatedAt).to.not.equal(incident.updatedAt);
+
+    await db
+      .deleteFrom('incidents')
+      .where('id', '=', incident.id)
+      .execute();
+  });
+
   test('should return an error when deleting an incident with an invalid id', async () => {
     const result = await deleteIncident(999_999);
     const error = result._unsafeUnwrapErr();

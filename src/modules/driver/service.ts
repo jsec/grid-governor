@@ -30,7 +30,10 @@ export const updateDriver = (id: number, driver: DriverUpdate): ResultAsync<Driv
   return ResultAsync.fromThrowable(() => db
     .updateTable('drivers')
     .where('id', '=', id)
-    .set(driver)
+    .set({
+      ...driver,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

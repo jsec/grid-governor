@@ -37,7 +37,10 @@ export const updateSeason = (
 ): ResultAsync<Season, AppError> => {
   return ResultAsync.fromThrowable(() => db.updateTable('seasons')
     .where('id', '=', id)
-    .set(season)
+    .set({
+      ...season,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

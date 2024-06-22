@@ -110,6 +110,30 @@ describe('Season service', () => {
     expect(error.message).to.equal('no result');
   });
 
+  test('should modify the updatedAt timestamp when updating a season', async ({
+    db, league, platform
+  }) => {
+    const createResult = await createSeason(seasonBuilder.one({
+      overrides: {
+        leagueId: league.id,
+        platformId: platform.id
+      }
+    }));
+
+    const existing = createResult._unsafeUnwrap();
+    existing.name = 'Updated Name';
+
+    const updateResult = await updateSeason(existing.id, existing);
+    const updated = updateResult._unsafeUnwrap();
+
+    expect(updated.updatedAt).to.not.equal(existing.updatedAt);
+
+    await db
+      .deleteFrom('seasons')
+      .where('id', '=', existing.id)
+      .execute();
+  });
+
   test("should update a season's name", async ({
     db, league, platform
   }) => {
@@ -124,14 +148,7 @@ describe('Season service', () => {
     const existing = created._unsafeUnwrap();
     existing.name = 'Updated Name';
 
-    // TODO: figure out how to handle the typing between Date/string conversions
-    // Probably default to using timestamp strings, screw the date formatting
-    const result = await updateSeason(existing.id, {
-      ...existing,
-      endDate: existing.endDate.toISOString(),
-      startDate: existing.startDate.toISOString()
-    });
-
+    const result = await updateSeason(existing.id, existing);
     const season = result._unsafeUnwrap();
     expect(season.name).to.equal(existing.name);
 

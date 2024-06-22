@@ -30,7 +30,10 @@ export const updateRace = (id: number, race: RaceUpdate): ResultAsync<Race, AppE
   return ResultAsync.fromThrowable(() => db
     .updateTable('races')
     .where('id', '=', id)
-    .set(race)
+    .set({
+      ...race,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

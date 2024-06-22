@@ -27,12 +27,15 @@ export const getPlatformById = (id: number): ResultAsync<Platform, AppError> => 
 };
 
 export const updatePlatform = (
-  id: number, league: PlatformUpdate
+  id: number, platform: PlatformUpdate
 ): ResultAsync<Platform, AppError> => {
   return ResultAsync.fromThrowable(() => db
     .updateTable('platforms')
     .where('id', '=', id)
-    .set(league)
+    .set({
+      ...platform,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

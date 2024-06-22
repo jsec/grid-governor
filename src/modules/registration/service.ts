@@ -33,7 +33,10 @@ export const updateRegistration = (
 ): ResultAsync<Registration, AppError> => {
   return ResultAsync.fromThrowable(() => db.updateTable('registrations')
     .where('id', '=', id)
-    .set(registration)
+    .set({
+      ...registration,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

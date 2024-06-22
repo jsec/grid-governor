@@ -30,7 +30,10 @@ export const updateLeague = (id: number, league: LeagueUpdate): ResultAsync<Leag
   return ResultAsync.fromThrowable(() => db
     .updateTable('leagues')
     .where('id', '=', id)
-    .set(league)
+    .set({
+      ...league,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

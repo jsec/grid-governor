@@ -33,7 +33,10 @@ export const updateIncident = (
   return ResultAsync.fromThrowable(() => db
     .updateTable('incidents')
     .where('id', '=', id)
-    .set(incident)
+    .set({
+      ...incident,
+      updatedAt: new Date().toISOString()
+    })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
 };

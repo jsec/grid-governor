@@ -71,6 +71,24 @@ describe('League service', () => {
     expect(error.message).to.equal('no result');
   });
 
+  test('should modify the updatedAt timestamp when updating a league', async ({ db }) => {
+    const existing = await createLeague(leagueBuilder.one());
+    const league = existing._unsafeUnwrap();
+    league.name = 'updated name';
+
+    const result = await updateLeague(league.id, league);
+    const updatedLeague = result._unsafeUnwrap();
+
+    expect(updatedLeague.updatedAt).to.not.equal(league.updatedAt);
+
+    onTestFinished(async () => {
+      await db
+        .deleteFrom('leagues')
+        .where('id', '=', league.id)
+        .execute();
+    });
+  });
+
   test('should update a league name', async ({ db }) => {
     const existing = await createLeague(leagueBuilder.one());
     const league = existing._unsafeUnwrap();
