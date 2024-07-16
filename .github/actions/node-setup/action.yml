@@ -10,6 +10,7 @@ runs:
         node-version: 20
 
     - name: Install pnpm
+      shell: bash
       run: |
         corepack enable
         corepack prepare pnpm@next-9 --activate
