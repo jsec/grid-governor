@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  Params, Season, SeasonRequest
+  Season, SeasonRequest
 } from './types.js';
 
 export const CreateSeasonSchema = {
@@ -24,7 +25,7 @@ export const UpdateSeasonSchema = {
 };
 
 export const GetSeasonSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: Season
   },
@@ -32,7 +33,7 @@ export const GetSeasonSchema = {
 };
 
 export const DeleteSeasonSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus
   },

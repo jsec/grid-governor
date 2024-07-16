@@ -2,8 +2,9 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 import fp from 'fastify-plugin';
 
+import type { IdParam } from '../../types/schemas.js';
 import type {
-  Params, Ruling, RulingRequest
+  Ruling, RulingRequest
 } from './types.js';
 
 import {
@@ -23,7 +24,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.get<{ Params: Params }>(
+  server.get<{ Params: IdParam }>(
     '/ruling/:id',
     { schema: GetRulingSchema },
     async (request, reply) => {
@@ -32,7 +33,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.put<{ Body: Ruling, Params: Params }>(
+  server.put<{ Body: Ruling, Params: IdParam }>(
     '/ruling/:id',
     { schema: UpdateRulingSchema },
     async (request, reply) => {
@@ -41,7 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.delete<{ Params: Params }>(
+  server.delete<{ Params: IdParam }>(
     '/ruling/:id',
     { schema: DeleteRulingSchema },
     async (request, reply) => {

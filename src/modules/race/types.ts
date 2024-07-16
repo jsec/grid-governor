@@ -22,9 +22,3 @@ export const RaceRequest = Type.Object({
 });
 
 export type RaceRequest = Static<typeof RaceRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;

@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  Params, Registration, RegistrationRequest
+  Registration, RegistrationRequest
 } from './types.js';
 
 export const CreateRegistrationSchema = {
@@ -24,7 +25,7 @@ export const UpdateRegistrationSchema = {
 };
 
 export const GetRegistrationSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: Registration,
     404: ErrorSchema
@@ -33,7 +34,7 @@ export const GetRegistrationSchema = {
 };
 
 export const DeleteRegistrationSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus
   },

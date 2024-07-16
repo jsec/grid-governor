@@ -24,9 +24,3 @@ export const SeasonRequest = Type.Object({
 });
 
 export type SeasonRequest = Static<typeof SeasonRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;

@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  Incident, IncidentRequest, Params
+  Incident, IncidentRequest
 } from './types.js';
 
 export const CreateIncidentSchema = {
@@ -24,7 +25,7 @@ export const UpdateIncidentSchema = {
 };
 
 export const GetIncidentSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: Incident,
     404: ErrorSchema
@@ -33,7 +34,7 @@ export const GetIncidentSchema = {
 };
 
 export const DeleteIncidentSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus,
     404: ErrorSchema

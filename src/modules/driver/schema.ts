@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  Driver, DriverRequest, Params
+  Driver, DriverRequest,
 } from './types.js';
 
 export const CreateDriverSchema = {
@@ -24,7 +25,7 @@ export const UpdateDriverSchema = {
 };
 
 export const GetDriverSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: Driver,
     404: ErrorSchema
@@ -33,7 +34,7 @@ export const GetDriverSchema = {
 };
 
 export const DeleteDriverSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus,
     404: ErrorSchema

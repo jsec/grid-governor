@@ -16,10 +16,3 @@ export const LeagueRequest = Type.Object({
 });
 
 export type LeagueRequest = Static<typeof LeagueRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;
-

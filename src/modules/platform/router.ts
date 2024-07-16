@@ -2,6 +2,8 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 import fp from 'fastify-plugin';
 
+import type { IdParam } from '../../types/schemas.js';
+
 import {
   CreatePlatformSchema, DeletePlatformSchema, GetPlatformSchema, UpdatePlatformSchema
 } from './schema.js';
@@ -9,7 +11,7 @@ import {
   createPlatform, deletePlatform, getPlatformById, updatePlatform
 } from './service.js';
 import {
-  Params, Platform, type PlatformRequest
+  Platform, type PlatformRequest
 } from './types.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
@@ -22,7 +24,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.get<{ Params: Params, Reply: Platform }>(
+  server.get<{ Params: IdParam, Reply: Platform }>(
     '/platform/:id',
     { schema: GetPlatformSchema },
     async (request, reply) => {
@@ -31,7 +33,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.put<{ Body: Platform, Params: Params, Reply: Platform }>(
+  server.put<{ Body: Platform, Params: IdParam, Reply: Platform }>(
     '/platform/:id',
     { schema: UpdatePlatformSchema },
     async (request, reply) => {
@@ -40,7 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.delete<{ Params: Params }>(
+  server.delete<{ Params: IdParam }>(
     '/platform/:id',
     { schema: DeletePlatformSchema },
     async (request, reply) => {

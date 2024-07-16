@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  League, LeagueRequest, Params
+  League, LeagueRequest
 } from './types.js';
 
 export const CreateLeagueSchema = {
@@ -24,7 +25,7 @@ export const UpdateLeagueSchema = {
 };
 
 export const GetLeagueSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: League,
     404: ErrorSchema
@@ -33,7 +34,7 @@ export const GetLeagueSchema = {
 };
 
 export const DeleteLeagueSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus,
     404: ErrorSchema

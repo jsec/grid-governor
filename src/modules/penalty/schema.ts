@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  Params, Penalty, PenaltyRequest
+  Penalty, PenaltyRequest
 } from './types.js';
 
 export const CreatePenaltySchema = {
@@ -24,7 +25,7 @@ export const UpdatePenaltySchema = {
 };
 
 export const GetPenaltySchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: Penalty,
     404: ErrorSchema
@@ -33,7 +34,7 @@ export const GetPenaltySchema = {
 };
 
 export const DeletePenaltySchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus,
     404: ErrorSchema

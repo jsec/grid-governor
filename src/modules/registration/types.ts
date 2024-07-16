@@ -16,9 +16,3 @@ export const RegistrationRequest = Type.Object({
 });
 
 export type RegistrationRequest = Static<typeof RegistrationRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;

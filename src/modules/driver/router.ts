@@ -2,8 +2,9 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 import fp from 'fastify-plugin';
 
+import type { IdParam } from '../../types/schemas.js';
 import type {
-  Driver, DriverRequest, Params
+  Driver, DriverRequest
 } from './types.js';
 
 import {
@@ -23,7 +24,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.get<{ Params: Params, Reply: Driver }>(
+  server.get<{ Params: IdParam, Reply: Driver }>(
     '/driver/:id',
     { schema: GetDriverSchema },
     async (request, reply) => {
@@ -32,7 +33,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.put<{ Body: Driver, Params: Params, Reply: Driver }>(
+  server.put<{ Body: Driver, Params: IdParam, Reply: Driver }>(
     '/driver/:id',
     { schema: UpdateDriverSchema },
     async (request, reply) => {
@@ -41,7 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.delete<{ Params: Params }>(
+  server.delete<{ Params: IdParam }>(
     '/driver/:id',
     { schema: DeleteDriverSchema },
     async (request, reply) => {

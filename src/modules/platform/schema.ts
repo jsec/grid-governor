@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  Params, Platform, PlatformRequest
+  Platform, PlatformRequest
 } from './types.js';
 
 export const CreatePlatformSchema = {
@@ -15,7 +16,7 @@ export const CreatePlatformSchema = {
 
 export const UpdatePlatformSchema = {
   body: PlatformRequest,
-  params: Params,
+  params: IdParam,
   response: {
     200: Platform,
     400: ErrorSchema,
@@ -25,7 +26,7 @@ export const UpdatePlatformSchema = {
 };
 
 export const GetPlatformSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: Platform,
     404: ErrorSchema
@@ -34,7 +35,7 @@ export const GetPlatformSchema = {
 };
 
 export const DeletePlatformSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus,
     404: ErrorSchema

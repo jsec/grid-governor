@@ -2,8 +2,9 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 import fp from 'fastify-plugin';
 
+import type { IdParam } from '../../types/schemas.js';
 import type {
-  Params, Race, RaceRequest
+  Race, RaceRequest
 } from './types.js';
 
 import {
@@ -23,7 +24,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.get<{ Params: Params }>(
+  server.get<{ Params: IdParam }>(
     '/race/:id',
     { schema: GetRaceSchema },
     async (request, reply) => {
@@ -32,7 +33,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.put<{ Body: Race, Params: Params }>(
+  server.put<{ Body: Race, Params: IdParam }>(
     '/race/:id',
     { schema: UpdateRaceSchema },
     async (request, reply) => {
@@ -41,7 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.delete<{ Params: Params }>(
+  server.delete<{ Params: IdParam }>(
     '/race/:id',
     { schema: DeleteRaceSchema },
     async (request, reply) => {

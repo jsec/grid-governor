@@ -22,9 +22,3 @@ export const IncidentRequest = Type.Object({
 });
 
 export type IncidentRequest = Static<typeof IncidentRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;

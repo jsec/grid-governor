@@ -16,10 +16,3 @@ export const PenaltyRequest = Type.Object({
 });
 
 export type PenaltyRequest = Static<typeof PenaltyRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;
-

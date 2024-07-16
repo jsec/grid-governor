@@ -2,8 +2,9 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 import fp from 'fastify-plugin';
 
+import type { IdParam } from '../../types/schemas.js';
 import type {
-  Params, Penalty, PenaltyRequest
+  Penalty, PenaltyRequest
 } from './types.js';
 
 import {
@@ -23,7 +24,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.get<{ Params: Params, Reply: Penalty }>(
+  server.get<{ Params: IdParam, Reply: Penalty }>(
     '/penalty/:id',
     { schema: GetPenaltySchema },
     async (request, reply) => {
@@ -32,7 +33,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.put<{ Body: Penalty, Params: Params, Reply: Penalty }>(
+  server.put<{ Body: Penalty, Params: IdParam, Reply: Penalty }>(
     '/penalty/:id',
     { schema: UpdatePenaltySchema },
     async (request, reply) => {
@@ -41,7 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.delete<{ Params: Params }>(
+  server.delete<{ Params: IdParam }>(
     '/penalty/:id',
     { schema: DeletePenaltySchema },
     async (request, reply) => {

@@ -20,9 +20,3 @@ export const DriverRequest = Type.Object({
 });
 
 export type DriverRequest = Static<typeof DriverRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;

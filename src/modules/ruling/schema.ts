@@ -1,7 +1,8 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
+import { IdParam } from '../../types/schemas.js';
 import {
-  Params, Ruling, RulingRequest
+  Ruling, RulingRequest
 } from './types.js';
 
 export const CreateRulingSchema = {
@@ -24,7 +25,7 @@ export const UpdateRulingSchema = {
 };
 
 export const GetRulingSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: Ruling,
     404: ErrorSchema
@@ -33,7 +34,7 @@ export const GetRulingSchema = {
 };
 
 export const DeleteRulingSchema = {
-  params: Params,
+  params: IdParam,
   response: {
     200: DeleteStatus
   },

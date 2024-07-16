@@ -2,8 +2,9 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
 import fp from 'fastify-plugin';
 
+import type { IdParam } from '../../types/schemas.js';
 import type {
-  League, LeagueRequest, Params
+  League, LeagueRequest
 } from './types.js';
 
 import {
@@ -23,7 +24,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.get<{ Params: Params, Reply: League }>(
+  server.get<{ Params: IdParam, Reply: League }>(
     '/league/:id',
     { schema: GetLeagueSchema },
     async (request, reply) => {
@@ -32,7 +33,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.put<{ Body: League, Params: Params, Reply: League }>(
+  server.put<{ Body: League, Params: IdParam, Reply: League }>(
     '/league/:id',
     { schema: UpdateLeagueSchema },
     async (request, reply) => {
@@ -41,7 +42,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     }
   );
 
-  server.delete<{ Params: Params }>(
+  server.delete<{ Params: IdParam }>(
     '/league/:id',
     { schema: DeleteLeagueSchema },
     async (request, reply) => {

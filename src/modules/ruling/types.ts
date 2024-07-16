@@ -16,9 +16,3 @@ export const RulingRequest = Type.Object({
 });
 
 export type RulingRequest = Static<typeof RulingRequest>;
-
-export const Params = Type.Object({
-  id: Type.Integer()
-});
-
-export type Params = Static<typeof Params>;
