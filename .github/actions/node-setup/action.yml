@@ -10,9 +10,9 @@ runs:
         node-version: 20
 
     - name: Install pnpm
-      uses: pnpm/action-setup@v2.2.4
-      with:
-        version: 9
+      run: |
+        corepack enable
+        corepack prepare pnpm@next-9 --activate
 
     - name: Get pnpm cache directory
       shell: bash
