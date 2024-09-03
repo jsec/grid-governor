@@ -21,9 +21,7 @@ export const createSeason = (season: NewSeason): ResultAsync<Season, AppError> =
   AppError.fromDatabaseError)();
 };
 
-type NewType = Season;
-
-export const getSeasonById = (id: number): ResultAsync<NewType, AppError> => {
+export const getSeasonById = (id: number): ResultAsync<Season, AppError> => {
   return ResultAsync.fromThrowable(() => db
     .selectFrom('seasons')
     .where('id', '=', id)
