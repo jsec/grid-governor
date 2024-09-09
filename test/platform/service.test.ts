@@ -1,9 +1,10 @@
-import {
-  describe, expect
-} from 'vitest';
+import { describe, expect } from 'vitest';
 
 import {
-  createPlatform, deletePlatform, getPlatformById, updatePlatform
+  createPlatform,
+  deletePlatform,
+  getPlatformById,
+  updatePlatform
 } from '../../src/modules/platform/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { platformBuilder } from '../builders/platform.builder.js';

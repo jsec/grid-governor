@@ -1,5 +1,7 @@
 import type {
-  Insertable, Selectable, Updateable
+  Insertable,
+  Selectable,
+  Updateable
 } from 'kysely';
 
 import type {

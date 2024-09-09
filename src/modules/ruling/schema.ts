@@ -1,9 +1,7 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import { IdParam } from '../../types/schemas.js';
-import {
-  Ruling, RulingRequest
-} from './types.js';
+import { Ruling, RulingRequest } from './types.js';
 
 export const CreateRulingSchema = {
   body: RulingRequest,

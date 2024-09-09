@@ -1,5 +1,8 @@
 import {
-  Result, ResultAsync, errAsync, okAsync
+  Result,
+  ResultAsync,
+  errAsync,
+  okAsync
 } from 'neverthrow';
 
 import type { NewRuling, RulingUpdate } from '../../db/types.js';

@@ -1,9 +1,7 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import { IdParam } from '../../types/schemas.js';
-import {
-  Registration, RegistrationRequest
-} from './types.js';
+import { Registration, RegistrationRequest } from './types.js';
 
 export const CreateRegistrationSchema = {
   body: RegistrationRequest,

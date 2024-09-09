@@ -1,9 +1,7 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import { IdParam } from '../../types/schemas.js';
-import {
-  Driver, DriverRequest,
-} from './types.js';
+import { Driver, DriverRequest } from './types.js';
 
 export const CreateDriverSchema = {
   body: DriverRequest,

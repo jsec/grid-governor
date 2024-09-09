@@ -1,5 +1,7 @@
 import {
-  describe, expect, test
+  describe,
+  expect,
+  test
 } from 'vitest';
 
 import { type PostgresError, PostgresErrorCode } from '../../src/types/errors/postgres.error.js';

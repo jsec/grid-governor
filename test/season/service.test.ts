@@ -1,7 +1,10 @@
 import { describe, expect } from 'vitest';
 
 import {
-  createSeason, deleteSeason, getSeasonById, updateSeason
+  createSeason,
+  deleteSeason,
+  getSeasonById,
+  updateSeason
 } from '../../src/modules/season/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';

@@ -1,6 +1,8 @@
 import { NoResultError, QueryNode } from 'kysely';
 import {
-  describe, expect, test
+  describe,
+  expect,
+  test
 } from 'vitest';
 
 import { AppError, ErrorCode } from '../../../src/types/errors/app.error.js';

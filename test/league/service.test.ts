@@ -1,9 +1,14 @@
 import {
-  describe, expect, onTestFinished
+  describe,
+  expect,
+  onTestFinished
 } from 'vitest';
 
 import {
-  createLeague, deleteLeague, getLeagueById, updateLeague
+  createLeague,
+  deleteLeague,
+  getLeagueById,
+  updateLeague
 } from '../../src/modules/league/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { leagueBuilder, leagueRecordBuilder } from '../builders/league.builder.js';

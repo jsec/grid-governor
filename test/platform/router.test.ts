@@ -1,7 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import {
-  describe, expect
-} from 'vitest';
+import { describe, expect } from 'vitest';
 
 import { createPlatform } from '../../src/modules/platform/service.js';
 import { platformBuilder } from '../builders/platform.builder.js';

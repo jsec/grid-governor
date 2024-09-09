@@ -3,15 +3,19 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import fp from 'fastify-plugin';
 
 import type { IdParam } from '../../types/schemas.js';
-import type {
-  Penalty, PenaltyRequest
-} from './types.js';
+import type { Penalty, PenaltyRequest } from './types.js';
 
 import {
-  CreatePenaltySchema, DeletePenaltySchema, GetPenaltySchema, UpdatePenaltySchema
+  CreatePenaltySchema,
+  DeletePenaltySchema,
+  GetPenaltySchema,
+  UpdatePenaltySchema
 } from './schema.js';
 import {
-  createPenalty, deletePenalty, getPenaltyById, updatePenalty
+  createPenalty,
+  deletePenalty,
+  getPenaltyById,
+  updatePenalty
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {

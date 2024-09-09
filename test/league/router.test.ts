@@ -1,7 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import {
-  describe, expect
-} from 'vitest';
+import { describe, expect } from 'vitest';
 
 import { createLeague } from '../../src/modules/league/service.js';
 import { leagueBuilder } from '../builders/league.builder.js';

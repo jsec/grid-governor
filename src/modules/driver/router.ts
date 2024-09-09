@@ -3,15 +3,19 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import fp from 'fastify-plugin';
 
 import type { IdParam } from '../../types/schemas.js';
-import type {
-  Driver, DriverRequest
-} from './types.js';
+import type { Driver, DriverRequest } from './types.js';
 
 import {
-  CreateDriverSchema, DeleteDriverSchema, GetDriverSchema, UpdateDriverSchema
+  CreateDriverSchema,
+  DeleteDriverSchema,
+  GetDriverSchema,
+  UpdateDriverSchema
 } from './schema.js';
 import {
-  createDriver, deleteDriver, getDriverById, updateDriver
+  createDriver,
+  deleteDriver,
+  getDriverById,
+  updateDriver
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {

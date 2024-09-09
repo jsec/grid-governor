@@ -1,9 +1,14 @@
 import {
-  Result, ResultAsync, errAsync, okAsync
+  Result,
+  ResultAsync,
+  errAsync,
+  okAsync
 } from 'neverthrow';
 
 import type {
-  Driver, DriverUpdate, NewDriver
+  Driver,
+  DriverUpdate,
+  NewDriver
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 

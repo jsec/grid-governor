@@ -3,9 +3,7 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import fp from 'fastify-plugin';
 
 import type { IdParam } from '../../types/schemas.js';
-import type {
-  Registration, RegistrationRequest
-} from './types.js';
+import type { Registration, RegistrationRequest } from './types.js';
 
 import {
   CreateRegistrationSchema,
@@ -14,7 +12,10 @@ import {
   UpdateRegistrationSchema
 } from './schema.js';
 import {
-  createRegistration, deleteRegistration, getRegistrationById, updateRegistration
+  createRegistration,
+  deleteRegistration,
+  getRegistrationById,
+  updateRegistration
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {

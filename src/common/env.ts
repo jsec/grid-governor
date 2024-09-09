@@ -1,6 +1,8 @@
 import { configDotenv } from 'dotenv';
 import {
-  cleanEnv, num, str
+  cleanEnv,
+  num,
+  str
 } from 'envalid';
 
 configDotenv();

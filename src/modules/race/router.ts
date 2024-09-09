@@ -3,15 +3,19 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import fp from 'fastify-plugin';
 
 import type { IdParam } from '../../types/schemas.js';
-import type {
-  Race, RaceRequest
-} from './types.js';
+import type { Race, RaceRequest } from './types.js';
 
 import {
-  CreateRaceSchema, DeleteRaceSchema, GetRaceSchema, UpdateRaceSchema
+  CreateRaceSchema,
+  DeleteRaceSchema,
+  GetRaceSchema,
+  UpdateRaceSchema
 } from './schema.js';
 import {
-  createRace, deleteRace, getRaceById, updateRace
+  createRace,
+  deleteRace,
+  getRaceById,
+  updateRace
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {

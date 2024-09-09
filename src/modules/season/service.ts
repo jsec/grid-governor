@@ -6,7 +6,9 @@ import {
 } from 'neverthrow';
 
 import type {
-  NewSeason, Season, SeasonUpdate
+  NewSeason,
+  Season,
+  SeasonUpdate
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 

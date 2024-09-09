@@ -1,9 +1,7 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import { IdParam } from '../../types/schemas.js';
-import {
-  Incident, IncidentRequest
-} from './types.js';
+import { Incident, IncidentRequest } from './types.js';
 
 export const CreateIncidentSchema = {
   body: IncidentRequest,

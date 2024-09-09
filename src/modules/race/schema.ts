@@ -1,9 +1,7 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import { IdParam } from '../../types/schemas.js';
-import {
-  Race, RaceRequest
-} from './types.js';
+import { Race, RaceRequest } from './types.js';
 
 export const CreateRaceSchema = {
   body: RaceRequest,

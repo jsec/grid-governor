@@ -1,7 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import {
-  describe, expect
-} from 'vitest';
+import { describe, expect } from 'vitest';
 
 import { createPenalty } from '../../src/modules/penalty/service.js';
 import { penaltyBuilder } from '../builders/penalty.builder.js';

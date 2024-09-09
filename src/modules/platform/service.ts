@@ -1,9 +1,14 @@
 import {
-  Result, ResultAsync, errAsync, okAsync
+  Result,
+  ResultAsync,
+  errAsync,
+  okAsync
 } from 'neverthrow';
 
 import type {
-  NewPlatform, Platform, PlatformUpdate
+  NewPlatform,
+  Platform,
+  PlatformUpdate
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 

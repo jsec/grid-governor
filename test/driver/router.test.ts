@@ -1,6 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
 import {
-  describe, expect, onTestFinished
+  describe,
+  expect,
+  onTestFinished
 } from 'vitest';
 
 import { createDriver } from '../../src/modules/driver/service.js';

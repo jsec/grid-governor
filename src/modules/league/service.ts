@@ -1,9 +1,14 @@
 import {
-  Result, ResultAsync, errAsync, okAsync
+  Result,
+  ResultAsync,
+  errAsync,
+  okAsync
 } from 'neverthrow';
 
 import type {
-  League, LeagueUpdate, NewLeague
+  League,
+  LeagueUpdate,
+  NewLeague
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 

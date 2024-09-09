@@ -1,9 +1,7 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import { IdParam } from '../../types/schemas.js';
-import {
-  Platform, PlatformRequest
-} from './types.js';
+import { Platform, PlatformRequest } from './types.js';
 
 export const CreatePlatformSchema = {
   body: PlatformRequest,

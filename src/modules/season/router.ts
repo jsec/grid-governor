@@ -5,14 +5,18 @@ import fp from 'fastify-plugin';
 import type { IdParam } from '../../types/schemas.js';
 
 import {
-  CreateSeasonSchema, DeleteSeasonSchema, GetSeasonSchema, UpdateSeasonSchema
+  CreateSeasonSchema,
+  DeleteSeasonSchema,
+  GetSeasonSchema,
+  UpdateSeasonSchema
 } from './schema.js';
 import {
-  createSeason, deleteSeason, getSeasonById, updateSeason
+  createSeason,
+  deleteSeason,
+  getSeasonById,
+  updateSeason
 } from './service.js';
-import {
-  type Season, SeasonRequest
-} from './types.js';
+import { type Season, SeasonRequest } from './types.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: SeasonRequest }>(

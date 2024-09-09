@@ -1,7 +1,10 @@
 import { describe, expect } from 'vitest';
 
 import {
-  createIncident, deleteIncident, getIncidentById, updateIncident
+  createIncident,
+  deleteIncident,
+  getIncidentById,
+  updateIncident
 } from '../../src/modules/incident/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';

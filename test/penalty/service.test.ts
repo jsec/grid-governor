@@ -1,9 +1,14 @@
 import {
-  describe, expect, onTestFinished
+  describe,
+  expect,
+  onTestFinished
 } from 'vitest';
 
 import {
-  createPenalty, deletePenalty, getPenaltyById, updatePenalty
+  createPenalty,
+  deletePenalty,
+  getPenaltyById,
+  updatePenalty
 } from '../../src/modules/penalty/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { penaltyBuilder } from '../builders/penalty.builder.js';

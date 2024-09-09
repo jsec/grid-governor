@@ -5,14 +5,18 @@ import fp from 'fastify-plugin';
 import type { IdParam } from '../../types/schemas.js';
 
 import {
-  CreatePlatformSchema, DeletePlatformSchema, GetPlatformSchema, UpdatePlatformSchema
+  CreatePlatformSchema,
+  DeletePlatformSchema,
+  GetPlatformSchema,
+  UpdatePlatformSchema
 } from './schema.js';
 import {
-  createPlatform, deletePlatform, getPlatformById, updatePlatform
+  createPlatform,
+  deletePlatform,
+  getPlatformById,
+  updatePlatform
 } from './service.js';
-import {
-  Platform, type PlatformRequest
-} from './types.js';
+import { Platform, type PlatformRequest } from './types.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
   server.post<{ Body: PlatformRequest, Reply: Platform }>(

@@ -1,7 +1,10 @@
 import { describe, expect } from 'vitest';
 
 import {
-  createRuling, deleteRuling, getRulingById, updateRuling
+  createRuling,
+  deleteRuling,
+  getRulingById,
+  updateRuling
 } from '../../src/modules/ruling/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';

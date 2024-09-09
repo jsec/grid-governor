@@ -1,7 +1,10 @@
 import { describe, expect } from 'vitest';
 
 import {
-  createRegistration, deleteRegistration, getRegistrationById, updateRegistration
+  createRegistration,
+  deleteRegistration,
+  getRegistrationById,
+  updateRegistration
 } from '../../src/modules/registration/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';

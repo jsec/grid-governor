@@ -3,15 +3,19 @@ import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import fp from 'fastify-plugin';
 
 import type { IdParam } from '../../types/schemas.js';
-import type {
-  Ruling, RulingRequest
-} from './types.js';
+import type { Ruling, RulingRequest } from './types.js';
 
 import {
-  CreateRulingSchema, DeleteRulingSchema, GetRulingSchema, UpdateRulingSchema
+  CreateRulingSchema,
+  DeleteRulingSchema,
+  GetRulingSchema,
+  UpdateRulingSchema
 } from './schema.js';
 import {
-  createRuling, deleteRuling, getRulingById, updateRuling
+  createRuling,
+  deleteRuling,
+  getRulingById,
+  updateRuling
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {

@@ -1,9 +1,7 @@
 import { DeleteStatus } from '../../types/db.js';
 import { ErrorSchema } from '../../types/responses.js';
 import { IdParam } from '../../types/schemas.js';
-import {
-  Penalty, PenaltyRequest
-} from './types.js';
+import { Penalty, PenaltyRequest } from './types.js';
 
 export const CreatePenaltySchema = {
   body: PenaltyRequest,
