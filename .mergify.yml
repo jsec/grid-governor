@@ -5,9 +5,3 @@ pull_request_rules:
     actions:
       merge:
         method: squash
-  - name: automatic merge for Renovate pull requests
-    conditions:
-      - author=renovate[bot]
-    actions:
-      merge:
-        method: squash
