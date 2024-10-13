@@ -46,7 +46,7 @@ importers:
         version: 2.3.0
       kysely:
         specifier: ^0.27.3
-        version: 0.27.3
+        version: 0.27.4
       neverthrow:
         specifier: ^6.2.1
         version: 6.2.1
@@ -2097,8 +2097,8 @@ packages:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
 
-  kysely@0.27.3:
-    resolution: {integrity: sha512-lG03Ru+XyOJFsjH3OMY6R/9U38IjDPfnOfDgO3ynhbDr+Dz8fak+X6L62vqu3iybQnj+lG84OttBuU9KY3L9kA==}
+  kysely@0.27.4:
+    resolution: {integrity: sha512-dyNKv2KRvYOQPLCAOCjjQuCk4YFd33BvGdf/o5bC7FiW+BB6snA81Zt+2wT9QDFzKqxKa5rrOmvlK/anehCcgA==}
     engines: {node: '>=14.0.0'}
 
   leven@3.1.0:
@@ -5338,7 +5338,7 @@ snapshots:
 
   kleur@3.0.3: {}
 
-  kysely@0.27.3: {}
+  kysely@0.27.4: {}
 
   leven@3.1.0: {}
 
