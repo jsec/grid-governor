@@ -31,7 +31,7 @@
     "@jackfranklin/test-data-bot": "^2.1.0",
     "@jarsec/eslint-config": "5.2.0",
     "@jarsec/tsconfig": "2.1.0",
-    "@types/node": "20.12.10",
+    "@types/node": "20.16.11",
     "@types/pg": "^8.11.6",
     "@typespec/compiler": "latest",
     "@typespec/http": "latest",
