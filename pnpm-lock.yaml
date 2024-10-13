@@ -49,7 +49,7 @@ importers:
         version: 0.27.4
       neverthrow:
         specifier: ^6.2.1
-        version: 6.2.1
+        version: 6.2.2
       pg:
         specifier: ^8.11.5
         version: 8.11.5
@@ -2273,8 +2273,8 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  neverthrow@6.2.1:
-    resolution: {integrity: sha512-amlnNvPXmiUOmNsDfUngNWPdZYOmCUGExQy/kuPCmLbhrXVXIYhY4bnE4D3dWl7OMhSEr9NndUrl4aKGFhFIQg==}
+  neverthrow@6.2.2:
+    resolution: {integrity: sha512-POR1FACqdK9jH0S2kRPzaZEvzT11wsOxLW520PQV/+vKi9dQe+hXq19EiOvYx7lSRaF5VB9lYGsPInynrnN05w==}
 
   node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
@@ -5511,7 +5511,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  neverthrow@6.2.1: {}
+  neverthrow@6.2.2: {}
 
   node-releases@2.0.14: {}
 
