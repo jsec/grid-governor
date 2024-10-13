@@ -22,7 +22,7 @@ importers:
         version: 4.0.0(@sinclair/typebox@0.32.35)
       '@scalar/fastify-api-reference':
         specifier: ^1.22.31
-        version: 1.22.31
+        version: 1.25.34
       '@sinclair/typebox':
         specifier: 0.32.35
         version: 0.32.35
@@ -699,8 +699,16 @@ packages:
   '@rushstack/eslint-patch@1.10.2':
     resolution: {integrity: sha512-hw437iINopmQuxWPSUEvqE56NCPsiU8N4AYtfHmJFckclktzK9YQJieD3XkDCDH4OjL+C7zgPUh73R/nrcHrqw==}
 
-  '@scalar/fastify-api-reference@1.22.31':
-    resolution: {integrity: sha512-Zk+Xk8Se4hZqRBzbNA44WzdEvg9HLRjLGcl2Fj/ssXuii6M+ddMGPl+aMQPHHiggw3wdaf8WW/17N7gq1vGazg==}
+  '@scalar/fastify-api-reference@1.25.34':
+    resolution: {integrity: sha512-YOVbrrhs5PXDdpo32Ag9h3tjdWKuZmauP5SFUWZAUdDsQN8seDNBuBq9jAASKJNoK8q9J3BoBHsY853hUqMLCA==}
+    engines: {node: '>=18'}
+
+  '@scalar/openapi-types@0.1.2':
+    resolution: {integrity: sha512-TxiAbs9Rw5qnMs/vvg+4Zx1Xf/5RhJXf8w6JOYSgvp4d2IKkOKc9eSOhid8ySvz7bWCjF2yWd8eHNc/BFs8cXg==}
+    engines: {node: '>=18'}
+
+  '@scalar/types@0.0.14':
+    resolution: {integrity: sha512-4yzW5d9nWtRE3eVNfLnuVUScSMf325PYJ9qCJ8CpaVP7hnWrTv9xGw/2n7csEKzu3QJkdff0myibHfxXJ6ICig==}
     engines: {node: '>=18'}
 
   '@sinclair/typebox@0.27.8':
@@ -901,6 +909,9 @@ packages:
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+
+  '@unhead/schema@1.11.7':
+    resolution: {integrity: sha512-j9uN7T63aUXrZ6yx2CfjVT7xZHjn0PZO7TPMaWqMFjneIH/NONKvDVCMEqDlXeqdSIERIYtk/xTHgCUMer5eyw==}
 
   '@vitest/coverage-v8@1.6.0':
     resolution: {integrity: sha512-KvapcbMY/8GYIG0rlwwOKCVNRc0OL20rrhFkg/CHNzncV03TE2XWvO5w9uZYoxNiMEBacAJt3unSOiZ7svePew==}
@@ -1818,6 +1829,9 @@ packages:
   homedir-polyfill@1.0.3:
     resolution: {integrity: sha512-eSmmWE5bZTK2Nou4g0AI3zZ9rswp7GRKoKXS1BLUkvPviOqs4YTN1djQIqrXy9k5gEtdLPy86JjRwsNM9tnDcA==}
     engines: {node: '>=0.10.0'}
+
+  hookable@5.5.3:
+    resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
 
   hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
@@ -3201,6 +3215,9 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
 
+  zhead@2.2.4:
+    resolution: {integrity: sha512-8F0OI5dpWIA5IGG5NHUg9staDwz/ZPxZtvGVf01j7vHqSyZ0raHY+78atOVxRqb73AotX22uV1pXt3gYSstGag==}
+
 snapshots:
 
   '@ampproject/remapping@2.3.0':
@@ -3674,9 +3691,17 @@ snapshots:
 
   '@rushstack/eslint-patch@1.10.2': {}
 
-  '@scalar/fastify-api-reference@1.22.31':
+  '@scalar/fastify-api-reference@1.25.34':
     dependencies:
+      '@scalar/types': 0.0.14
       fastify-plugin: 4.5.1
+
+  '@scalar/openapi-types@0.1.2': {}
+
+  '@scalar/types@0.0.14':
+    dependencies:
+      '@scalar/openapi-types': 0.1.2
+      '@unhead/schema': 1.11.7
 
   '@sinclair/typebox@0.27.8': {}
 
@@ -3936,6 +3961,11 @@ snapshots:
       '@typespec/compiler': 0.61.2
 
   '@ungap/structured-clone@1.2.0': {}
+
+  '@unhead/schema@1.11.7':
+    dependencies:
+      hookable: 5.5.3
+      zhead: 2.2.4
 
   '@vitest/coverage-v8@1.6.0(vitest@1.6.0(@types/node@20.16.11))':
     dependencies:
@@ -5084,6 +5114,8 @@ snapshots:
   homedir-polyfill@1.0.3:
     dependencies:
       parse-passwd: 1.0.0
+
+  hookable@5.5.3: {}
 
   hosted-git-info@2.8.9: {}
 
@@ -6437,3 +6469,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yocto-queue@1.0.0: {}
+
+  zhead@2.2.4: {}
