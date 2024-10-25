@@ -7,9 +7,9 @@ export const CreateDriverSchema = {
   body: DriverRequest,
   response: {
     201: Driver,
-    400: ErrorSchema
+    400: ErrorSchema,
   },
-  tags: [ 'Drivers' ]
+  tags: ['Drivers'],
 };
 
 export const UpdateDriverSchema = {
@@ -17,25 +17,25 @@ export const UpdateDriverSchema = {
   response: {
     200: Driver,
     400: ErrorSchema,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Drivers' ]
+  tags: ['Drivers'],
 };
 
 export const GetDriverSchema = {
   params: IdParam,
   response: {
     200: Driver,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Drivers' ]
+  tags: ['Drivers'],
 };
 
 export const DeleteDriverSchema = {
   params: IdParam,
   response: {
     200: DeleteStatus,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Drivers' ]
+  tags: ['Drivers'],
 };

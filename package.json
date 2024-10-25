@@ -29,7 +29,7 @@
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
     "@jackfranklin/test-data-bot": "^2.1.0",
-    "@jarsec/eslint-config": "5.2.0",
+    "@jarsec/eslint-config": "6.0.0",
     "@jarsec/tsconfig": "2.1.0",
     "@types/node": "20.16.11",
     "@types/pg": "^8.11.6",
@@ -40,7 +40,7 @@
     "@typespec/versioning": "^0.61.0",
     "@vitest/coverage-v8": "^1.6.0",
     "cz-conventional-changelog": "3.3.0",
-    "eslint": "8.57.1",
+    "eslint": "9.13.0",
     "husky": "9.1.6",
     "lint-staged": "15.2.10",
     "pino-pretty": "^11.0.0",

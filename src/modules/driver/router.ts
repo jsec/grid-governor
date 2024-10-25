@@ -9,41 +9,41 @@ import {
   CreateDriverSchema,
   DeleteDriverSchema,
   GetDriverSchema,
-  UpdateDriverSchema
+  UpdateDriverSchema,
 } from './schema.js';
 import {
   createDriver,
   deleteDriver,
   getDriverById,
-  updateDriver
+  updateDriver,
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
-  server.post<{ Body: DriverRequest, Reply: Driver }>(
+  server.post<{ Body: DriverRequest; Reply: Driver }>(
     '/driver',
     { schema: CreateDriverSchema },
     async (request, reply) => {
       const driver = await createDriver(request.body);
       return reply.result(driver);
-    }
+    },
   );
 
-  server.get<{ Params: IdParam, Reply: Driver }>(
+  server.get<{ Params: IdParam; Reply: Driver }>(
     '/driver/:id',
     { schema: GetDriverSchema },
     async (request, reply) => {
       const driver = await getDriverById(request.params.id);
       return reply.result(driver);
-    }
+    },
   );
 
-  server.put<{ Body: Driver, Params: IdParam, Reply: Driver }>(
+  server.put<{ Body: Driver; Params: IdParam; Reply: Driver }>(
     '/driver/:id',
     { schema: UpdateDriverSchema },
     async (request, reply) => {
       const update = await updateDriver(request.params.id, request.body);
       return reply.result(update);
-    }
+    },
   );
 
   server.delete<{ Params: IdParam }>(
@@ -52,10 +52,10 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await deleteDriver(request.params.id);
       return reply.result(result);
-    }
+    },
   );
 };
 
 export default fp(router, {
-  name: 'driverRouter'
+  name: 'driverRouter',
 });
