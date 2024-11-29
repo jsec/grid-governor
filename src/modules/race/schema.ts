@@ -7,9 +7,9 @@ export const CreateRaceSchema = {
   body: RaceRequest,
   response: {
     201: Race,
-    400: ErrorSchema
+    400: ErrorSchema,
   },
-  tags: [ 'Races' ]
+  tags: ['Races'],
 };
 
 export const UpdateRaceSchema = {
@@ -19,22 +19,22 @@ export const UpdateRaceSchema = {
     400: ErrorSchema,
     404: ErrorSchema,
   },
-  tags: [ 'Races' ]
+  tags: ['Races'],
 };
 
 export const GetRaceSchema = {
   params: IdParam,
   response: {
     200: Race,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Races' ]
+  tags: ['Races'],
 };
 
 export const DeleteRaceSchema = {
   params: IdParam,
   response: {
-    200: DeleteStatus
+    200: DeleteStatus,
   },
-  tags: [ 'Races' ]
+  tags: ['Races'],
 };

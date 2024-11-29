@@ -7,8 +7,8 @@ export const raceBuilder = build('season', {
     name: perBuild(() => faker.company.name()),
     seasonId: perBuild(() => 4),
     time: perBuild(() => new Date().toISOString()),
-    week: perBuild(() => faker.number.int({ max: 100_000 }))
-  }
+    week: perBuild(() => faker.number.int({ max: 100_000 })),
+  },
 });
 
 export const raceRecordBuilder = build('season', {
@@ -20,6 +20,6 @@ export const raceRecordBuilder = build('season', {
     seasonId: perBuild(() => 4),
     time: perBuild(() => new Date().toISOString()),
     updatedAt: perBuild(() => new Date().toISOString()),
-    week: perBuild(() => faker.number.int({ max: 100_000 }))
-  }
+    week: perBuild(() => faker.number.int({ max: 100_000 })),
+  },
 });

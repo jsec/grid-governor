@@ -16,16 +16,16 @@ describe('Season API', () => {
           endDate: new Date().toISOString(),
           leagueId: 4,
           platformId: 2,
-          startDate: new Date().toISOString()
+          startDate: new Date().toISOString(),
         },
-        url: '/season'
+        url: '/season',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'name'");
+      expect(body.message).to.include('must have required property \'name\'');
     });
 
     test('should return a 400 when the season description is not provided', async ({ app }) => {
@@ -36,16 +36,16 @@ describe('Season API', () => {
           leagueId: 4,
           name: 'Season',
           platformId: 2,
-          startDate: new Date().toISOString()
+          startDate: new Date().toISOString(),
         },
-        url: '/season'
+        url: '/season',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'description'");
+      expect(body.message).to.include('must have required property \'description\'');
       // TODO
     });
 
@@ -57,16 +57,16 @@ describe('Season API', () => {
           endDate: new Date().toISOString(),
           leagueId: 4,
           name: 'Season',
-          platformId: 2
+          platformId: 2,
         },
-        url: '/season'
+        url: '/season',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'startDate'");
+      expect(body.message).to.include('must have required property \'startDate\'');
     });
 
     test('should return a 400 when the season end date is not provided', async ({ app }) => {
@@ -77,16 +77,16 @@ describe('Season API', () => {
           leagueId: 4,
           name: 'Season',
           platformId: 2,
-          startDate: new Date().toISOString()
+          startDate: new Date().toISOString(),
         },
-        url: '/season'
+        url: '/season',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'endDate'");
+      expect(body.message).to.include('must have required property \'endDate\'');
     });
 
     test('should return a 400 when no league with supplied leagueId exists', async ({ app }) => {
@@ -100,7 +100,7 @@ describe('Season API', () => {
           platformId: 2,
           startDate: new Date().toISOString(),
         },
-        url: '/season'
+        url: '/season',
       });
 
       const body = response.json();
@@ -111,7 +111,6 @@ describe('Season API', () => {
       expect(body.message).to.include('league_id');
     });
 
-    // eslint-disable-next-line @stylistic/max-len
     test('should return a 400 when no platform with supplied platformId exists', async ({ app, league }) => {
       const response = await app.inject({
         method: 'POST',
@@ -123,7 +122,7 @@ describe('Season API', () => {
           platformId: 2,
           startDate: new Date().toISOString(),
         },
-        url: '/season'
+        url: '/season',
       });
 
       const body = response.json();
@@ -135,19 +134,19 @@ describe('Season API', () => {
     });
 
     test('should create a new season', async ({
-      app, db, league, platform
+      app, db, league, platform,
     }) => {
       const season = seasonBuilder.one({
         overrides: {
           leagueId: league.id,
-          platformId: platform.id
-        }
+          platformId: platform.id,
+        },
       });
 
       const response = await app.inject({
         method: 'POST',
         payload: season,
-        url: '/season'
+        url: '/season',
       });
 
       const body = response.json();
@@ -158,7 +157,7 @@ describe('Season API', () => {
         description: season.description,
         leagueId: season.leagueId,
         name: season.name,
-        platformId: season.platformId
+        platformId: season.platformId,
       });
 
       await db
@@ -172,7 +171,7 @@ describe('Season API', () => {
     test('should return a 404 if no season with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/season/999999'
+        url: '/season/999999',
       });
 
       const body = response.json();
@@ -184,20 +183,20 @@ describe('Season API', () => {
     });
 
     test('should return a season by id', async ({
-      app, db, league, platform
+      app, db, league, platform,
     }) => {
       const created = await createSeason(seasonBuilder.one({
         overrides: {
           leagueId: league.id,
-          platformId: platform.id
-        }
+          platformId: platform.id,
+        },
       }));
 
       const season = created._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
-        url: `/season/${season.id}`
+        url: `/season/${season.id}`,
       });
 
       const body = response.json();
@@ -208,7 +207,7 @@ describe('Season API', () => {
         id: season.id,
         leagueId: season.leagueId,
         name: season.name,
-        platformId: season.platformId
+        platformId: season.platformId,
       });
 
       await db
@@ -223,7 +222,7 @@ describe('Season API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: seasonBuilder.one(),
-        url: '/season/999999'
+        url: '/season/999999',
       });
 
       const body = response.json();
@@ -234,14 +233,14 @@ describe('Season API', () => {
       expect(body.message).to.equal('no result');
     });
 
-    test("should update a season's name", async ({
+    test('should update a season\'s name', async ({
       app, db, league, platform,
     }) => {
       const created = await createSeason(seasonBuilder.one({
         overrides: {
           leagueId: league.id,
-          platformId: platform.id
-        }
+          platformId: platform.id,
+        },
       }));
 
       const existing = created._unsafeUnwrap();
@@ -250,7 +249,7 @@ describe('Season API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: existing,
-        url: `/season/${existing.id}`
+        url: `/season/${existing.id}`,
       });
 
       const body = response.json();
@@ -264,14 +263,14 @@ describe('Season API', () => {
         .execute();
     });
 
-    test("should update a season's description", async ({
-      app, db, league, platform
+    test('should update a season\'s description', async ({
+      app, db, league, platform,
     }) => {
       const created = await createSeason(seasonBuilder.one({
         overrides: {
           leagueId: league.id,
-          platformId: platform.id
-        }
+          platformId: platform.id,
+        },
       }));
 
       const existing = created._unsafeUnwrap();
@@ -280,7 +279,7 @@ describe('Season API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: existing,
-        url: `/season/${existing.id}`
+        url: `/season/${existing.id}`,
       });
 
       const body = response.json();
@@ -303,7 +302,7 @@ describe('Season API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/season/${seasonId}`
+        url: `/season/${seasonId}`,
       });
 
       const body = response.json();
@@ -314,27 +313,27 @@ describe('Season API', () => {
     });
 
     test('should delete an existing season', async ({
-      app, league, platform
+      app, league, platform,
     }) => {
       const seasonResult = await createSeason(seasonBuilder.one({
         overrides: {
           leagueId: league.id,
-          platformId: platform.id
-        }
+          platformId: platform.id,
+        },
       }));
 
       const { id: seasonId } = seasonResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/season/${seasonId}`
+        url: `/season/${seasonId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

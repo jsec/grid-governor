@@ -1,14 +1,14 @@
 import {
+  errAsync,
+  okAsync,
   Result,
   ResultAsync,
-  errAsync,
-  okAsync
 } from 'neverthrow';
 
 import type {
   League,
   LeagueUpdate,
-  NewLeague
+  NewLeague,
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 
@@ -37,7 +37,7 @@ export const updateLeague = (id: number, league: LeagueUpdate): ResultAsync<Leag
     .where('id', '=', id)
     .set({
       ...league,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
@@ -55,8 +55,8 @@ export const deleteLeague = async (id: number): Promise<Result<DeleteStatus, App
       new AppError(
         ErrorCode.NOT_FOUND,
         `League with id ${id} was not found`,
-        'Not Found'
-      )
+        'Not Found',
+      ),
     );
   }
 

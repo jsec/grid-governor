@@ -4,8 +4,8 @@ import { build, perBuild } from '@jackfranklin/test-data-bot';
 export const registrationBuilder = build('registration', {
   fields: {
     driverId: perBuild(() => faker.number.int({ max: 100_000 })),
-    seasonId: perBuild(() => faker.number.int({ max: 100_000 }))
-  }
+    seasonId: perBuild(() => faker.number.int({ max: 100_000 })),
+  },
 });
 
 export const registrationRecordBuilder = build('registration', {
@@ -14,6 +14,6 @@ export const registrationRecordBuilder = build('registration', {
     driverId: perBuild(() => faker.number.int({ max: 100_000 })),
     id: perBuild(() => faker.number.int({ max: 100_000 })),
     seasonId: perBuild(() => faker.number.int({ max: 100_000 })),
-    updatedAt: perBuild(() => new Date().toISOString())
-  }
+    updatedAt: perBuild(() => new Date().toISOString()),
+  },
 });

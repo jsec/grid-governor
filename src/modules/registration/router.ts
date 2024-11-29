@@ -9,13 +9,13 @@ import {
   CreateRegistrationSchema,
   DeleteRegistrationSchema,
   GetRegistrationSchema,
-  UpdateRegistrationSchema
+  UpdateRegistrationSchema,
 } from './schema.js';
 import {
   createRegistration,
   deleteRegistration,
   getRegistrationById,
-  updateRegistration
+  updateRegistration,
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
@@ -25,7 +25,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await createRegistration(request.body);
       return reply.result(result);
-    }
+    },
   );
 
   server.get<{ Params: IdParam }>(
@@ -34,16 +34,16 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await getRegistrationById(request.params.id);
       return reply.result(result);
-    }
+    },
   );
 
-  server.put<{ Body: Registration, Params: IdParam }>(
+  server.put<{ Body: Registration; Params: IdParam }>(
     '/registration/:id',
     { schema: UpdateRegistrationSchema },
     async (request, reply) => {
       const result = await updateRegistration(request.params.id, request.body);
       return reply.result(result);
-    }
+    },
   );
 
   server.delete<{ Params: IdParam }>(
@@ -52,10 +52,10 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await deleteRegistration(request.params.id);
       return reply.result(result);
-    }
+    },
   );
 };
 
 export default fp(router, {
-  name: 'registrationRouter'
+  name: 'registrationRouter',
 });

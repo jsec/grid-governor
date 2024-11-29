@@ -1,7 +1,7 @@
 import type {
   Insertable,
   Selectable,
-  Updateable
+  Updateable,
 } from 'kysely';
 
 import type {
@@ -13,7 +13,7 @@ import type {
   RaceTable,
   RegistrationTable,
   RulingTable,
-  SeasonTable
+  SeasonTable,
 } from './schema.js';
 
 export type Driver = Selectable<DriverTable>;

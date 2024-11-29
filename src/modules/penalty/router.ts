@@ -9,41 +9,41 @@ import {
   CreatePenaltySchema,
   DeletePenaltySchema,
   GetPenaltySchema,
-  UpdatePenaltySchema
+  UpdatePenaltySchema,
 } from './schema.js';
 import {
   createPenalty,
   deletePenalty,
   getPenaltyById,
-  updatePenalty
+  updatePenalty,
 } from './service.js';
 
 const router: FastifyPluginAsyncTypebox = async (server) => {
-  server.post<{ Body: PenaltyRequest, Reply: Penalty }>(
+  server.post<{ Body: PenaltyRequest; Reply: Penalty }>(
     '/penalty',
     { schema: CreatePenaltySchema },
     async (request, reply) => {
       const penalty = await createPenalty(request.body);
       return reply.result(penalty);
-    }
+    },
   );
 
-  server.get<{ Params: IdParam, Reply: Penalty }>(
+  server.get<{ Params: IdParam; Reply: Penalty }>(
     '/penalty/:id',
     { schema: GetPenaltySchema },
     async (request, reply) => {
       const penalty = await getPenaltyById(request.params.id);
       return reply.result(penalty);
-    }
+    },
   );
 
-  server.put<{ Body: Penalty, Params: IdParam, Reply: Penalty }>(
+  server.put<{ Body: Penalty; Params: IdParam; Reply: Penalty }>(
     '/penalty/:id',
     { schema: UpdatePenaltySchema },
     async (request, reply) => {
       const update = await updatePenalty(request.params.id, request.body);
       return reply.result(update);
-    }
+    },
   );
 
   server.delete<{ Params: IdParam }>(
@@ -52,10 +52,10 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await deletePenalty(request.params.id);
       return reply.result(result);
-    }
+    },
   );
 };
 
 export default fp(router, {
-  name: 'penaltyRouter'
+  name: 'penaltyRouter',
 });

@@ -4,7 +4,7 @@ import {
   createPlatform,
   deletePlatform,
   getPlatformById,
-  updatePlatform
+  updatePlatform,
 } from '../../src/modules/platform/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { platformBuilder } from '../builders/platform.builder.js';
@@ -42,7 +42,7 @@ describe('Platform service', () => {
 
     expect(driver).to.include({
       id: existing.id,
-      name: existing.name
+      name: existing.name,
     });
 
     await db

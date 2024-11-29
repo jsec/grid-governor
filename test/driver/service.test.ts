@@ -4,7 +4,7 @@ import {
   createDriver,
   deleteDriver,
   getDriverById,
-  updateDriver
+  updateDriver,
 } from '../../src/modules/driver/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { driverBuilder, driverRecordBuilder } from '../builders/driver.builder.js';
@@ -22,7 +22,7 @@ describe('Driver service', () => {
       discordId: newDriver.discordId,
       firstName: newDriver.firstName,
       lastName: newDriver.lastName,
-      steamId: newDriver.steamId
+      steamId: newDriver.steamId,
     });
 
     await db
@@ -51,7 +51,7 @@ describe('Driver service', () => {
       firstName: driver.firstName,
       id: driver.id,
       lastName: driver.lastName,
-      steamId: driver.steamId
+      steamId: driver.steamId,
     });
 
     await db
@@ -63,8 +63,8 @@ describe('Driver service', () => {
   test('should return an error when updating a driver with an invalid id', async () => {
     const driver = driverRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await updateDriver(driver.id, driver);
@@ -91,7 +91,7 @@ describe('Driver service', () => {
       .execute();
   });
 
-  test("should update a driver's first name", async ({ db }) => {
+  test('should update a driver\'s first name', async ({ db }) => {
     const createResult = await createDriver(driverBuilder.one());
     const created = createResult._unsafeUnwrap();
 
@@ -108,7 +108,7 @@ describe('Driver service', () => {
       .execute();
   });
 
-  test("should update a driver's last name", async ({ db }) => {
+  test('should update a driver\'s last name', async ({ db }) => {
     const createResult = await createDriver(driverBuilder.one());
     const created = createResult._unsafeUnwrap();
 
@@ -125,7 +125,7 @@ describe('Driver service', () => {
       .execute();
   });
 
-  test("should update a driver's steam id", async ({ db }) => {
+  test('should update a driver\'s steam id', async ({ db }) => {
     const createResult = await createDriver(driverBuilder.one());
     const created = createResult._unsafeUnwrap();
 
@@ -142,7 +142,7 @@ describe('Driver service', () => {
       .execute();
   });
 
-  test("should update a driver's discord id", async ({ db }) => {
+  test('should update a driver\'s discord id', async ({ db }) => {
     const createResult = await createDriver(driverBuilder.one());
     const created = createResult._unsafeUnwrap();
 

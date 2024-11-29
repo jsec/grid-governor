@@ -12,32 +12,32 @@ describe('Incident API', () => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          incidentId: 1
+          incidentId: 1,
         },
-        url: '/ruling'
+        url: '/ruling',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'penaltyId'");
+      expect(body.message).to.include('must have required property \'penaltyId\'');
     });
 
     test('should return a 400 when no incidentId is supplied', async ({ app }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          penaltyId: 1
+          penaltyId: 1,
         },
-        url: '/ruling'
+        url: '/ruling',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'incidentId'");
+      expect(body.message).to.include('must have required property \'incidentId\'');
     });
 
     test('should return a 400 when the incidentId is invalid', async ({ app, penalty }) => {
@@ -45,10 +45,10 @@ describe('Incident API', () => {
         method: 'POST',
         payload: rulingBuilder.one({
           overrides: {
-            penaltyId: penalty.id
-          }
+            penaltyId: penalty.id,
+          },
         }),
-        url: '/ruling'
+        url: '/ruling',
       });
 
       const body = response.json();
@@ -64,10 +64,10 @@ describe('Incident API', () => {
         method: 'POST',
         payload: rulingBuilder.one({
           overrides: {
-            incidentId: incident.id
-          }
+            incidentId: incident.id,
+          },
         }),
-        url: '/ruling'
+        url: '/ruling',
       });
 
       const body = response.json();
@@ -79,17 +79,17 @@ describe('Incident API', () => {
     });
 
     test('should create a new ruling', async ({
-      app, db, incident, penalty
+      app, db, incident, penalty,
     }) => {
       const response = await app.inject({
         method: 'POST',
         payload: rulingBuilder.one({
           overrides: {
             incidentId: incident.id,
-            penaltyId: penalty.id
-          }
+            penaltyId: penalty.id,
+          },
         }),
-        url: '/ruling'
+        url: '/ruling',
       });
 
       const body = response.json();
@@ -98,7 +98,7 @@ describe('Incident API', () => {
       expect(body.id).not.to.be.null;
       expect(body).to.include({
         incidentId: incident.id,
-        penaltyId: penalty.id
+        penaltyId: penalty.id,
       });
 
       await db
@@ -112,7 +112,7 @@ describe('Incident API', () => {
     test('should return a 404 if no ruling with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/ruling/999999'
+        url: '/ruling/999999',
       });
 
       const body = response.json();
@@ -123,20 +123,20 @@ describe('Incident API', () => {
     });
 
     test('should return a ruling by id', async ({
-      app, db, incident, penalty
+      app, db, incident, penalty,
     }) => {
       const rulingResult = await createRuling(rulingBuilder.one({
         overrides: {
           incidentId: incident.id,
-          penaltyId: penalty.id
-        }
+          penaltyId: penalty.id,
+        },
       }));
 
       const ruling = rulingResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
-        url: `/ruling/${ruling.id}`
+        url: `/ruling/${ruling.id}`,
       });
 
       const body = response.json();
@@ -145,7 +145,7 @@ describe('Incident API', () => {
       expect(body).to.include({
         id: ruling.id,
         incidentId: incident.id,
-        penaltyId: penalty.id
+        penaltyId: penalty.id,
       });
 
       await db
@@ -160,7 +160,7 @@ describe('Incident API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: rulingBuilder.one(),
-        url: '/ruling/999999'
+        url: '/ruling/999999',
       });
 
       const body = response.json();
@@ -177,7 +177,7 @@ describe('Incident API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/ruling/${rulingId}`
+        url: `/ruling/${rulingId}`,
       });
 
       const body = response.json();
@@ -188,27 +188,27 @@ describe('Incident API', () => {
     });
 
     test('should delete an existing ruling', async ({
-      app, incident, penalty
+      app, incident, penalty,
     }) => {
       const rulingResult = await createRuling(rulingBuilder.one({
         overrides: {
           incidentId: incident.id,
-          penaltyId: penalty.id
-        }
+          penaltyId: penalty.id,
+        },
       }));
 
       const { id: rulingId } = rulingResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/ruling/${rulingId}`
+        url: `/ruling/${rulingId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

@@ -9,7 +9,7 @@ export const CreateSeasonSchema = {
     201: Season,
     400: ErrorSchema,
   },
-  tags: [ 'Seasons' ]
+  tags: ['Seasons'],
 };
 
 export const UpdateSeasonSchema = {
@@ -17,23 +17,23 @@ export const UpdateSeasonSchema = {
   response: {
     200: Season,
     400: ErrorSchema,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Seasons' ]
+  tags: ['Seasons'],
 };
 
 export const GetSeasonSchema = {
   params: IdParam,
   response: {
-    200: Season
+    200: Season,
   },
-  tags: [ 'Seasons' ]
+  tags: ['Seasons'],
 };
 
 export const DeleteSeasonSchema = {
   params: IdParam,
   response: {
-    200: DeleteStatus
+    200: DeleteStatus,
   },
-  tags: [ 'Seasons' ]
+  tags: ['Seasons'],
 };

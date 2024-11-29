@@ -6,17 +6,17 @@ import { env } from './common/env.js';
 const app = createApp();
 
 const shutdownCallback: CloseWithGraceAsyncCallback = async ({
-  err, manual, signal
+  err, manual, signal,
 }) => {
   if (err) {
     app.log.error({
-      err, manual, signal
+      err, manual, signal,
     }, 'error in graceful shutdown listeners');
   }
 
   await app.close();
   app.log.info({
-    err, manual, signal
+    err, manual, signal,
   }, 'server process shutdown');
 };
 

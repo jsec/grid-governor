@@ -7,9 +7,9 @@ export const CreateLeagueSchema = {
   body: LeagueRequest,
   response: {
     201: League,
-    400: ErrorSchema
+    400: ErrorSchema,
   },
-  tags: [ 'Leagues' ]
+  tags: ['Leagues'],
 };
 
 export const UpdateLeagueSchema = {
@@ -17,25 +17,25 @@ export const UpdateLeagueSchema = {
   response: {
     200: League,
     400: ErrorSchema,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Leagues' ]
+  tags: ['Leagues'],
 };
 
 export const GetLeagueSchema = {
   params: IdParam,
   response: {
     200: League,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Leagues' ]
+  tags: ['Leagues'],
 };
 
 export const DeleteLeagueSchema = {
   params: IdParam,
   response: {
     200: DeleteStatus,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Leagues' ]
+  tags: ['Leagues'],
 };

@@ -30,16 +30,16 @@ import { raceBuilder } from './builders/race.builder.js';
 import { seasonBuilder } from './builders/season.builder.js';
 
 interface TestContext {
-  app: FastifyInstance,
-  db: Kysely<Database>,
-  driver: Driver,
-  incident: Incident,
-  league: League,
-  penalty: Penalty,
-  platform: Platform,
-  race: Race,
-  reportingDriver: Driver,
-  season: Season,
+  app: FastifyInstance;
+  db: Kysely<Database>;
+  driver: Driver;
+  incident: Incident;
+  league: League;
+  penalty: Penalty;
+  platform: Platform;
+  race: Race;
+  reportingDriver: Driver;
+  season: Season;
 }
 
 export const test = base.extend<TestContext>({
@@ -52,14 +52,14 @@ export const test = base.extend<TestContext>({
     await deleteDriver(driver.id);
   },
   incident: async ({
-    driver, race, reportingDriver
+    driver, race, reportingDriver,
   }, use) => {
     const incidentResult = await createIncident(incidentBuilder.one({
       overrides: {
         driverId: driver.id,
         raceId: race.id,
-        reportingDriverId: reportingDriver.id
-      }
+        reportingDriverId: reportingDriver.id,
+      },
     }));
 
     const incident = incidentResult._unsafeUnwrap();
@@ -89,8 +89,8 @@ export const test = base.extend<TestContext>({
     const raceResult = await createRace(raceBuilder.one({
       overrides: {
         leagueId: league.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
 
     const race = raceResult._unsafeUnwrap();
@@ -107,12 +107,12 @@ export const test = base.extend<TestContext>({
     const seasonResult = await createSeason(seasonBuilder.one({
       overrides: {
         leagueId: league.id,
-        platformId: platform.id
-      }
+        platformId: platform.id,
+      },
     }));
 
     const season = seasonResult._unsafeUnwrap();
     await use(season);
     await deleteSeason(season.id);
-  }
+  },
 });

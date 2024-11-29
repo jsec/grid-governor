@@ -8,8 +8,8 @@ export const seasonBuilder = build('season', {
     leagueId: perBuild(() => 3),
     name: perBuild(() => faker.company.name()),
     platformId: perBuild(() => 4),
-    startDate: perBuild(() => new Date().toISOString())
-  }
+    startDate: perBuild(() => new Date().toISOString()),
+  },
 });
 
 export const seasonRecordBuilder = build('season', {
@@ -22,6 +22,6 @@ export const seasonRecordBuilder = build('season', {
     name: perBuild(() => faker.company.name()),
     platformId: perBuild(() => 4),
     startDate: perBuild(() => new Date().toISOString()),
-    updatedAt: perBuild(() => new Date().toISOString())
-  }
+    updatedAt: perBuild(() => new Date().toISOString()),
+  },
 });

@@ -15,16 +15,16 @@ describe('Incident API', () => {
           description: 'He dun goofed',
           driverId: 1,
           lapNumber: 5,
-          reportingDriverId: 3
+          reportingDriverId: 3,
         },
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'raceId'");
+      expect(body.message).to.include('must have required property \'raceId\'');
     });
 
     test('should return a 400 when no driverId is supplied', async ({ app }) => {
@@ -36,14 +36,14 @@ describe('Incident API', () => {
           raceId: 3,
           reportingDriverId: 4,
         },
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'driverId'");
+      expect(body.message).to.include('must have required property \'driverId\'');
     });
 
     test('should return a 400 when no reportingDriverId is supplied', async ({ app }) => {
@@ -55,14 +55,14 @@ describe('Incident API', () => {
           lapNumber: 2,
           raceId: 3,
         },
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'reportingDriverId'");
+      expect(body.message).to.include('must have required property \'reportingDriverId\'');
     });
 
     test('should return a 400 when no lapNumber is supplied', async ({ app }) => {
@@ -74,14 +74,14 @@ describe('Incident API', () => {
           raceId: 3,
           reportingDriverId: 2,
         },
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'lapNumber'");
+      expect(body.message).to.include('must have required property \'lapNumber\'');
     });
 
     test('should return a 400 when no description is supplied', async ({ app }) => {
@@ -93,28 +93,28 @@ describe('Incident API', () => {
           raceId: 3,
           reportingDriverId: 2,
         },
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'description'");
+      expect(body.message).to.include('must have required property \'description\'');
     });
 
     test('should return a 400 when the driverId is invalid', async ({
-      app, race, reportingDriver
+      app, race, reportingDriver,
     }) => {
       const response = await app.inject({
         method: 'POST',
         payload: incidentBuilder.one({
           overrides: {
             raceId: race.id,
-            reportingDriverId: reportingDriver.id
-          }
+            reportingDriverId: reportingDriver.id,
+          },
         }),
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
@@ -126,17 +126,17 @@ describe('Incident API', () => {
     });
 
     test('should return a 400 when the reportingDriverId is invalid', async ({
-      app, driver, race
+      app, driver, race,
     }) => {
       const response = await app.inject({
         method: 'POST',
         payload: incidentBuilder.one({
           overrides: {
             driverId: driver.id,
-            raceId: race.id
-          }
+            raceId: race.id,
+          },
         }),
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
@@ -148,17 +148,17 @@ describe('Incident API', () => {
     });
 
     test('should return a 400 when the raceId is invalid', async ({
-      app, driver, reportingDriver
+      app, driver, reportingDriver,
     }) => {
       const response = await app.inject({
         method: 'POST',
         payload: incidentBuilder.one({
           overrides: {
             driverId: driver.id,
-            reportingDriverId: reportingDriver.id
-          }
+            reportingDriverId: reportingDriver.id,
+          },
         }),
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
@@ -170,7 +170,7 @@ describe('Incident API', () => {
     });
 
     test('should create a new race', async ({
-      app, db, driver, race, reportingDriver
+      app, db, driver, race, reportingDriver,
     }) => {
       const response = await app.inject({
         method: 'POST',
@@ -178,10 +178,10 @@ describe('Incident API', () => {
           overrides: {
             driverId: driver.id,
             raceId: race.id,
-            reportingDriverId: reportingDriver.id
-          }
+            reportingDriverId: reportingDriver.id,
+          },
         }),
-        url: '/incident'
+        url: '/incident',
       });
 
       const body = response.json();
@@ -205,7 +205,7 @@ describe('Incident API', () => {
     test('should return a 404 if no incident with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/incident/999999'
+        url: '/incident/999999',
       });
 
       const body = response.json();
@@ -216,21 +216,21 @@ describe('Incident API', () => {
     });
 
     test('should return an incident by id', async ({
-      app, db, driver, race, reportingDriver
+      app, db, driver, race, reportingDriver,
     }) => {
       const incidentResult = await createIncident(incidentBuilder.one({
         overrides: {
           driverId: driver.id,
           raceId: race.id,
-          reportingDriverId: reportingDriver.id
-        }
+          reportingDriverId: reportingDriver.id,
+        },
       }));
 
       const incident = incidentResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
-        url: `/incident/${incident.id}`
+        url: `/incident/${incident.id}`,
       });
 
       const body = response.json();
@@ -240,7 +240,7 @@ describe('Incident API', () => {
         driverId: driver.id,
         id: incident.id,
         raceId: race.id,
-        reportingDriverId: reportingDriver.id
+        reportingDriverId: reportingDriver.id,
       });
 
       await db
@@ -255,7 +255,7 @@ describe('Incident API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: incidentBuilder.one(),
-        url: '/incident/999999'
+        url: '/incident/999999',
       });
 
       const body = response.json();
@@ -272,7 +272,7 @@ describe('Incident API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/incident/${incidentId}`
+        url: `/incident/${incidentId}`,
       });
 
       const body = response.json();
@@ -283,28 +283,28 @@ describe('Incident API', () => {
     });
 
     test('delete an existing incident', async ({
-      app, driver, race, reportingDriver
+      app, driver, race, reportingDriver,
     }) => {
       const incidentResult = await createIncident(incidentBuilder.one({
         overrides: {
           driverId: driver.id,
           raceId: race.id,
-          reportingDriverId: reportingDriver.id
-        }
+          reportingDriverId: reportingDriver.id,
+        },
       }));
 
       const { id: incidentId } = incidentResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/incident/${incidentId}`
+        url: `/incident/${incidentId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

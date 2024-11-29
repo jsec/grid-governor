@@ -4,7 +4,7 @@ import {
   createRace,
   deleteRace,
   getRaceById,
-  updateRace
+  updateRace,
 } from '../../src/modules/race/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
@@ -26,8 +26,8 @@ describe('Race service', () => {
   test('should return an error when the provided seasonId is invalid', async ({ league }) => {
     const race = raceBuilder.one({
       overrides: {
-        leagueId: league.id
-      }
+        leagueId: league.id,
+      },
     });
 
     const result = await createRace(race);
@@ -39,13 +39,13 @@ describe('Race service', () => {
   });
 
   test('should create a new race', async ({
-    db, league, season
+    db, league, season,
   }) => {
     const result = await createRace(raceBuilder.one({
       overrides: {
         leagueId: league.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
 
     const race = result._unsafeUnwrap();
@@ -53,7 +53,7 @@ describe('Race service', () => {
     expect(race.id).to.not.be.null;
     expect(race).to.include({
       leagueId: league.id,
-      seasonId: season.id
+      seasonId: season.id,
     });
 
     await db
@@ -71,13 +71,13 @@ describe('Race service', () => {
   });
 
   test('should return a race by id', async ({
-    db, league, season
+    db, league, season,
   }) => {
     const created = await createRace(raceBuilder.one({
       overrides: {
         leagueId: league.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
 
     const race = created._unsafeUnwrap();
@@ -88,7 +88,7 @@ describe('Race service', () => {
       leagueId: race.leagueId,
       name: race.name,
       seasonId: race.seasonId,
-      week: race.week
+      week: race.week,
     });
 
     await db
@@ -100,8 +100,8 @@ describe('Race service', () => {
   test('should return an error when updating a race with an invalid id', async () => {
     const race = raceRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await updateRace(race.id, race);
@@ -112,13 +112,13 @@ describe('Race service', () => {
   });
 
   test('should modify the updatedAt timestamp when updating a race', async ({
-    db, league, season
+    db, league, season,
   }) => {
     const created = await createRace(raceBuilder.one({
       overrides: {
         leagueId: league.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
 
     const race = created._unsafeUnwrap();
@@ -147,8 +147,8 @@ describe('Race service', () => {
     const created = await createRace(raceBuilder.one({
       overrides: {
         leagueId: league.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
 
     const race = created._unsafeUnwrap();

@@ -7,9 +7,9 @@ export const CreateRulingSchema = {
   body: RulingRequest,
   response: {
     201: Ruling,
-    400: ErrorSchema
+    400: ErrorSchema,
   },
-  tags: [ 'Rulings' ]
+  tags: ['Rulings'],
 };
 
 export const UpdateRulingSchema = {
@@ -19,22 +19,22 @@ export const UpdateRulingSchema = {
     400: ErrorSchema,
     404: ErrorSchema,
   },
-  tags: [ 'Rulings' ]
+  tags: ['Rulings'],
 };
 
 export const GetRulingSchema = {
   params: IdParam,
   response: {
     200: Ruling,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Rulings' ]
+  tags: ['Rulings'],
 };
 
 export const DeleteRulingSchema = {
   params: IdParam,
   response: {
-    200: DeleteStatus
+    200: DeleteStatus,
   },
-  tags: [ 'Rulings' ]
+  tags: ['Rulings'],
 };

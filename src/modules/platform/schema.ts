@@ -7,9 +7,9 @@ export const CreatePlatformSchema = {
   body: PlatformRequest,
   response: {
     201: Platform,
-    400: ErrorSchema
+    400: ErrorSchema,
   },
-  tags: [ 'Platforms' ]
+  tags: ['Platforms'],
 };
 
 export const UpdatePlatformSchema = {
@@ -18,25 +18,25 @@ export const UpdatePlatformSchema = {
   response: {
     200: Platform,
     400: ErrorSchema,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Platforms' ]
+  tags: ['Platforms'],
 };
 
 export const GetPlatformSchema = {
   params: IdParam,
   response: {
     200: Platform,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Platforms' ]
+  tags: ['Platforms'],
 };
 
 export const DeletePlatformSchema = {
   params: IdParam,
   response: {
     200: DeleteStatus,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Platforms' ]
+  tags: ['Platforms'],
 };

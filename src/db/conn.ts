@@ -1,7 +1,7 @@
 import {
   CamelCasePlugin,
   Kysely,
-  PostgresDialect
+  PostgresDialect,
 } from 'kysely';
 import pg from 'pg';
 
@@ -16,12 +16,12 @@ const dialect = new PostgresDialect({
     max: 10,
     password: env.DB_PASSWORD,
     port: env.DB_PORT,
-    user: env.DB_USER
-  })
+    user: env.DB_USER,
+  }),
 });
 
 const plugins = [
-  new CamelCasePlugin()
+  new CamelCasePlugin(),
 ];
 
 export const db = new Kysely<Database>({ dialect, plugins });

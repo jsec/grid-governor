@@ -1,14 +1,14 @@
 import {
+  errAsync,
+  okAsync,
   Result,
   ResultAsync,
-  errAsync,
-  okAsync
 } from 'neverthrow';
 
 import type {
   Driver,
   DriverUpdate,
-  NewDriver
+  NewDriver,
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 
@@ -37,7 +37,7 @@ export const updateDriver = (id: number, driver: DriverUpdate): ResultAsync<Driv
     .where('id', '=', id)
     .set({
       ...driver,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
@@ -55,8 +55,8 @@ export const deleteDriver = async (id: number): Promise<Result<DeleteStatus, App
       new AppError(
         ErrorCode.NOT_FOUND,
         `Driver with id ${id} was not found`,
-        'Not Found'
-      )
+        'Not Found',
+      ),
     );
   }
 

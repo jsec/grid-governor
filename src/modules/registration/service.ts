@@ -1,14 +1,14 @@
 import {
+  errAsync,
+  okAsync,
   Result,
   ResultAsync,
-  errAsync,
-  okAsync
 } from 'neverthrow';
 
 import type {
   NewRegistration,
   Registration,
-  RegistrationUpdate
+  RegistrationUpdate,
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 
@@ -16,7 +16,7 @@ import { db } from '../../db/conn.js';
 import { AppError, ErrorCode } from '../../types/errors/app.error.js';
 
 export const createRegistration = (
-  registration: NewRegistration
+  registration: NewRegistration,
 ): ResultAsync<Registration, AppError> => {
   return ResultAsync.fromThrowable(() => db.insertInto('registrations').values(registration)
     .returningAll()
@@ -33,13 +33,13 @@ export const getRegistrationById = (id: number): ResultAsync<Registration, AppEr
 
 export const updateRegistration = (
   id: number,
-  registration: RegistrationUpdate
+  registration: RegistrationUpdate,
 ): ResultAsync<Registration, AppError> => {
   return ResultAsync.fromThrowable(() => db.updateTable('registrations')
     .where('id', '=', id)
     .set({
       ...registration,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
@@ -56,8 +56,8 @@ export const deleteRegistration = async (id: number): Promise<Result<DeleteStatu
       new AppError(
         ErrorCode.NOT_FOUND,
         `Registration with id ${id} was not found`,
-        'Not Found'
-      )
+        'Not Found',
+      ),
     );
   }
 

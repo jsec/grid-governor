@@ -4,7 +4,7 @@ import {
   createRuling,
   deleteRuling,
   getRulingById,
-  updateRuling
+  updateRuling,
 } from '../../src/modules/ruling/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
@@ -16,8 +16,8 @@ describe('Ruling service', () => {
     async ({ penalty }) => {
       const ruling = rulingBuilder.one({
         overrides: {
-          penaltyId: penalty.id
-        }
+          penaltyId: penalty.id,
+        },
       });
 
       const result = await createRuling(ruling);
@@ -32,8 +32,8 @@ describe('Ruling service', () => {
     async ({ incident }) => {
       const ruling = rulingBuilder.one({
         overrides: {
-          incidentId: incident.id
-        }
+          incidentId: incident.id,
+        },
       });
 
       const result = await createRuling(ruling);
@@ -45,13 +45,13 @@ describe('Ruling service', () => {
     });
 
   test('should create a new ruling', async ({
-    db, incident, penalty
+    db, incident, penalty,
   }) => {
     const result = await createRuling(rulingBuilder.one({
       overrides: {
         incidentId: incident.id,
-        penaltyId: penalty.id
-      }
+        penaltyId: penalty.id,
+      },
     }));
 
     const ruling = result._unsafeUnwrap();
@@ -59,7 +59,7 @@ describe('Ruling service', () => {
     expect(ruling.id).to.not.be.null;
     expect(ruling).to.include({
       incidentId: incident.id,
-      penaltyId: penalty.id
+      penaltyId: penalty.id,
     });
 
     await db
@@ -77,13 +77,13 @@ describe('Ruling service', () => {
   });
 
   test('should return a ruling by id', async ({
-    db, incident, penalty
+    db, incident, penalty,
   }) => {
     const created = await createRuling(rulingBuilder.one({
       overrides: {
         incidentId: incident.id,
-        penaltyId: penalty.id
-      }
+        penaltyId: penalty.id,
+      },
     }));
 
     const ruling = created._unsafeUnwrap();
@@ -92,7 +92,7 @@ describe('Ruling service', () => {
     expect(result._unsafeUnwrap()).to.include({
       id: ruling.id,
       incidentId: ruling.incidentId,
-      penaltyId: ruling.penaltyId
+      penaltyId: ruling.penaltyId,
     });
 
     await db
@@ -104,8 +104,8 @@ describe('Ruling service', () => {
   test('should return an error when updating a ruling with an invalid id', async () => {
     const ruling = rulingRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await updateRuling(ruling.id, ruling);
@@ -116,13 +116,13 @@ describe('Ruling service', () => {
   });
 
   test('should modify the updatedAt timestamp when updating a ruling', async ({
-    db, incident, penalty
+    db, incident, penalty,
   }) => {
     const createResult = await createRuling(rulingBuilder.one({
       overrides: {
         incidentId: incident.id,
-        penaltyId: penalty.id
-      }
+        penaltyId: penalty.id,
+      },
     }));
 
     const ruling = createResult._unsafeUnwrap();
@@ -149,8 +149,8 @@ describe('Ruling service', () => {
     const existing = await createRuling(rulingBuilder.one({
       overrides: {
         incidentId: incident.id,
-        penaltyId: penalty.id
-      }
+        penaltyId: penalty.id,
+      },
     }));
 
     const rulingId = existing._unsafeUnwrap().id;

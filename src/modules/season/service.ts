@@ -1,14 +1,14 @@
 import {
+  errAsync,
+  okAsync,
   Result,
   ResultAsync,
-  errAsync,
-  okAsync
 } from 'neverthrow';
 
 import type {
   NewSeason,
   Season,
-  SeasonUpdate
+  SeasonUpdate,
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 
@@ -33,13 +33,13 @@ export const getSeasonById = (id: number): ResultAsync<Season, AppError> => {
 
 export const updateSeason = (
   id: number,
-  season: SeasonUpdate
+  season: SeasonUpdate,
 ): ResultAsync<Season, AppError> => {
   return ResultAsync.fromThrowable(() => db.updateTable('seasons')
     .where('id', '=', id)
     .set({
       ...season,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
@@ -56,8 +56,8 @@ export const deleteSeason = async (id: number): Promise<Result<DeleteStatus, App
       new AppError(
         ErrorCode.NOT_FOUND,
         `Season with id ${id} was not found`,
-        'Not Found'
-      )
+        'Not Found',
+      ),
     );
   }
 

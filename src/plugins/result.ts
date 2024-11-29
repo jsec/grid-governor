@@ -9,7 +9,7 @@ import type { AppError } from '../types/errors/app.error.js';
 
 declare module 'fastify' {
   interface FastifyReply {
-    result: <T>(result: Result<T, AppError>) => FastifyReply,
+    result: <T>(result: Result<T, AppError>) => FastifyReply;
   }
 }
 

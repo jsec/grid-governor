@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import {
   describe,
   expect,
-  onTestFinished
+  onTestFinished,
 } from 'vitest';
 
 import { createDriver } from '../../src/modules/driver/service.js';
@@ -17,9 +17,9 @@ describe('Driver API', () => {
         payload: {
           discordId: 'cde',
           lastName: 'Smith',
-          steamId: 'abc'
+          steamId: 'abc',
         },
-        url: '/driver'
+        url: '/driver',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -32,9 +32,9 @@ describe('Driver API', () => {
         payload: {
           discordId: 'cde',
           firstName: 'Bob',
-          steamId: 'abc'
+          steamId: 'abc',
         },
-        url: '/driver'
+        url: '/driver',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -47,9 +47,9 @@ describe('Driver API', () => {
         payload: {
           firstName: 'Bob',
           lastName: 'Smith',
-          steamId: 'abc'
+          steamId: 'abc',
         },
-        url: '/driver'
+        url: '/driver',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -62,9 +62,9 @@ describe('Driver API', () => {
         payload: {
           discordId: 'abc',
           firstName: 'Bob',
-          lastName: 'Smith'
+          lastName: 'Smith',
         },
-        url: '/driver'
+        url: '/driver',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -77,7 +77,7 @@ describe('Driver API', () => {
       const response = await app.inject({
         method: 'POST',
         payload,
-        url: '/driver'
+        url: '/driver',
       });
 
       const body = response.json();
@@ -89,7 +89,7 @@ describe('Driver API', () => {
         discordId: payload.discordId,
         firstName: payload.firstName,
         lastName: payload.lastName,
-        steamId: payload.steamId
+        steamId: payload.steamId,
       });
 
       onTestFinished(async () => {
@@ -105,7 +105,7 @@ describe('Driver API', () => {
     test('GET - should return a 404 if no driver with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/driver/999999'
+        url: '/driver/999999',
       });
 
       const body = response.json();
@@ -121,7 +121,7 @@ describe('Driver API', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/driver/${driver.id}`
+        url: `/driver/${driver.id}`,
       });
 
       const body = response.json();
@@ -132,7 +132,7 @@ describe('Driver API', () => {
         firstName: driver.firstName,
         id: driver.id,
         lastName: driver.lastName,
-        steamId: driver.steamId
+        steamId: driver.steamId,
       });
 
       await db
@@ -147,7 +147,7 @@ describe('Driver API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: driverBuilder.one(),
-        url: '/driver/999999'
+        url: '/driver/999999',
       });
 
       const body = response.json();
@@ -157,7 +157,7 @@ describe('Driver API', () => {
       expect(body.message).to.equal('no result');
     });
 
-    test("should update a driver's first name", async ({ app, db }) => {
+    test('should update a driver\'s first name', async ({ app, db }) => {
       const driverResult = await createDriver(driverBuilder.one());
       const driver = driverResult._unsafeUnwrap();
 
@@ -166,7 +166,7 @@ describe('Driver API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: driver,
-        url: `/driver/${driver.id}`
+        url: `/driver/${driver.id}`,
       });
 
       const body = response.json();
@@ -181,7 +181,7 @@ describe('Driver API', () => {
         .execute();
     });
 
-    test("should update a driver's last name", async ({ app, db }) => {
+    test('should update a driver\'s last name', async ({ app, db }) => {
       const driverResult = await createDriver(driverBuilder.one());
       const driver = driverResult._unsafeUnwrap();
 
@@ -190,7 +190,7 @@ describe('Driver API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: driver,
-        url: `/driver/${driver.id}`
+        url: `/driver/${driver.id}`,
       });
 
       const body = response.json();
@@ -205,7 +205,7 @@ describe('Driver API', () => {
         .execute();
     });
 
-    test("should update a driver's steam id", async ({ app, db }) => {
+    test('should update a driver\'s steam id', async ({ app, db }) => {
       const driverResult = await createDriver(driverBuilder.one());
       const driver = driverResult._unsafeUnwrap();
 
@@ -214,7 +214,7 @@ describe('Driver API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: driver,
-        url: `/driver/${driver.id}`
+        url: `/driver/${driver.id}`,
       });
 
       const body = response.json();
@@ -229,7 +229,7 @@ describe('Driver API', () => {
         .execute();
     });
 
-    test("should update a driver's discord id", async ({ app, db }) => {
+    test('should update a driver\'s discord id', async ({ app, db }) => {
       const driverResult = await createDriver(driverBuilder.one());
       const driver = driverResult._unsafeUnwrap();
 
@@ -238,7 +238,7 @@ describe('Driver API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: driver,
-        url: `/driver/${driver.id}`
+        url: `/driver/${driver.id}`,
       });
 
       const body = response.json();
@@ -260,7 +260,7 @@ describe('Driver API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/driver/${driverId}`
+        url: `/driver/${driverId}`,
       });
 
       const body = response.json();
@@ -277,14 +277,14 @@ describe('Driver API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/driver/${driverId}`
+        url: `/driver/${driverId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

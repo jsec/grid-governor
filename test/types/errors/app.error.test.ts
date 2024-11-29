@@ -2,7 +2,7 @@ import { NoResultError, QueryNode } from 'kysely';
 import {
   describe,
   expect,
-  test
+  test,
 } from 'vitest';
 
 import { AppError, ErrorCode } from '../../../src/types/errors/app.error.js';
@@ -13,17 +13,17 @@ describe('App Error', () => {
     test('should create the appropriate AppError for postgres errors', () => {
       const error: PostgresError = {
         code: PostgresErrorCode.ForeignKeyViolation,
-        detail: "You can't do that",
-        table: 'taybull'
+        detail: 'You can\'t do that',
+        table: 'taybull',
       };
 
       const appError = AppError.fromPostgresError(error);
 
       expect(appError).to.include({
         code: ErrorCode.DATABASE_ERROR,
-        message: "You can't do that",
+        message: 'You can\'t do that',
         // TODO: fix this
-        name: '23503'
+        name: '23503',
       });
     });
   });
@@ -32,8 +32,8 @@ describe('App Error', () => {
     test('should shell to the postgres handler for postgres errors', () => {
       const error: PostgresError = {
         code: PostgresErrorCode.ForeignKeyViolation,
-        detail: "You can't do that",
-        table: 'taybull'
+        detail: 'You can\'t do that',
+        table: 'taybull',
       };
 
       // TODO: should this be called fromServiceError?
@@ -41,8 +41,8 @@ describe('App Error', () => {
 
       expect(appError).to.include({
         code: ErrorCode.DATABASE_ERROR,
-        message: "You can't do that",
-        name: '23503'
+        message: 'You can\'t do that',
+        name: '23503',
       });
     });
 
@@ -67,7 +67,7 @@ describe('App Error', () => {
       expect(appError).to.include({
         code: ErrorCode.DATABASE_ERROR,
         message: 'things went poorly',
-        name: 'AppError'
+        name: 'AppError',
       });
     });
   });

@@ -1,14 +1,14 @@
 import {
+  errAsync,
+  okAsync,
   Result,
   ResultAsync,
-  errAsync,
-  okAsync
 } from 'neverthrow';
 
 import type {
   NewPenalty,
   Penalty,
-  PenaltyUpdate
+  PenaltyUpdate,
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 
@@ -32,14 +32,14 @@ export const getPenaltyById = (id: number): ResultAsync<Penalty, AppError> => {
 };
 
 export const updatePenalty = (
-  id: number, penalty: PenaltyUpdate
+  id: number, penalty: PenaltyUpdate,
 ): ResultAsync<Penalty, AppError> => {
   return ResultAsync.fromThrowable(() => db
     .updateTable('penalties')
     .where('id', '=', id)
     .set({
       ...penalty,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
@@ -57,8 +57,8 @@ export const deletePenalty = async (id: number): Promise<Result<DeleteStatus, Ap
       new AppError(
         ErrorCode.NOT_FOUND,
         `Penalty with id ${id} was not found`,
-        'Not Found'
-      )
+        'Not Found',
+      ),
     );
   }
 

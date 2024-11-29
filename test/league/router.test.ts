@@ -11,9 +11,9 @@ describe('League API', () => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          description: 'desc'
+          description: 'desc',
         },
-        url: '/league'
+        url: '/league',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -24,9 +24,9 @@ describe('League API', () => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          name: 'name'
+          name: 'name',
         },
-        url: '/league'
+        url: '/league',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -39,7 +39,7 @@ describe('League API', () => {
       const response = await app.inject({
         method: 'POST',
         payload,
-        url: '/league'
+        url: '/league',
       });
 
       const body = response.json();
@@ -60,7 +60,7 @@ describe('League API', () => {
     test('GET - should return a 404 if no league with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/league/999999'
+        url: '/league/999999',
       });
 
       const body = response.json();
@@ -76,7 +76,7 @@ describe('League API', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/league/${league.id}`
+        url: `/league/${league.id}`,
       });
 
       const body = response.json();
@@ -98,7 +98,7 @@ describe('League API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: leagueBuilder.one(),
-        url: '/league/999999'
+        url: '/league/999999',
       });
 
       const body = response.json();
@@ -117,7 +117,7 @@ describe('League API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: league,
-        url: `/league/${league.id}`
+        url: `/league/${league.id}`,
       });
 
       const body = response.json();
@@ -141,7 +141,7 @@ describe('League API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: league,
-        url: `/league/${league.id}`
+        url: `/league/${league.id}`,
       });
 
       const body = response.json();
@@ -163,7 +163,7 @@ describe('League API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/league/${leagueId}`
+        url: `/league/${leagueId}`,
       });
 
       const body = response.json();
@@ -180,14 +180,14 @@ describe('League API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/league/${leagueId}`
+        url: `/league/${leagueId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

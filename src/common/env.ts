@@ -2,7 +2,7 @@ import { configDotenv } from 'dotenv';
 import {
   cleanEnv,
   num,
-  str
+  str,
 } from 'envalid';
 
 configDotenv();
@@ -18,7 +18,6 @@ export const env = cleanEnv(process.env, {
   NODE_ENV: str({
     choices: ['development', 'test', 'production'],
     default: 'development',
-    desc: 'The current Node environment'
-  })
+    desc: 'The current Node environment',
+  }),
 });
-

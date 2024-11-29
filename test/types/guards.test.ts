@@ -1,7 +1,7 @@
 import {
   describe,
   expect,
-  test
+  test,
 } from 'vitest';
 
 import { type PostgresError, PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
@@ -10,15 +10,15 @@ import { isPostgresError, isRecord } from '../../src/types/guards.js';
 describe('Type guards', () => {
   describe('isRecord', () => {
     test('should return false if the value is an array', () => {
-      const value = [ 3 ];
+      const value = [3];
       expect(isRecord(value)).to.be.false;
     });
 
     test('should return false if the value is an array of objects', () => {
       const value = [
         {
-          text: 'hi'
-        }
+          text: 'hi',
+        },
       ];
 
       expect(isRecord(value)).to.be.false;
@@ -35,7 +35,7 @@ describe('Type guards', () => {
 
     test('should return true if the value is an object', () => {
       const value = {
-        text: ' some value'
+        text: ' some value',
       };
 
       expect(isRecord(value)).to.be.true;
@@ -53,11 +53,10 @@ describe('Type guards', () => {
         code: PostgresErrorCode.ForeignKeyViolation,
         column: '12',
         detail: 'you cannot do that, mmkay?',
-        table: 'taybull'
+        table: 'taybull',
       };
 
       expect(isPostgresError(error)).to.be.true;
     });
   });
 });
-

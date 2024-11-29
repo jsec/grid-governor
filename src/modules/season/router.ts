@@ -8,13 +8,13 @@ import {
   CreateSeasonSchema,
   DeleteSeasonSchema,
   GetSeasonSchema,
-  UpdateSeasonSchema
+  UpdateSeasonSchema,
 } from './schema.js';
 import {
   createSeason,
   deleteSeason,
   getSeasonById,
-  updateSeason
+  updateSeason,
 } from './service.js';
 import { type Season, SeasonRequest } from './types.js';
 
@@ -25,7 +25,7 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await createSeason(request.body);
       return reply.result(result);
-    }
+    },
   );
 
   server.get<{ Params: IdParam }>(
@@ -34,16 +34,16 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await getSeasonById(request.params.id);
       return reply.result(result);
-    }
+    },
   );
 
-  server.put<{ Body: Season, Params: IdParam }>(
+  server.put<{ Body: Season; Params: IdParam }>(
     '/season/:id',
     { schema: UpdateSeasonSchema },
     async (request, reply) => {
       const result = await updateSeason(request.params.id, request.body);
       return reply.result(result);
-    }
+    },
   );
 
   server.delete<{ Params: IdParam }>(
@@ -52,10 +52,10 @@ const router: FastifyPluginAsyncTypebox = async (server) => {
     async (request, reply) => {
       const result = await deleteSeason(request.params.id);
       return reply.result(result);
-    }
+    },
   );
 };
 
 export default fp(router, {
-  name: 'seasonRouter'
+  name: 'seasonRouter',
 });

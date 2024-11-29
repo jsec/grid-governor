@@ -8,7 +8,7 @@ export const incidentBuilder = build('incident', {
     lapNumber: perBuild(() => faker.number.int({ max: 100 })),
     raceId: perBuild(() => faker.number.int({ max: 100_000 })),
     reportingDriverId: perBuild(() => faker.number.int({ max: 100_000 })),
-  }
+  },
 });
 
 export const incidentRecordBuilder = build('incidentRecord', {
@@ -21,5 +21,5 @@ export const incidentRecordBuilder = build('incidentRecord', {
     raceId: perBuild(() => faker.number.int({ max: 100_000 })),
     reportingDriverId: perBuild(() => faker.number.int({ max: 100_000 })),
     updatedAt: perBuild(() => new Date().toISOString()),
-  }
+  },
 });

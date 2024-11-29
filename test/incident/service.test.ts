@@ -4,7 +4,7 @@ import {
   createIncident,
   deleteIncident,
   getIncidentById,
-  updateIncident
+  updateIncident,
 } from '../../src/modules/incident/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
@@ -18,8 +18,8 @@ describe('Incident service', () => {
         overrides: {
           driverId: 999_999,
           raceId: race.id,
-          reportingDriverId: reportingDriver.id
-        }
+          reportingDriverId: reportingDriver.id,
+        },
       });
 
       const result = await createIncident(incident);
@@ -36,8 +36,8 @@ describe('Incident service', () => {
         overrides: {
           driverId: driver.id,
           raceId: race.id,
-          reportingDriverId: 999_999
-        }
+          reportingDriverId: 999_999,
+        },
       });
 
       const result = await createIncident(incident);
@@ -61,7 +61,7 @@ describe('Incident service', () => {
     });
 
   test('should create a new incident', async ({
-    db, driver, race, reportingDriver
+    db, driver, race, reportingDriver,
   }) => {
     const result = await createIncident(incidentBuilder.one({
       overrides: {
@@ -69,8 +69,8 @@ describe('Incident service', () => {
         driverId: driver.id,
         lapNumber: 5,
         raceId: race.id,
-        reportingDriverId: reportingDriver.id
-      }
+        reportingDriverId: reportingDriver.id,
+      },
     }));
 
     const incident = result._unsafeUnwrap();
@@ -79,7 +79,7 @@ describe('Incident service', () => {
     expect(incident).to.include({
       driverId: driver.id,
       raceId: race.id,
-      reportingDriverId: reportingDriver.id
+      reportingDriverId: reportingDriver.id,
     });
 
     await db
@@ -97,7 +97,7 @@ describe('Incident service', () => {
   });
 
   test('should return an incident by id', async ({
-    db, driver, race, reportingDriver
+    db, driver, race, reportingDriver,
   }) => {
     const created = await createIncident(incidentBuilder.one({
       overrides: {
@@ -105,8 +105,8 @@ describe('Incident service', () => {
         driverId: driver.id,
         lapNumber: 5,
         raceId: race.id,
-        reportingDriverId: reportingDriver.id
-      }
+        reportingDriverId: reportingDriver.id,
+      },
     }));
 
     const incident = created._unsafeUnwrap();
@@ -118,7 +118,7 @@ describe('Incident service', () => {
       id: incident.id,
       lapNumber: incident.lapNumber,
       raceId: incident.raceId,
-      reportingDriverId: incident.reportingDriverId
+      reportingDriverId: incident.reportingDriverId,
     });
 
     await db
@@ -130,8 +130,8 @@ describe('Incident service', () => {
   test('should return an error when updating an incident with an invalid id', async () => {
     const incident = incidentRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await updateIncident(incident.id, incident);
@@ -142,7 +142,7 @@ describe('Incident service', () => {
   });
 
   test('should modify the updatedAt timestamp when updating an incident', async ({
-    db, driver, race, reportingDriver
+    db, driver, race, reportingDriver,
   }) => {
     const createResult = await createIncident(incidentBuilder.one({
       overrides: {
@@ -150,8 +150,8 @@ describe('Incident service', () => {
         driverId: driver.id,
         lapNumber: 5,
         raceId: race.id,
-        reportingDriverId: reportingDriver.id
-      }
+        reportingDriverId: reportingDriver.id,
+      },
     }));
     const incident = createResult._unsafeUnwrap();
 
@@ -176,7 +176,7 @@ describe('Incident service', () => {
   });
 
   test('should delete an existing incident', async ({
-    driver, race, reportingDriver
+    driver, race, reportingDriver,
   }) => {
     const existing = await createIncident(incidentBuilder.one({
       overrides: {
@@ -184,8 +184,8 @@ describe('Incident service', () => {
         driverId: driver.id,
         lapNumber: 5,
         raceId: race.id,
-        reportingDriverId: reportingDriver.id
-      }
+        reportingDriverId: reportingDriver.id,
+      },
     }));
 
     const incidentId = existing._unsafeUnwrap().id;

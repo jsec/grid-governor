@@ -1,14 +1,14 @@
 import {
+  errAsync,
+  okAsync,
   Result,
   ResultAsync,
-  errAsync,
-  okAsync
 } from 'neverthrow';
 
 import type {
   NewPlatform,
   Platform,
-  PlatformUpdate
+  PlatformUpdate,
 } from '../../db/types.js';
 import type { DeleteStatus } from '../../types/db.js';
 
@@ -32,14 +32,14 @@ export const getPlatformById = (id: number): ResultAsync<Platform, AppError> => 
 };
 
 export const updatePlatform = (
-  id: number, platform: PlatformUpdate
+  id: number, platform: PlatformUpdate,
 ): ResultAsync<Platform, AppError> => {
   return ResultAsync.fromThrowable(() => db
     .updateTable('platforms')
     .where('id', '=', id)
     .set({
       ...platform,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
@@ -56,8 +56,8 @@ export const deletePlatform = async (id: number): Promise<Result<DeleteStatus, A
       new AppError(
         ErrorCode.NOT_FOUND,
         `Platform with id ${id} was not found`,
-        'Not Found'
-      )
+        'Not Found',
+      ),
     );
   }
 

@@ -12,32 +12,32 @@ describe('Registration API', () => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          seasonId: 12
+          seasonId: 12,
         },
-        url: '/registration'
+        url: '/registration',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'driverId'");
+      expect(body.message).to.include('must have required property \'driverId\'');
     });
 
     test('should return a 400 when no seasonId is supplied', async ({ app }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          driverId: 12
+          driverId: 12,
         },
-        url: '/registration'
+        url: '/registration',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'seasonId'");
+      expect(body.message).to.include('must have required property \'seasonId\'');
     });
 
     test('should return a 400 when the driverId is invalid', async ({ app }) => {
@@ -45,9 +45,9 @@ describe('Registration API', () => {
         method: 'POST',
         payload: {
           driverId: 99_292,
-          seasonId: 12
+          seasonId: 12,
         },
-        url: '/registration'
+        url: '/registration',
       });
 
       const body = response.json();
@@ -63,9 +63,9 @@ describe('Registration API', () => {
         method: 'POST',
         payload: {
           driverId: driver.id,
-          seasonId: 9999
+          seasonId: 9999,
         },
-        url: '/registration'
+        url: '/registration',
       });
 
       const body = response.json();
@@ -77,15 +77,15 @@ describe('Registration API', () => {
     });
 
     test('should create a new registration', async ({
-      app, db, driver, season
+      app, db, driver, season,
     }) => {
       const response = await app.inject({
         method: 'POST',
         payload: {
           driverId: driver.id,
-          seasonId: season.id
+          seasonId: season.id,
         },
-        url: '/registration'
+        url: '/registration',
       });
 
       const body = response.json();
@@ -94,7 +94,7 @@ describe('Registration API', () => {
       expect(body.id).not.to.be.null;
       expect(body).to.include({
         driverId: driver.id,
-        seasonId: season.id
+        seasonId: season.id,
       });
 
       await db
@@ -108,7 +108,7 @@ describe('Registration API', () => {
     test('should return a 404 if no registration with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/registration/999999'
+        url: '/registration/999999',
       });
 
       const body = response.json();
@@ -119,20 +119,20 @@ describe('Registration API', () => {
     });
 
     test('should return a registration by id', async ({
-      app, db, driver, season
+      app, db, driver, season,
     }) => {
       const registrationResult = await createRegistration(registrationBuilder.one({
         overrides: {
           driverId: driver.id,
-          seasonId: season.id
-        }
+          seasonId: season.id,
+        },
       }));
 
       const registration = registrationResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
-        url: `/registration/${registration.id}`
+        url: `/registration/${registration.id}`,
       });
 
       const body = response.json();
@@ -141,7 +141,7 @@ describe('Registration API', () => {
       expect(body).to.include({
         driverId: registration.driverId,
         id: registration.id,
-        seasonId: registration.seasonId
+        seasonId: registration.seasonId,
       });
 
       await db
@@ -156,7 +156,7 @@ describe('Registration API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: registrationBuilder.one(),
-        url: '/registration/999999'
+        url: '/registration/999999',
       });
 
       const body = response.json();
@@ -173,7 +173,7 @@ describe('Registration API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/registration/${registrationId}`
+        url: `/registration/${registrationId}`,
       });
 
       const body = response.json();
@@ -184,27 +184,27 @@ describe('Registration API', () => {
     });
 
     test('should delete an existing registration', async ({
-      app, driver, season
+      app, driver, season,
     }) => {
       const registrationResult = await createRegistration(registrationBuilder.one({
         overrides: {
           driverId: driver.id,
-          seasonId: season.id
-        }
+          seasonId: season.id,
+        },
       }));
 
       const { id: registrationId } = registrationResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/registration/${registrationId}`
+        url: `/registration/${registrationId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

@@ -11,7 +11,7 @@ describe('Platform API', () => {
       const response = await app.inject({
         method: 'POST',
         payload: {},
-        url: '/platform'
+        url: '/platform',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -24,7 +24,7 @@ describe('Platform API', () => {
       const response = await app.inject({
         method: 'POST',
         payload,
-        url: '/platform'
+        url: '/platform',
       });
 
       const body = response.json();
@@ -44,7 +44,7 @@ describe('Platform API', () => {
     test('GET - should return a 404 if no platform with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/platform/999999'
+        url: '/platform/999999',
       });
 
       const body = response.json();
@@ -60,7 +60,7 @@ describe('Platform API', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/platform/${platform.id}`
+        url: `/platform/${platform.id}`,
       });
 
       const body = response.json();
@@ -81,7 +81,7 @@ describe('Platform API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: platformBuilder.one(),
-        url: '/platform/999999'
+        url: '/platform/999999',
       });
 
       const body = response.json();
@@ -100,7 +100,7 @@ describe('Platform API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: platform,
-        url: `/platform/${platform.id}`
+        url: `/platform/${platform.id}`,
       });
 
       const body = response.json();
@@ -122,7 +122,7 @@ describe('Platform API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/platform/${platformId}`
+        url: `/platform/${platformId}`,
       });
 
       const body = response.json();
@@ -139,14 +139,14 @@ describe('Platform API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/platform/${platformId}`
+        url: `/platform/${platformId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

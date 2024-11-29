@@ -1,8 +1,8 @@
 import {
+  errAsync,
+  okAsync,
   Result,
   ResultAsync,
-  errAsync,
-  okAsync
 } from 'neverthrow';
 
 import type { NewRuling, RulingUpdate } from '../../db/types.js';
@@ -34,7 +34,7 @@ export const updateRuling = (id: number, ruling: RulingUpdate): ResultAsync<Ruli
     .where('id', '=', id)
     .set({
       ...ruling,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .returningAll()
     .executeTakeFirstOrThrow(), AppError.fromDatabaseError)();
@@ -51,8 +51,8 @@ export const deleteRuling = async (id: number): Promise<Result<DeleteStatus, App
       new AppError(
         ErrorCode.NOT_FOUND,
         `Ruling with id ${id} was not found`,
-        'Not Found'
-      )
+        'Not Found',
+      ),
     );
   }
 

@@ -4,7 +4,7 @@ import {
   createSeason,
   deleteSeason,
   getSeasonById,
-  updateSeason
+  updateSeason,
 } from '../../src/modules/season/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
@@ -26,8 +26,8 @@ describe('Season service', () => {
   test('should return an error when the provided platformId is invalid', async ({ league }) => {
     const season = seasonBuilder.one({
       overrides: {
-        leagueId: league.id
-      }
+        leagueId: league.id,
+      },
     });
 
     const result = await createSeason(season);
@@ -39,13 +39,13 @@ describe('Season service', () => {
   });
 
   test('should create a new season', async ({
-    db, league, platform
+    db, league, platform,
   }) => {
     const newSeason = seasonBuilder.one({
       overrides: {
         leagueId: league.id,
-        platformId: platform.id
-      }
+        platformId: platform.id,
+      },
     });
 
     const result = await createSeason(newSeason);
@@ -73,13 +73,13 @@ describe('Season service', () => {
   });
 
   test('should return a season by id', async ({
-    db, league, platform
+    db, league, platform,
   }) => {
     const newSeason = seasonBuilder.one({
       overrides: {
         leagueId: league.id,
-        platformId: platform.id
-      }
+        platformId: platform.id,
+      },
     });
 
     const created = await createSeason(newSeason);
@@ -90,7 +90,7 @@ describe('Season service', () => {
       description: season.description,
       leagueId: season.leagueId,
       name: season.name,
-      platformId: season.platformId
+      platformId: season.platformId,
     });
 
     await db
@@ -102,8 +102,8 @@ describe('Season service', () => {
   test('should return an error when updating a season with an invalid id', async () => {
     const season = seasonRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await updateSeason(season.id, season);
@@ -114,13 +114,13 @@ describe('Season service', () => {
   });
 
   test('should modify the updatedAt timestamp when updating a season', async ({
-    db, league, platform
+    db, league, platform,
   }) => {
     const createResult = await createSeason(seasonBuilder.one({
       overrides: {
         leagueId: league.id,
-        platformId: platform.id
-      }
+        platformId: platform.id,
+      },
     }));
 
     const existing = createResult._unsafeUnwrap();
@@ -137,14 +137,14 @@ describe('Season service', () => {
       .execute();
   });
 
-  test("should update a season's name", async ({
-    db, league, platform
+  test('should update a season\'s name', async ({
+    db, league, platform,
   }) => {
     const newSeason = seasonBuilder.one({
       overrides: {
         leagueId: league.id,
-        platformId: platform.id
-      }
+        platformId: platform.id,
+      },
     });
 
     const created = await createSeason(newSeason);
@@ -161,14 +161,14 @@ describe('Season service', () => {
       .execute();
   });
 
-  test("should update a season's description", async ({
-    db, league, platform
+  test('should update a season\'s description', async ({
+    db, league, platform,
   }) => {
     const newSeason = seasonBuilder.one({
       overrides: {
         leagueId: league.id,
-        platformId: platform.id
-      }
+        platformId: platform.id,
+      },
     });
 
     const created = await createSeason(newSeason);
@@ -180,7 +180,7 @@ describe('Season service', () => {
     const result = await updateSeason(existing.id, {
       ...existing,
       endDate: existing.endDate.toISOString(),
-      startDate: existing.startDate.toISOString()
+      startDate: existing.startDate.toISOString(),
     });
 
     const season = result._unsafeUnwrap();
@@ -205,8 +205,8 @@ describe('Season service', () => {
     const newSeason = seasonBuilder.one({
       overrides: {
         leagueId: league.id,
-        platformId: platform.id
-      }
+        platformId: platform.id,
+      },
     });
 
     const created = await createSeason(newSeason);

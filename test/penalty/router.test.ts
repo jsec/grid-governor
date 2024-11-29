@@ -11,9 +11,9 @@ describe('Penalty API', () => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          description: 'desc'
+          description: 'desc',
         },
-        url: '/penalty'
+        url: '/penalty',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -24,9 +24,9 @@ describe('Penalty API', () => {
       const response = await app.inject({
         method: 'POST',
         payload: {
-          name: 'name'
+          name: 'name',
         },
-        url: '/penalty'
+        url: '/penalty',
       });
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
@@ -39,7 +39,7 @@ describe('Penalty API', () => {
       const response = await app.inject({
         method: 'POST',
         payload,
-        url: '/penalty'
+        url: '/penalty',
       });
 
       const body = response.json();
@@ -61,7 +61,7 @@ describe('Penalty API', () => {
       async ({ app }) => {
         const response = await app.inject({
           method: 'GET',
-          url: '/penalty/999999'
+          url: '/penalty/999999',
         });
 
         const body = response.json();
@@ -77,7 +77,7 @@ describe('Penalty API', () => {
 
       const response = await app.inject({
         method: 'GET',
-        url: `/penalty/${penalty.id}`
+        url: `/penalty/${penalty.id}`,
       });
 
       const body = response.json();
@@ -86,7 +86,7 @@ describe('Penalty API', () => {
       expect(body).to.include({
         description: penalty.description,
         id: penalty.id,
-        name: penalty.name
+        name: penalty.name,
       });
 
       await db
@@ -101,7 +101,7 @@ describe('Penalty API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: penaltyBuilder.one(),
-        url: '/penalty/999999'
+        url: '/penalty/999999',
       });
 
       const body = response.json();
@@ -120,7 +120,7 @@ describe('Penalty API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: penalty,
-        url: `/penalty/${penalty.id}`
+        url: `/penalty/${penalty.id}`,
       });
 
       const body = response.json();
@@ -128,7 +128,7 @@ describe('Penalty API', () => {
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).to.include({
         id: penalty.id,
-        name: penalty.name
+        name: penalty.name,
       });
 
       await db
@@ -146,7 +146,7 @@ describe('Penalty API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: penalty,
-        url: `/penalty/${penalty.id}`
+        url: `/penalty/${penalty.id}`,
       });
 
       const body = response.json();
@@ -154,7 +154,7 @@ describe('Penalty API', () => {
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).to.include({
         description: penalty.description,
-        id: penalty.id
+        id: penalty.id,
       });
 
       await db
@@ -170,7 +170,7 @@ describe('Penalty API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/penalty/${penaltyId}`
+        url: `/penalty/${penaltyId}`,
       });
 
       const body = response.json();
@@ -187,14 +187,14 @@ describe('Penalty API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/penalty/${penaltyId}`
+        url: `/penalty/${penaltyId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

@@ -4,13 +4,13 @@ import {
   createRegistration,
   deleteRegistration,
   getRegistrationById,
-  updateRegistration
+  updateRegistration,
 } from '../../src/modules/registration/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { PostgresErrorCode } from '../../src/types/errors/postgres.error.js';
 import {
   registrationBuilder,
-  registrationRecordBuilder
+  registrationRecordBuilder,
 } from '../builders/registration.builder.js';
 import { test } from '../context.js';
 
@@ -29,8 +29,8 @@ describe('Registration service', () => {
   test('should return an error when the provided seasonId is invalid', async ({ driver }) => {
     const registration = registrationBuilder.one({
       overrides: {
-        driverId: driver.id
-      }
+        driverId: driver.id,
+      },
     });
 
     const result = await createRegistration(registration);
@@ -42,13 +42,13 @@ describe('Registration service', () => {
   });
 
   test('should create a new registration', async ({
-    db, driver, season
+    db, driver, season,
   }) => {
     const result = await createRegistration(registrationBuilder.one({
       overrides: {
         driverId: driver.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
 
     const registration = result._unsafeUnwrap();
@@ -56,7 +56,7 @@ describe('Registration service', () => {
     expect(registration.id).to.not.be.null;
     expect(registration).to.include({
       driverId: driver.id,
-      seasonId: season.id
+      seasonId: season.id,
     });
 
     await db
@@ -74,13 +74,13 @@ describe('Registration service', () => {
   });
 
   test('should return a registration by id', async ({
-    db, driver, season
+    db, driver, season,
   }) => {
     const created = await createRegistration(registrationBuilder.one({
       overrides: {
         driverId: driver.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
     const registration = created._unsafeUnwrap();
 
@@ -88,7 +88,7 @@ describe('Registration service', () => {
     expect(result._unsafeUnwrap()).to.include({
       driverId: registration.driverId,
       id: registration.id,
-      seasonId: registration.seasonId
+      seasonId: registration.seasonId,
     });
 
     await db
@@ -100,8 +100,8 @@ describe('Registration service', () => {
   test('should return an error when updating a registration with an invalid id', async () => {
     const registration = registrationRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await updateRegistration(registration.id, registration);
@@ -112,13 +112,13 @@ describe('Registration service', () => {
   });
 
   test('should modify the updatedAt timestamp when updating a registration', async ({
-    db, driver, season
+    db, driver, season,
   }) => {
     const created = await createRegistration(registrationBuilder.one({
       overrides: {
         driverId: driver.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
     const registration = created._unsafeUnwrap();
 
@@ -136,8 +136,8 @@ describe('Registration service', () => {
   test('should return an error when deleting a registration with an invalid id', async () => {
     const registration = registrationRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await deleteRegistration(registration.id);
@@ -151,8 +151,8 @@ describe('Registration service', () => {
     const existing = await createRegistration(registrationBuilder.one({
       overrides: {
         driverId: driver.id,
-        seasonId: season.id
-      }
+        seasonId: season.id,
+      },
     }));
 
     const registrationId = existing._unsafeUnwrap().id;

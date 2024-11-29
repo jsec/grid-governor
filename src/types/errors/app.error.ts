@@ -7,7 +7,7 @@ import { isPostgresError } from '../guards.js';
 
 export enum ErrorCode {
   DATABASE_ERROR = 'databaseError',
-  NOT_FOUND = 'notFound'
+  NOT_FOUND = 'notFound',
 }
 
 export class AppError extends Error {

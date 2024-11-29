@@ -6,8 +6,8 @@ export const driverBuilder = build('driver', {
     discordId: perBuild(() => faker.number.hex()),
     firstName: perBuild(() => faker.person.firstName()),
     lastName: perBuild(() => faker.person.lastName()),
-    steamId: perBuild(() => faker.number.hex())
-  }
+    steamId: perBuild(() => faker.number.hex()),
+  },
 });
 
 export const driverRecordBuilder = build('driverRecord', {
@@ -18,6 +18,6 @@ export const driverRecordBuilder = build('driverRecord', {
     id: perBuild(() => faker.number.int()),
     lastName: perBuild(() => faker.person.lastName()),
     steamId: perBuild(() => faker.number.hex()),
-    updatedAt: perBuild(() => new Date().toISOString())
-  }
+    updatedAt: perBuild(() => new Date().toISOString()),
+  },
 });

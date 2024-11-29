@@ -7,9 +7,9 @@ export const CreateRegistrationSchema = {
   body: RegistrationRequest,
   response: {
     201: Registration,
-    400: ErrorSchema
+    400: ErrorSchema,
   },
-  tags: [ 'Registrations' ]
+  tags: ['Registrations'],
 };
 
 export const UpdateRegistrationSchema = {
@@ -19,22 +19,22 @@ export const UpdateRegistrationSchema = {
     400: ErrorSchema,
     404: ErrorSchema,
   },
-  tags: [ 'Registrations' ]
+  tags: ['Registrations'],
 };
 
 export const GetRegistrationSchema = {
   params: IdParam,
   response: {
     200: Registration,
-    404: ErrorSchema
+    404: ErrorSchema,
   },
-  tags: [ 'Registrations' ]
+  tags: ['Registrations'],
 };
 
 export const DeleteRegistrationSchema = {
   params: IdParam,
   response: {
-    200: DeleteStatus
+    200: DeleteStatus,
   },
-  tags: [ 'Registrations' ]
+  tags: ['Registrations'],
 };

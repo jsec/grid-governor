@@ -16,7 +16,7 @@ export const DriverRequest = Type.Object({
   discordId: Type.String(),
   firstName: Type.String(),
   lastName: Type.String(),
-  steamId: Type.String()
+  steamId: Type.String(),
 });
 
 export type DriverRequest = Static<typeof DriverRequest>;

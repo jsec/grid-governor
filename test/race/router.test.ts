@@ -17,14 +17,14 @@ describe('Race API', () => {
           time: new Date().toISOString(),
           week: 4,
         },
-        url: '/race'
+        url: '/race',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'leagueId'");
+      expect(body.message).to.include('must have required property \'leagueId\'');
     });
 
     test('should return a 400 when no seasonId is supplied', async ({ app }) => {
@@ -34,16 +34,16 @@ describe('Race API', () => {
           leagueId: 12,
           name: 'Race',
           time: new Date().toISOString(),
-          week: 4
+          week: 4,
         },
-        url: '/race'
+        url: '/race',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'seasonId'");
+      expect(body.message).to.include('must have required property \'seasonId\'');
     });
 
     test('should return a 400 when no name is supplied', async ({ app }) => {
@@ -53,16 +53,16 @@ describe('Race API', () => {
           leagueId: 12,
           seasonId: 1,
           time: new Date().toISOString(),
-          week: 4
+          week: 4,
         },
-        url: '/race'
+        url: '/race',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'name'");
+      expect(body.message).to.include('must have required property \'name\'');
     });
 
     test('should return a 400 when no week is supplied', async ({ app }) => {
@@ -74,14 +74,14 @@ describe('Race API', () => {
           seasonId: 1,
           time: new Date().toISOString(),
         },
-        url: '/race'
+        url: '/race',
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.BAD_REQUEST);
       expect(response.statusMessage).to.equal('Bad Request');
-      expect(body.message).to.include("must have required property 'week'");
+      expect(body.message).to.include('must have required property \'week\'');
     });
 
     test('should return a 400 when the leagueId is invalid', async ({ app, season }) => {
@@ -92,9 +92,9 @@ describe('Race API', () => {
           name: 'Race',
           seasonId: season.id,
           time: new Date().toISOString(),
-          week: 4
+          week: 4,
         },
-        url: '/race'
+        url: '/race',
       });
 
       const body = response.json();
@@ -113,9 +113,9 @@ describe('Race API', () => {
           name: 'Race',
           seasonId: 9999,
           time: new Date().toISOString(),
-          week: 4
+          week: 4,
         },
-        url: '/race'
+        url: '/race',
       });
 
       const body = response.json();
@@ -127,7 +127,7 @@ describe('Race API', () => {
     });
 
     test('should create a new race', async ({
-      app, db, league, season
+      app, db, league, season,
     }) => {
       const response = await app.inject({
         method: 'POST',
@@ -136,9 +136,9 @@ describe('Race API', () => {
           name: 'New race',
           seasonId: season.id,
           time: new Date().toISOString(),
-          week: 4
+          week: 4,
         },
-        url: '/race'
+        url: '/race',
       });
 
       const body = response.json();
@@ -149,7 +149,7 @@ describe('Race API', () => {
         leagueId: league.id,
         name: 'New race',
         seasonId: season.id,
-        week: 4
+        week: 4,
       });
 
       await db
@@ -163,7 +163,7 @@ describe('Race API', () => {
     test('should return a 404 if no race with the given id exists', async ({ app }) => {
       const response = await app.inject({
         method: 'GET',
-        url: '/race/999999'
+        url: '/race/999999',
       });
 
       const body = response.json();
@@ -174,20 +174,20 @@ describe('Race API', () => {
     });
 
     test('should return a race by id', async ({
-      app, db, league, season
+      app, db, league, season,
     }) => {
       const raceResult = await createRace(raceBuilder.one({
         overrides: {
           leagueId: league.id,
-          seasonId: season.id
-        }
+          seasonId: season.id,
+        },
       }));
 
       const race = raceResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'GET',
-        url: `/race/${race.id}`
+        url: `/race/${race.id}`,
       });
 
       const body = response.json();
@@ -197,7 +197,7 @@ describe('Race API', () => {
         id: race.id,
         leagueId: race.leagueId,
         seasonId: race.seasonId,
-        week: race.week
+        week: race.week,
       });
 
       await db
@@ -212,7 +212,7 @@ describe('Race API', () => {
       const response = await app.inject({
         method: 'PUT',
         payload: raceBuilder.one(),
-        url: '/race/999999'
+        url: '/race/999999',
       });
 
       const body = response.json();
@@ -229,7 +229,7 @@ describe('Race API', () => {
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/season/${seasonId}`
+        url: `/season/${seasonId}`,
       });
 
       const body = response.json();
@@ -240,27 +240,27 @@ describe('Race API', () => {
     });
 
     test('should delete an existing race', async ({
-      app, league, season
+      app, league, season,
     }) => {
       const raceResult = await createRace(raceBuilder.one({
         overrides: {
           leagueId: league.id,
-          seasonId: season.id
-        }
+          seasonId: season.id,
+        },
       }));
 
       const { id: raceId } = raceResult._unsafeUnwrap();
 
       const response = await app.inject({
         method: 'DELETE',
-        url: `/race/${raceId}`
+        url: `/race/${raceId}`,
       });
 
       const body = response.json();
 
       expect(response.statusCode).to.equal(StatusCodes.OK);
       expect(body).toMatchObject({
-        status: 'OK'
+        status: 'OK',
       });
     });
   });

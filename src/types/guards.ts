@@ -10,7 +10,7 @@ export const isPostgresError = (err: unknown): err is PostgresError => {
   }
 
   const {
-    code, detail, table
+    code, detail, table,
   } = err;
 
   return Boolean(code && detail && table);

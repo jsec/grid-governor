@@ -4,8 +4,8 @@ import { build, perBuild } from '@jackfranklin/test-data-bot';
 export const leagueBuilder = build('league', {
   fields: {
     description: perBuild(() => faker.company.catchPhrase()),
-    name: perBuild(() => faker.company.name())
-  }
+    name: perBuild(() => faker.company.name()),
+  },
 });
 
 export const leagueRecordBuilder = build('leagueRecord', {
@@ -14,6 +14,6 @@ export const leagueRecordBuilder = build('leagueRecord', {
     description: perBuild(() => faker.company.catchPhrase()),
     id: perBuild(() => faker.number.int()),
     name: perBuild(() => faker.company.name()),
-    updatedAt: perBuild(() => new Date().toISOString())
-  }
+    updatedAt: perBuild(() => new Date().toISOString()),
+  },
 });

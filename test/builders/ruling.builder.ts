@@ -5,7 +5,7 @@ export const rulingBuilder = build('ruling', {
   fields: {
     incidentId: perBuild(() => faker.number.int({ max: 100_000 })),
     penaltyId: perBuild(() => faker.number.int({ max: 100_000 })),
-  }
+  },
 });
 
 export const rulingRecordBuilder = build('rulingRecord', {
@@ -15,5 +15,5 @@ export const rulingRecordBuilder = build('rulingRecord', {
     incidentId: perBuild(() => faker.number.int({ max: 100_000 })),
     penaltyId: perBuild(() => faker.number.int({ max: 100_000 })),
     updatedAt: perBuild(() => new Date().toISOString()),
-  }
+  },
 });

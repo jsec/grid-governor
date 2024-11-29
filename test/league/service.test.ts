@@ -1,14 +1,14 @@
 import {
   describe,
   expect,
-  onTestFinished
+  onTestFinished,
 } from 'vitest';
 
 import {
   createLeague,
   deleteLeague,
   getLeagueById,
-  updateLeague
+  updateLeague,
 } from '../../src/modules/league/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { leagueBuilder, leagueRecordBuilder } from '../builders/league.builder.js';
@@ -24,7 +24,7 @@ describe('League service', () => {
     expect(league.id).to.not.be.null;
     expect(league).to.include({
       description: newLeague.description,
-      name: newLeague.name
+      name: newLeague.name,
     });
 
     onTestFinished(async () => {
@@ -51,7 +51,7 @@ describe('League service', () => {
     expect(result._unsafeUnwrap()).to.include({
       description: league.description,
       id: league.id,
-      name: league.name
+      name: league.name,
     });
 
     onTestFinished(async () => {
@@ -65,8 +65,8 @@ describe('League service', () => {
   test('should return an error when updating a league with an invalid id', async () => {
     const league = leagueRecordBuilder.one({
       overrides: {
-        id: 999_999
-      }
+        id: 999_999,
+      },
     });
 
     const result = await updateLeague(league.id, league);

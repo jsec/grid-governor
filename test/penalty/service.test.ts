@@ -1,14 +1,14 @@
 import {
   describe,
   expect,
-  onTestFinished
+  onTestFinished,
 } from 'vitest';
 
 import {
   createPenalty,
   deletePenalty,
   getPenaltyById,
-  updatePenalty
+  updatePenalty,
 } from '../../src/modules/penalty/service.js';
 import { ErrorCode } from '../../src/types/errors/app.error.js';
 import { penaltyBuilder } from '../builders/penalty.builder.js';
@@ -24,7 +24,7 @@ describe('Penalty service', () => {
     expect(penalty.id).to.not.be.null;
     expect(penalty).to.include({
       description: newPenalty.description,
-      name: newPenalty.name
+      name: newPenalty.name,
     });
 
     onTestFinished(async () => {
@@ -51,7 +51,7 @@ describe('Penalty service', () => {
     expect(result._unsafeUnwrap()).to.include({
       description: penalty.description,
       id: penalty.id,
-      name: penalty.name
+      name: penalty.name,
     });
 
     onTestFinished(async () => {
