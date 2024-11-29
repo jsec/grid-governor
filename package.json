@@ -29,7 +29,7 @@
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
     "@jackfranklin/test-data-bot": "^2.1.0",
-    "@jarsec/eslint-config": "6.0.0",
+    "@jarsec/eslint-config": "6.0.1",
     "@jarsec/tsconfig": "2.1.0",
     "@types/node": "20.16.11",
     "@types/pg": "^8.11.6",
