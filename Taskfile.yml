@@ -6,6 +6,16 @@ vars:
   GREETING: Hello, World!
 
 tasks:
+  db:down:
+    cmds:
+      - docker compose down
+    silent: true
+
+  db:up:
+    cmds:
+      - docker compose up -d
+    silent: true
+
   default:
     cmds:
       - echo "{{.GREETING}}"
