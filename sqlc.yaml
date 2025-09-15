@@ -1,0 +1,14 @@
+version: 2
+sql:
+  - schema: internal/database/sql/schema
+    queries: internal/database/sql/queries
+    engine: postgresql
+    database:
+      uri: ${DATABASE_URL}
+    gen:
+      go:
+        out: internal/database/queries
+        sql_package: pgx/v5
+        output_db_file_name: database.go
+        output_models_file_name: entities.sql.go
+        emit_pointers_for_null_types: true
