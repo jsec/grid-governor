@@ -1,22 +1,35 @@
-# https://taskfile.dev
-
 version: '3'
 
+dotenv: ['.env']
+
 vars:
-  GREETING: Hello, World!
+  SCHEMA_DIR: "{{.TASKFILE_DIR}}/internal/database/sql/schema"
 
 tasks:
-  db:down:
+  db:stop:
     cmds:
       - docker compose down
     silent: true
 
-  db:up:
+  db:migrate:
+    dir: "{{.SCHEMA_DIR}}"
+    cmds:
+      - cmd: goose up
+        silent: true
+
+  db:migrate:create:
+    dir: "{{.SCHEMA_DIR}}"
+    cmds:
+      - cmd: goose create {{.CLI_ARGS}} sql
+        silent: true
+
+  db:migrate:down:
+    dir: "{{.SCHEMA_DIR}}"
+    cmds:
+      - cmd: goose down
+        silent: true
+
+  db:start:
     cmds:
       - docker compose up -d
-    silent: true
-
-  default:
-    cmds:
-      - echo "{{.GREETING}}"
     silent: true
