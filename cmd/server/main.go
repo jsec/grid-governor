@@ -3,15 +3,19 @@ package main
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.RequestLogger())
 
-	e.GET("/", func(c echo.Context) error {
+	e.GET("/", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "Hi")
 	})
 
-	e.Logger.Fatal(e.Start(":8080"))
+	if err := e.Start(":8080"); err != nil {
+		e.Logger.Error("failed to start server", "error", err)
+	}
 }
