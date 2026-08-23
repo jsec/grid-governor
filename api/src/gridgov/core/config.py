@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     )
 
     database_url: str = ""
+    database_url_sync: str = ""
     session_secret: str = ""
 
     debug: bool = False

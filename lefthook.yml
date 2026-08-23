@@ -4,7 +4,7 @@ pre-commit:
     api-lint:
       root: api/
       glob: "*.py"
-      run: uv run ruff check --fix {staged_files} && uv run ruff format {staged_files}
+      run: uv run ruff format {staged_files} && uv run ruff check --fix {staged_files}
       stage_fixed: true
     api-types:
       root: api/

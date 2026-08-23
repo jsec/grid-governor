@@ -35,7 +35,13 @@ tasks:
     dir: api
     dotenv:
       - .env
-    cmd: uv run sqlacodegen "$DATABASE_URL_SYNC" --generator tables --outfile src/gridgov/db/tables.py
+    vars:
+      OUT: src/gridgov/db/tables.py
+    cmds:
+      - uv run sqlacodegen "$DATABASE_URL_SYNC" --generator tables --outfile {{.OUT}}
+      # format first: sqlacodegen emits long lines, and `ruff check` cannot fix E501.
+      - uv run ruff format {{.OUT}}
+      - uv run ruff check --fix {{.OUT}}
 
   gen:client:
     internal: true
