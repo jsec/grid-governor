@@ -25,6 +25,10 @@ tasks:
     dir: api
     cmd: uv run alembic upgrade head
 
+  migrate:create:
+    dir: api
+    cmd: uv run alembic revision -m "{{.CLI_ARGS}}"
+
   gen:
     cmds:
       - task: gen:tables
@@ -39,7 +43,6 @@ tasks:
       OUT: src/gridgov/db/tables.py
     cmds:
       - uv run sqlacodegen "$DATABASE_URL_SYNC" --generator tables --outfile {{.OUT}}
-      # format first: sqlacodegen emits long lines, and `ruff check` cannot fix E501.
       - uv run ruff format {{.OUT}}
       - uv run ruff check --fix {{.OUT}}
 

@@ -1,4 +1,4 @@
-"""Alembic environment. Async engine, raw-SQL migrations (no autogenerate)."""
+"""Alembic environment. Async engine, hand-written migrations (no autogenerate)."""
 
 import asyncio
 
