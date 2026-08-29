@@ -14,8 +14,6 @@ from sqlalchemy.dialects import postgresql
 
 revision: str = "7fa62325c785"
 down_revision: str | Sequence[str] | None = None
-branch_labels: str | Sequence[str] | None = None
-depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
