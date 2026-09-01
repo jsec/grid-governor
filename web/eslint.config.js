@@ -8,7 +8,7 @@ export default defineConfig([
         languageOptions: {
             parserOptions: {
                 projectService: {
-                    allowDefaultProject: ['eslint.config.js', 'openapi-ts.config.ts'],
+                    allowDefaultProject: ['eslint.config.js'],
                 },
                 tsconfigRootDir: import.meta.dirname,
             },

@@ -1,17 +1,7 @@
 pre-commit:
   parallel: true
   commands:
-    api-lint:
-      root: api/
-      glob: "*.py"
-      run: uv run ruff format {staged_files} && uv run ruff check --fix {staged_files}
-      stage_fixed: true
-    api-types:
-      root: api/
-      glob: "*.py"
-      run: uv run pyrefly check
-    web-lint:
-      root: web/
-      glob: "*.{ts,tsx}"
-      run: pnpm exec eslint --fix {staged_files}
-      stage_fixed: true
+    lint:
+      run: pnpm lint
+    typecheck:
+      run: pnpm typecheck

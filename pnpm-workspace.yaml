@@ -1,0 +1,13 @@
+packages:
+  - api
+  - web
+
+catalog:
+  typescript: ^6.0.3
+  '@types/node': ^24.13.3
+  '@jarsec/eslint-config': ^7.4.0
+  eslint: ^10.9.0
+
+allowBuilds:
+  esbuild: true
+  msw: true
