@@ -1,3 +1,6 @@
-import base from '@jarsec/eslint-config';
+import myConfig from '@jarsec/eslint-config';
 
-export default [{ ignores: ['.venv/**', 'dist/**'] }, ...base];
+export default [
+    { ignores: ['dist/**'] },
+    ...myConfig,
+];

@@ -1,6 +1,19 @@
 import { Hono } from 'hono';
 
-export const app = new Hono();
+import type { AuthHandler } from './auth.js';
 
-// eslint-disable-next-line unicorn/no-top-level-side-effects
-app.get('/api/health', context => context.json({ status: 'ok' }));
+export const createApp = (authHandler?: AuthHandler) => {
+    const app = new Hono();
+
+    app.get('/api/health', context => context.json({ status: 'ok' }));
+
+    if (authHandler) {
+        app.on(['GET', 'POST'], '/api/auth/*', context =>
+            authHandler(context.req.raw),
+        );
+    }
+
+    return app;
+};
+
+export const app = createApp();

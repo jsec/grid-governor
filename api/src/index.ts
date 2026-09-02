@@ -1,9 +1,22 @@
 import { serve } from '@hono/node-server';
 
-import { app } from './app.js';
+import { createApp } from './app.js';
+import { createAuth } from './auth.js';
+import { loadConfig } from './config/config.js';
+import { createDatabase } from './db/client.js';
 
-// Number.parseInt intentionally accepts a numeric prefix in PORT values.
-// eslint-disable-next-line unicorn/prefer-number-coercion
-const port = Number.parseInt(process.env.PORT ?? '3000', 10);
+const {
+    apiPort,
+    betterAuthSecret,
+    betterAuthUrl,
+    databaseUrl,
+} = loadConfig();
 
-serve({ fetch: app.fetch, port });
+const db = createDatabase(databaseUrl);
+const auth = createAuth(db, betterAuthUrl, betterAuthSecret);
+const app = createApp(auth.handler);
+
+serve({
+    fetch: app.fetch,
+    port: apiPort,
+});
