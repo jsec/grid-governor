@@ -18,6 +18,19 @@
     "typecheck": {
       "dependsOn": ["^build"],
       "outputs": []
+    },
+    "migrate": {
+      "cache": false,
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "env": ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "DATABASE_URL"]
+    },
+    "codegen": {
+      "dependsOn": ["migrate"],
+      "cache": false,
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "env": ["DATABASE_URL"]
     }
   }
 }

@@ -1,37 +1,38 @@
 {
-  "name": "@grid-governor/api",
-  "private": true,
-  "type": "module",
-  "engines": {
-    "node": ">=26"
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
-    "lint": "eslint .",
-    "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "db:migrate": "tsx --env-file=.env src/db/migrate-cli.ts",
-    "db:codegen": "kysely-codegen --env-file=.env --out-file src/db/types.ts"
-  },
-  "dependencies": {
-    "@better-auth/kysely-adapter": "^1.7.2",
-    "@hono/node-server": "^1.19.0",
-    "better-auth": "^1.7.2",
-    "hono": "^4.11.11",
-    "kysely": "^0.29.5",
-    "pg": "^8.23.0",
-    "zod": "^4.5.4"
-  },
-  "devDependencies": {
-    "@jarsec/eslint-config": "catalog:",
-    "@types/node": "catalog:",
-    "@types/pg": "^8.23.1",
-    "eslint": "catalog:",
-    "kysely-codegen": "^0.20.0",
-    "tsx": "^4.21.0",
-    "typescript": "catalog:",
-    "vitest": "^4.1.11"
-  }
+    "name": "@grid-governor/api",
+    "private": true,
+    "type": "module",
+    "engines": {
+        "node": ">=26"
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsx watch src/index.ts",
+        "start": "node dist/index.js",
+        "lint": "eslint .",
+        "test": "vitest run",
+        "typecheck": "tsc --noEmit",
+        "migrate": "tsx src/db/migrate-cli.ts",
+        "codegen": "kysely-codegen --out-file src/db/types.ts"
+    },
+    "dependencies": {
+        "@better-auth/kysely-adapter": "^1.7.2",
+        "@hono/node-server": "^1.19.0",
+        "better-auth": "^1.7.2",
+        "hono": "^4.11.11",
+        "kysely": "^0.29.5",
+        "pg": "^8.23.0",
+        "zod": "^4.5.4"
+    },
+    "devDependencies": {
+        "@jarsec/eslint-config": "catalog:",
+        "@types/node": "catalog:",
+        "@types/pg": "^8.23.1",
+        "eslint": "catalog:",
+        "kysely-codegen": "^0.20.0",
+        "postgres-interval": "^4.1.0",
+        "tsx": "^4.21.0",
+        "typescript": "catalog:",
+        "vitest": "^4.1.11"
+    }
 }
