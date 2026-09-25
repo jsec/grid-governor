@@ -301,6 +301,7 @@ export type Session = {
     createdAt: Generated<Timestamp>;
     expiresAt: Timestamp;
     id: string;
+    impersonatedBy: null | string;
     ipAddress: null | string;
     token: string;
     updatedAt: Generated<Timestamp>;
@@ -311,12 +312,16 @@ export type Session = {
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type User = {
+    banExpires: null | Timestamp;
+    banned: Generated<boolean | null>;
+    banReason: null | string;
     createdAt: Generated<Timestamp>;
     email: string;
     emailVerified: Generated<boolean>;
     id: string;
     image: null | string;
     name: string;
+    role: null | string;
     updatedAt: Generated<Timestamp>;
 };
 
