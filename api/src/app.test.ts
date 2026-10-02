@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { app } from './app.js';
+import { createApp } from './app.js';
 
 describe('GET /api/health', () => {
     it('returns an OK status document', async () => {
+        const app = createApp(async () => new Response(null, { status: 404 }));
         const response = await app.request('/api/health');
 
         expect(response.status).toBe(200);

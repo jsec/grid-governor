@@ -9,14 +9,15 @@ import { createRoot } from 'react-dom/client';
 
 import { queryClient } from './lib/query-client';
 import { router } from './lib/router';
-import { theme } from './lib/theme';
 
 const rootElement = document.querySelector('#root');
-if (!rootElement) throw new Error('root element missing');
+if (!rootElement) {
+    throw new Error('root element missing');
+}
 
 createRoot(rootElement).render(
     <StrictMode>
-        <MantineProvider theme={theme}>
+        <MantineProvider>
             <QueryClientProvider client={queryClient}>
                 <Notifications />
                 <RouterProvider router={router} />

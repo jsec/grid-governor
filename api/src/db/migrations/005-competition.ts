@@ -129,7 +129,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('quali_laps', 'integer', column => column.notNull().defaultTo(0))
         .addColumn('quali_status', 'text', column =>
             column.generatedAlwaysAs(
-                sql`case when best_lap is not null then 'set' when quali_laps > 0 then 'no_time' else 'no_show' end`,
+                sql`
+                  case when best_lap is not null then 'set'
+                                      when quali_laps > 0 then 'no_time'
+                                      else 'no_show' end
+                `,
             ),
         )
         .addColumn('grid_position', 'integer')
@@ -207,7 +211,8 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .on('result')
         .column('entry_id')
         .execute();
-    await sql`create index result_season_id_entry_id_total_points_idx on result (season_id, entry_id) include (total_points)`.execute(
-        db,
-    );
+    await sql`
+      create index result_season_id_entry_id_total_points_idx
+      on result (season_id, entry_id) include (total_points)
+    `.execute(db);
 }

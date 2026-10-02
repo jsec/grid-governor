@@ -40,8 +40,12 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .addColumn('ipAddress', 'text')
         .addColumn('userAgent', 'text')
+        .addColumn('activeOrganizationId', 'text')
         .addColumn('userId', 'text', column =>
-            column.notNull().references('user.id').onDelete('cascade'),
+            column
+                .notNull()
+                .references('user.id')
+                .onDelete('cascade'),
         )
         .execute();
 
@@ -52,7 +56,10 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('providerId', 'text', column => column.notNull())
         .addColumn('issuer', 'text', column => column.notNull())
         .addColumn('userId', 'text', column =>
-            column.notNull().references('user.id').onDelete('cascade'),
+            column
+                .notNull()
+                .references('user.id')
+                .onDelete('cascade'),
         )
         .addColumn('accessToken', 'text')
         .addColumn('refreshToken', 'text')

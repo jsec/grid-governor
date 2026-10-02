@@ -2,32 +2,68 @@ import type { Kysely } from 'kysely';
 
 import { kyselyAdapter } from '@better-auth/kysely-adapter';
 import { betterAuth } from 'better-auth';
-import { admin } from 'better-auth/plugins';
+import { admin, organization } from 'better-auth/plugins';
 
+import type { Config } from './config/config.js';
 import type { DB } from './db/types.js';
 
-import { loadConfig } from './config/config.js';
-import { createDatabase } from './db/client.js';
-
-export type AuthHandler = (request: Request) => Promise<Response> | Response;
-
-export const createAuth = (db: Kysely<DB>, authUrl: string, authSecret: string) => {
+export const createAuth = (
+    db: Kysely<DB>,
+    config: Pick<Config, 'betterAuthSecret' | 'betterAuthUrl'>,
+) => {
     return betterAuth({
-        baseURL: authUrl,
+        baseURL: config.betterAuthUrl,
         database: kyselyAdapter(db, { type: 'postgres' }),
+        emailAndPassword: {
+            disableSignUp: true,
+            enabled: true,
+        },
         plugins: [
             admin(),
+            organization({
+                allowUserToCreateOrganization: user => user.role === 'admin',
+                disableOrganizationDeletion: true,
+                schema: {
+                    organization: {
+                        additionalFields: {
+                            appealDecisionSlaHours: {
+                                fieldName: 'appeal_decision_sla_hours',
+                                required: false,
+                                type: 'number',
+                            },
+                            appealQuotaPerSeason: {
+                                fieldName: 'appeal_quota_per_season',
+                                required: false,
+                                type: 'number',
+                            },
+                            appealWindowHours: {
+                                fieldName: 'appeal_window_hours',
+                                required: false,
+                                type: 'number',
+                            },
+                            archivedAt: {
+                                fieldName: 'archived_at',
+                                input: false,
+                                required: false,
+                                type: 'date',
+                            },
+                            banLengthRounds: {
+                                fieldName: 'ban_length_rounds',
+                                required: true,
+                                type: 'number',
+                            },
+                            suspensionThresholdPoints: {
+                                fieldName: 'suspension_threshold_points',
+                                required: true,
+                                type: 'number',
+                            },
+                        },
+                    },
+                },
+            }),
         ],
-        secret: authSecret,
+        secret: config.betterAuthSecret,
     });
 };
 
-export const auth = () => {
-    const { betterAuthSecret, betterAuthUrl, databaseUrl } = loadConfig();
-
-    return createAuth(
-        createDatabase(databaseUrl),
-        betterAuthUrl,
-        betterAuthSecret,
-    );
-};
+export type AuthHandler = ReturnType<typeof createAuth>['handler'];

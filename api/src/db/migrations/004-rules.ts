@@ -41,7 +41,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('penalty_default_id', 'bigint', column =>
             column.generatedAlwaysAsIdentity().primaryKey(),
         )
-        .addColumn('organization_id', 'bigint', column => column.notNull())
+        .addColumn('organization_id', 'text', column => column.notNull())
         .addColumn('league_id', 'bigint')
         .addColumn('offense_id', 'bigint', column => column.notNull())
         .addColumn('penalty_id', 'bigint', column => column.notNull())
@@ -76,7 +76,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             'penalty_default_organization_id_fkey',
             ['organization_id'],
             'organization',
-            ['organization_id'],
+            ['id'],
         )
         .addForeignKeyConstraint(
             'penalty_default_penalty_id_fkey',

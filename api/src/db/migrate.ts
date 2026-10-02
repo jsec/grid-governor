@@ -7,21 +7,19 @@ import { fileURLToPath } from 'node:url';
 
 import type { DB } from './types.js';
 
-export const createMigrator = (db: Kysely<DB>) => {
-    const migrationPath = path.dirname(fileURLToPath(import.meta.url));
-    const migrationFolder = path.join(migrationPath, 'migrations');
+const migrationFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), 'migrations');
 
-    return new Migrator({
+export const migrateToLatest = async (db: Kysely<DB>, migrationTableSchema?: string) => {
+    const migrator = new Migrator({
         db,
+        migrationTableSchema,
         provider: new FileMigrationProvider({
             fs,
             migrationFolder,
             path,
         }),
     });
-};
 
-export const runMigrations = async (migrator: Migrator) => {
     const { error } = await migrator.migrateToLatest();
 
     if (error) {

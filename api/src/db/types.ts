@@ -62,7 +62,7 @@ export type AuditEntry = {
     changes: Generated<Json>;
     league_id: Int8 | null;
     occurred_at: Generated<Timestamp>;
-    organization_id: Int8 | null;
+    organization_id: null | string;
     target_id: Int8;
     target_type: string;
 };
@@ -75,8 +75,10 @@ export type DB = {
     driver: Driver;
     entry: Entry;
     incident: Incident;
+    invitation: Invitation;
     league: League;
-    membership: Membership;
+    league_membership: LeagueMembership;
+    member: Member;
     notification: Notification;
     offense: Offense;
     organization: Organization;
@@ -133,6 +135,17 @@ export type Int8 = ColumnType<string, bigint | number | string, bigint | number 
 
 export type Interval = ColumnType<IPostgresInterval, IPostgresInterval | number | string, IPostgresInterval | number | string>;
 
+export type Invitation = {
+    createdAt: Generated<Timestamp>;
+    email: string;
+    expiresAt: Timestamp;
+    id: string;
+    inviterId: string;
+    organizationId: string;
+    role: null | string;
+    status: string;
+};
+
 export type Json = JsonValue;
 
 export type JsonArray = JsonValue[];
@@ -151,20 +164,27 @@ export type League = {
     created_at: Generated<Timestamp>;
     league_id: Generated<Int8>;
     name: string;
-    organization_id: Int8;
+    organization_id: string;
     ruling_sla_hours: Generated<number>;
     suspension_threshold_points: null | number;
 };
 
-export type Membership = {
+export type LeagueMembership = {
     granted_at: Generated<Timestamp>;
     granted_by: null | string;
-    league_id: Int8 | null;
+    league_id: Int8;
     membership_id: Generated<Int8>;
-    organization_id: Int8 | null;
     revoked_at: null | Timestamp;
     role: string;
     user_id: string;
+};
+
+export type Member = {
+    createdAt: Timestamp;
+    id: string;
+    organizationId: string;
+    role: string;
+    userId: string;
 };
 
 export type Notification = {
@@ -194,9 +214,12 @@ export type Organization = {
     appeal_window_hours: Generated<number>;
     archived_at: null | Timestamp;
     ban_length_rounds: number;
-    created_at: Generated<Timestamp>;
+    createdAt: Generated<Timestamp>;
+    id: string;
+    logo: null | string;
+    metadata: null | string;
     name: string;
-    organization_id: Generated<Int8>;
+    slug: string;
     suspension_threshold_points: number;
 };
 
@@ -216,7 +239,7 @@ export type PenaltyDefault = {
     default_voids_result: Generated<boolean>;
     league_id: Int8 | null;
     offense_id: Int8;
-    organization_id: Int8;
+    organization_id: string;
     penalty_default_id: Generated<Int8>;
     penalty_id: Int8;
 };
@@ -298,6 +321,7 @@ export type Season = {
 };
 
 export type Session = {
+    activeOrganizationId: null | string;
     createdAt: Generated<Timestamp>;
     expiresAt: Timestamp;
     id: string;

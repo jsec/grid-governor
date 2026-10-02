@@ -43,7 +43,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('action', 'text', column => column.notNull())
         .addColumn('target_type', 'text', column => column.notNull())
         .addColumn('target_id', 'bigint', column => column.notNull())
-        .addColumn('organization_id', 'bigint')
+        .addColumn('organization_id', 'text')
         .addColumn('league_id', 'bigint')
         .addColumn('changes', 'jsonb', column =>
             column.notNull().defaultTo(sql`'[]'::jsonb`),
@@ -65,7 +65,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             'audit_entry_organization_id_fkey',
             ['organization_id'],
             'organization',
-            ['organization_id'],
+            ['id'],
             constraint => constraint.onDelete('restrict'),
         )
         .execute();

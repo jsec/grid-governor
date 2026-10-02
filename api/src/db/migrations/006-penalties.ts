@@ -240,19 +240,85 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .execute();
 
-    await db.schema.createIndex('incident_accused_entry_id_idx').on('incident').column('accused_entry_id').execute();
-    await db.schema.createIndex('incident_offense_id_idx').on('incident').column('offense_id').execute();
-    await db.schema.createIndex('incident_reported_by_entry_id_idx').on('incident').column('reported_by_entry_id').execute();
-    await db.schema.createIndex('incident_round_id_idx').on('incident').column('round_id').execute();
-    await db.schema.createIndex('incident_season_id_idx').on('incident').column('season_id').where(sql.ref('ruled_at'), 'is', null).execute();
-    await db.schema.createIndex('ruling_author_user_id_idx').on('ruling').column('author_user_id').execute();
-    await db.schema.createIndex('ruling_incident_id_idx').on('ruling').unique().column('incident_id').where(sql.ref('origin'), '=', 'amendment').execute();
-    await db.schema.createIndex('ruling_incident_id_idx1').on('ruling').unique().column('incident_id').where(sql.ref('origin'), '=', 'appeal').execute();
-    await db.schema.createIndex('ruling_penalty_id_idx').on('ruling').column('penalty_id').execute();
-    await db.schema.createIndex('appeal_filed_by_entry_id_idx').on('appeal').column('filed_by_entry_id').execute();
-    await db.schema.createIndex('appeal_incident_id_idx').on('appeal').column('incident_id').where(sql.ref('decided_at'), 'is', null).execute();
-    await db.schema.createIndex('race_ban_entry_id_idx').on('race_ban').column('entry_id').execute();
-    await db.schema.createIndex('race_ban_incident_id_source_revision_idx').on('race_ban').columns(['incident_id', 'source_revision']).execute();
-    await db.schema.createIndex('attachment_appeal_id_idx').on('attachment').column('appeal_id').execute();
-    await db.schema.createIndex('attachment_incident_id_idx').on('attachment').column('incident_id').execute();
+    await db.schema
+        .createIndex('incident_accused_entry_id_idx')
+        .on('incident')
+        .column('accused_entry_id')
+        .execute();
+    await db.schema
+        .createIndex('incident_offense_id_idx')
+        .on('incident')
+        .column('offense_id')
+        .execute();
+    await db.schema
+        .createIndex('incident_reported_by_entry_id_idx')
+        .on('incident')
+        .column('reported_by_entry_id')
+        .execute();
+    await db.schema
+        .createIndex('incident_round_id_idx')
+        .on('incident')
+        .column('round_id')
+        .execute();
+    await db.schema
+        .createIndex('incident_season_id_idx')
+        .on('incident')
+        .column('season_id')
+        .where(sql.ref('ruled_at'), 'is', null)
+        .execute();
+    await db.schema
+        .createIndex('ruling_author_user_id_idx')
+        .on('ruling')
+        .column('author_user_id')
+        .execute();
+    await db.schema
+        .createIndex('ruling_incident_id_idx')
+        .on('ruling')
+        .unique()
+        .column('incident_id')
+        .where(sql.ref('origin'), '=', 'amendment')
+        .execute();
+    await db.schema
+        .createIndex('ruling_incident_id_idx1')
+        .on('ruling')
+        .unique()
+        .column('incident_id')
+        .where(sql.ref('origin'), '=', 'appeal')
+        .execute();
+    await db.schema
+        .createIndex('ruling_penalty_id_idx')
+        .on('ruling')
+        .column('penalty_id')
+        .execute();
+    await db.schema
+        .createIndex('appeal_filed_by_entry_id_idx')
+        .on('appeal')
+        .column('filed_by_entry_id')
+        .execute();
+    await db.schema
+        .createIndex('appeal_incident_id_idx')
+        .on('appeal')
+        .column('incident_id')
+        .where(sql.ref('decided_at'), 'is', null)
+        .execute();
+    await db.schema
+        .createIndex('race_ban_entry_id_idx')
+        .on('race_ban')
+        .column('entry_id')
+        .execute();
+    await db.schema
+        .createIndex('race_ban_incident_id_source_revision_idx')
+        .on('race_ban')
+        .columns(['incident_id', 'source_revision'])
+        .execute();
+    await db.schema
+        .createIndex('attachment_appeal_id_idx')
+        .on('attachment')
+        .column('appeal_id')
+        .execute();
+    await db.schema
+        .createIndex('attachment_incident_id_idx')
+        .on('attachment')
+        .column('incident_id')
+        .execute();
 }
