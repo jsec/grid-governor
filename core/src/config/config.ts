@@ -6,12 +6,6 @@ export const envSchema = z.object({
     DATABASE_URL: z.url(),
 });
 
-const configSchema = envSchema.transform(env => ({
-    betterAuthSecret: env.BETTER_AUTH_SECRET,
-    betterAuthUrl: env.BETTER_AUTH_URL,
-    databaseUrl: env.DATABASE_URL,
-}));
+export type Config = z.output<typeof envSchema>;
 
-export type Config = z.output<typeof configSchema>;
-
-export const loadConfig = () => configSchema.parse(process.env);
+export const loadConfig = () => envSchema.parse(process.env);

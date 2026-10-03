@@ -4,15 +4,15 @@ import { kyselyAdapter } from '@better-auth/kysely-adapter';
 import { betterAuth } from 'better-auth';
 import { admin, organization } from 'better-auth/plugins';
 
-import type { Config } from './config/config.js';
-import type { DB } from './db/types.js';
+import type { Config } from './config/config.ts';
+import type { DB } from './db/types.ts';
 
 export const createAuth = (
     db: Kysely<DB>,
-    config: Pick<Config, 'betterAuthSecret' | 'betterAuthUrl'>,
+    config: Pick<Config, 'BETTER_AUTH_SECRET' | 'BETTER_AUTH_URL'>,
 ) => {
     return betterAuth({
-        baseURL: config.betterAuthUrl,
+        baseURL: config.BETTER_AUTH_URL,
         database: kyselyAdapter(db, { type: 'postgres' }),
         emailAndPassword: {
             disableSignUp: true,
@@ -62,7 +62,7 @@ export const createAuth = (
                 },
             }),
         ],
-        secret: config.betterAuthSecret,
+        secret: config.BETTER_AUTH_SECRET,
     });
 };
 

@@ -1,14 +1,8 @@
 import { createRouter } from '@tanstack/react-router';
 
 import { routeTree } from '../routeTree.gen';
-import { queryClient } from './query-client';
 
-/*
- * queryClient lives in the router context so loaders can prefetch via
- * queryClient.ensureQueryData before a route renders.
- */
 export const router = createRouter({
-    context: { queryClient },
     defaultPreload: 'intent',
     routeTree,
 });

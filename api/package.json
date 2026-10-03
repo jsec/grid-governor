@@ -6,12 +6,11 @@
         "node": ">=26"
     },
     "scripts": {
-        "build": "tsc",
-        "dev": "tsx watch src/index.ts",
-        "start": "node dist/index.js",
+        "dev": "node --watch src/index.ts",
+        "start": "node src/index.ts",
         "lint": "eslint .",
         "test": "vitest run",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc"
     },
     "dependencies": {
         "@grid-governor/core": "workspace:*",
@@ -28,7 +27,6 @@
         "@types/node": "catalog:",
         "@types/pg": "^8.23.1",
         "eslint": "catalog:",
-        "tsx": "^4.21.0",
         "typescript": "catalog:",
         "vitest": "^4.1.11"
     }

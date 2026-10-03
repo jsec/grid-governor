@@ -1,6 +1,6 @@
-import { envSchema } from '../config/config.js';
-import { createDatabase } from './client.js';
-import { migrateToLatest } from './migrate.js';
+import { envSchema } from '../config/config.ts';
+import { createDatabase } from './client.ts';
+import { migrateToLatest } from './migrate.ts';
 
 const db = createDatabase(envSchema.pick({ DATABASE_URL: true }).parse(process.env).DATABASE_URL);
 

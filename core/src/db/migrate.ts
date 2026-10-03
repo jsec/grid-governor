@@ -5,7 +5,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { DB } from './types.js';
+import type { DB } from './types.ts';
 
 const migrationFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), 'migrations');
 

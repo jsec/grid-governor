@@ -3,20 +3,16 @@
     "private": true,
     "type": "module",
     "exports": {
-        "./*": {
-            "types": "./dist/*.d.ts",
-            "default": "./dist/*.js"
-        }
+        "./*": "./src/*.ts"
     },
     "sideEffects": false,
     "engines": {
         "node": ">=26"
     },
     "scripts": {
-        "build": "tsc",
         "lint": "eslint .",
-        "typecheck": "tsc --noEmit",
-        "migrate": "tsx src/db/migrate-cli.ts",
+        "typecheck": "tsc",
+        "migrate": "node src/db/migrate-cli.ts",
         "codegen": "kysely-codegen --out-file src/db/types.ts"
     },
     "dependencies": {
@@ -33,7 +29,6 @@
         "eslint": "catalog:",
         "kysely-codegen": "^0.20.0",
         "postgres-interval": "^4.1.0",
-        "tsx": "^4.21.0",
         "typescript": "catalog:"
     }
 }

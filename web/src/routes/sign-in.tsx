@@ -29,12 +29,9 @@ export const Route = createFileRoute('/sign-in')({
     }),
 });
 
-type SignInPageProps = {
-    navigate: (to: string) => void;
-    returnTo: string;
-};
-
-export function SignInPage({ navigate, returnTo }: SignInPageProps) {
+function SignInRoute() {
+    const { returnTo } = Route.useSearch();
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -49,7 +46,7 @@ export function SignInPage({ navigate, returnTo }: SignInPageProps) {
             if (result.error) {
                 setError(result.error.message ?? 'Unable to sign in.');
             } else {
-                navigate(returnTo);
+                void navigate({ to: returnTo });
             }
         } catch {
             setError('Unable to sign in.');
@@ -87,10 +84,4 @@ export function SignInPage({ navigate, returnTo }: SignInPageProps) {
             </form>
         </main>
     );
-}
-
-function SignInRoute() {
-    const { returnTo } = Route.useSearch();
-    const navigate = useNavigate();
-    return <SignInPage navigate={to => void navigate({ to })} returnTo={returnTo} />;
 }

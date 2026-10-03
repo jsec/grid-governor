@@ -1,9 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
-import { safeReturnTo, SignInPage } from '../routes/sign-in';
-import { server } from './msw';
+import { safeReturnTo } from '../routes/sign-in';
+import { mockInvitation, mockSession, server } from './msw';
+import { renderRoute } from './render-route';
 
 describe('sign-in route', () => {
     it('rejects external return URLs', () => {
@@ -27,19 +28,18 @@ describe('sign-in route', () => {
                 },
             });
         }));
-        const returnTo = '/invitations/invite-123';
-        let destination = '';
-        const navigate = (to: string) => {
-            destination = to;
-        };
-        render(<SignInPage navigate={navigate} returnTo={returnTo} />);
+        mockSession('member@example.com');
+        mockInvitation('member@example.com');
+        const router = renderRoute('/sign-in?returnTo=%2Finvitations%2Finvite-123');
 
-        const emailInput = screen.getByLabelText(/email/i);
-        fireEvent.change(emailInput, { target: { value: 'member@example.com' } });
+        fireEvent.change(await screen.findByLabelText(/email/i), {
+            target: { value: 'member@example.com' },
+        });
         fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'secret' } });
         fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
-        await waitFor(() => expect(destination).toBe(returnTo));
+        await waitFor(() => expect(router.state.location.pathname).toBe('/invitations/invite-123'));
+        expect(await screen.findByText(/invited to Club/)).toBeInTheDocument();
         expect(postedCredentials).toBe('{"email":"member@example.com","password":"secret"}');
     });
 });

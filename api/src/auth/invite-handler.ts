@@ -1,13 +1,11 @@
 import type { AuthHandler } from '@grid-governor/core/auth';
 import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
+import type { CreateEmailOptions, Resend } from 'resend';
 
 import { z } from 'zod';
 
-import type {
-    InvitationSender,
-    OrganizationInvitationEmailInput,
-} from './send-invitation-email.js';
+import type { ApiConfig } from '../config/config.ts';
 
 const invitationSchema = z.object({
     email: z.email(),
@@ -21,7 +19,8 @@ const invitePath = '/api/auth/organization/invite-member';
 export const createInviteHandler = (
     authHandler: AuthHandler,
     db: Kysely<DB>,
-    sendInvitation: InvitationSender,
+    emails: Pick<Resend['emails'], 'send'>,
+    config: Pick<ApiConfig, 'INVITATION_FROM_EMAIL' | 'WEB_URL'>,
 ): AuthHandler => async (request) => {
     const url = new URL(request.url);
 
@@ -34,7 +33,7 @@ export const createInviteHandler = (
         return response;
     }
 
-    let email: OrganizationInvitationEmailInput;
+    let email: CreateEmailOptions;
 
     try {
         const invitation = invitationSchema.parse(await response.clone().json());
@@ -50,11 +49,17 @@ export const createInviteHandler = (
                 .executeTakeFirstOrThrow(),
         ]);
 
+        const acceptUrl = new URL(
+            `/invitations/${encodeURIComponent(invitation.id)}`,
+            config.WEB_URL,
+        );
+
         email = {
-            email: invitation.email,
-            id: invitation.id,
-            inviterName: inviter.name,
-            organizationName: organization.name,
+            from: config.INVITATION_FROM_EMAIL,
+            subject: `Invitation to join ${organization.name}`,
+            text: `${inviter.name} invited you to join ${organization.name} on Grid Governor.`
+                + ` Accept the invitation: ${acceptUrl.href}`,
+            to: invitation.email,
         };
     } catch (error) {
         const errorName = error instanceof Error ? error.name : 'unknown';
@@ -67,16 +72,23 @@ export const createInviteHandler = (
     }
 
     try {
-        await sendInvitation(email);
-    } catch (error) {
-        const errorName = error instanceof Error ? error.name : 'unknown';
-        console.error('Invitation email delivery failed', errorName);
+        const { error } = await emails.send(email);
 
-        return Response.json(
-            { error: 'Invitation email delivery failed' },
-            { status: 502 },
-        );
+        if (error) {
+            return deliveryFailed(error.name);
+        }
+    } catch (error) {
+        return deliveryFailed(error instanceof Error ? error.name : 'unknown');
     }
 
     return response;
 };
+
+function deliveryFailed(errorName: string) {
+    console.error('Invitation email delivery failed', errorName);
+
+    return Response.json(
+        { error: 'Invitation email delivery failed' },
+        { status: 502 },
+    );
+}

@@ -21,7 +21,6 @@ dist-ssr
 *.local
 node_modules/
 .pnpm-store/
-.turbo/
 *.tsbuildinfo
 
 # Editor directories and files

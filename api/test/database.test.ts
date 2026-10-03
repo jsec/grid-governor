@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { assertDedicatedDatabase } from './database.js';
+import { assertDedicatedDatabase } from './database.ts';
 
 describe('database test target safety', () => {
     it.each([

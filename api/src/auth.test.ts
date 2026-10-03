@@ -5,10 +5,11 @@ import { hashPassword } from 'better-auth/crypto';
 import { afterEach, beforeAll, beforeEach, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import type { TestDatabase } from '../test/database.js';
+import type { TestDatabase } from '../test/database.ts';
 
-import { createTestDatabase, dbTests } from '../test/database.js';
-import { createInviteHandler } from './auth/invite-handler.js';
+import { createTestDatabase, dbTests } from '../test/database.ts';
+import { emailConfig, failingEmails, recordEmails } from '../test/emails.ts';
+import { createInviteHandler } from './auth/invite-handler.ts';
 
 const idSchema = z.object({ id: z.string().min(1) });
 const organizationBody = {
@@ -82,12 +83,10 @@ dbTests('Better Auth organization integration', () => {
         ])
             .execute();
         handler = createAuth(db, {
-            betterAuthSecret: 'a-secret-long-enough-for-the-integration-test',
-            betterAuthUrl: 'http://localhost:3000',
+            BETTER_AUTH_SECRET: 'a-secret-long-enough-for-the-integration-test',
+            BETTER_AUTH_URL: 'http://localhost:3000',
         }).handler;
-        inviteHandler = createInviteHandler(handler, db, async () => {
-            // No external email delivery.
-        });
+        inviteHandler = createInviteHandler(handler, db, recordEmails().emails, emailConfig);
     });
 
     afterEach(async () => {
@@ -200,9 +199,8 @@ dbTests('Better Auth organization integration', () => {
     ])(
         'does not wrap alternate invitation path %s', async (path) => {
             const { cookie, organizationId } = await createOrganization();
-            const alternateHandler = createInviteHandler(handler, fixture.db, async () => {
-                throw new Error('Sender must not run');
-            });
+            const { emails, sent } = recordEmails();
+            const alternateHandler = createInviteHandler(handler, fixture.db, emails, emailConfig);
             const response = await alternateHandler(request(path, JSON.stringify({
                 email: 'regular@example.test', organizationId, role: 'member',
             }), cookie));
@@ -210,6 +208,7 @@ dbTests('Better Auth organization integration', () => {
             expect(await fixture.db.selectFrom('invitation').select('id')
                 .where('organizationId', '=', organizationId)
                 .execute()).toEqual([]);
+            expect(sent).toEqual([]);
         },
     );
 
@@ -228,9 +227,12 @@ dbTests('Better Auth organization integration', () => {
     it('keeps a pending invitation after failed delivery and resends it', async () => {
         const { cookie, organizationId } = await createOrganization();
         const body = { email: 'regular@example.test', organizationId, role: 'member' };
-        const failingHandler = createInviteHandler(handler, fixture.db, async () => {
-            throw new Error('Provider failed');
-        });
+        const failingHandler = createInviteHandler(
+            handler,
+            fixture.db,
+            failingEmails(new Error('Provider failed')),
+            emailConfig,
+        );
         const failed = await failingHandler(
             request('/organization/invite-member', JSON.stringify(body), cookie),
         );
@@ -242,16 +244,16 @@ dbTests('Better Auth organization integration', () => {
             .executeTakeFirstOrThrow();
         expect(pending.status).toBe('pending');
 
-        const sent: string[] = [];
-        const resendHandler = createInviteHandler(handler, fixture.db, async (invitation) => {
-            sent.push(invitation.id);
-        });
+        const { emails, sent } = recordEmails();
+        const resendHandler = createInviteHandler(handler, fixture.db, emails, emailConfig);
         const resendBody = JSON.stringify({ ...body, resend: true });
         const resent = await resendHandler(
             request('/organization/invite-member', resendBody, cookie),
         );
         expect(resent.status).toBe(200);
-        expect(sent).toEqual([pending.id]);
+        expect(sent).toEqual([expect.objectContaining({
+            text: expect.stringContaining(`/invitations/${pending.id}`),
+        })]);
         expect(idSchema.parse(await resent.json()).id).toBe(pending.id);
     });
 
