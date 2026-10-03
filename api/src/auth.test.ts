@@ -1,12 +1,13 @@
+import type { AuthHandler } from '@grid-governor/core/auth';
+
+import { createAuth } from '@grid-governor/core/auth';
 import { hashPassword } from 'better-auth/crypto';
 import { afterEach, beforeAll, beforeEach, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import type { TestDatabase } from '../test/database.js';
-import type { AuthHandler } from './auth.js';
 
 import { createTestDatabase, dbTests } from '../test/database.js';
-import { createAuth } from './auth.js';
 import { createInviteHandler } from './auth/invite-handler.js';
 
 const idSchema = z.object({ id: z.string().min(1) });

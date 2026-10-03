@@ -1,11 +1,10 @@
+import type { DB } from '@grid-governor/core/db/types';
+
+import { migrateToLatest } from '@grid-governor/core/db/migrate';
 import { Kysely, PostgresDialect } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import { Client, Pool } from 'pg';
 import { describe } from 'vitest';
-
-import type { DB } from '../src/db/types.js';
-
-import { migrateToLatest } from '../src/db/migrate.js';
 
 const testUrl = process.env.TEST_DATABASE_URL;
 

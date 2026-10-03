@@ -1,7 +1,7 @@
 import myConfig from '@jarsec/eslint-config';
 
 export default [
-    { ignores: ['dist/**', 'src/db/types.ts'] },
+    { ignores: ['dist/**'] },
     ...myConfig,
     {
         files: ['**/*.{js,ts}'],

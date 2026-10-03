@@ -1,9 +1,9 @@
+import type { AuthHandler } from '@grid-governor/core/auth';
+import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
 import { z } from 'zod';
 
-import type { AuthHandler } from '../auth.js';
-import type { DB } from '../db/types.js';
 import type {
     InvitationSender,
     OrganizationInvitationEmailInput,

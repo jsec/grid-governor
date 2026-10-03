@@ -1,6 +1,6 @@
 import type { Resend } from 'resend';
 
-import type { Config } from '../config/config.js';
+import type { ApiConfig } from '../config/config.js';
 
 export type InvitationSender = (input: OrganizationInvitationEmailInput) => Promise<void>;
 
@@ -12,7 +12,7 @@ export type OrganizationInvitationEmailInput = {
 };
 
 export function createResendInvitationSender(
-    config: Pick<Config, 'invitationFromEmail' | 'webUrl'>,
+    config: Pick<ApiConfig, 'invitationFromEmail' | 'webUrl'>,
     emails: Pick<Resend['emails'], 'send'>,
 ): InvitationSender {
     return async (invitation) => {

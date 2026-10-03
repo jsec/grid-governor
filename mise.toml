@@ -1,2 +1,6 @@
 [env]
 _.file = '.env'
+
+[tasks.gg]
+description = 'Run the gg CLI'
+run = 'pnpm --filter @grid-governor/core build && pnpm --filter @grid-governor/cli exec tsx src/bin/cli.ts'

@@ -1,6 +1,8 @@
 packages:
   - api
+  - core
   - web
+  - cli
 
 catalog:
   typescript: ^6.0.3
