@@ -3,40 +3,49 @@ import { cancel, group, intro, outro, password, spinner, text } from '@clack/pro
 import { createAuth } from '@grid-governor/core/auth';
 import { loadConfig } from '@grid-governor/core/config/config';
 import { createDatabase } from '@grid-governor/core/db/client';
-import { buildApplication, buildCommand, buildRouteMap, run } from '@stricli/core';
+import { defineCommand, runMain } from 'citty';
 import { z } from 'zod';
 
 const emailSchema = z.email('Invalid email');
 const nameSchema = z.string().min(1, 'Required');
 const passwordSchema = z.string().min(8, 'Must be at least 8 characters');
 
-// @clack/prompts validators return the error message, or nothing when the value is valid.
+const argsSchema = z.object({
+    email: emailSchema.optional(),
+    name: nameSchema.optional(),
+});
+
 const validateWith = (schema: z.ZodType) => (value: string | undefined) =>
     schema.safeParse(value).error?.issues[0]?.message;
 
-const parseWith = (schema: z.ZodType<string>) => (value: string) => {
-    const { data, error } = schema.safeParse(value);
+function exitCancelled(message: string): never {
+    cancel(message);
+    process.exit(1);
+}
 
-    if (error) {
-        throw new Error(z.prettifyError(error));
-    }
+const createAdmin = defineCommand({
+    args: {
+        email: { description: 'Email address', required: false, type: 'positional' },
+        name: { description: 'Display name', type: 'string' },
+    },
+    meta: { description: 'Create a new admin user (password is prompted)', name: 'create-admin' },
+    async run({ args }) {
+        const { data: given, error } = argsSchema.safeParse(args);
 
-    return data;
-};
+        if (error) {
+            exitCancelled(z.prettifyError(error));
+        }
 
-const createAdmin = buildCommand({
-    docs: { brief: 'Create a new admin user (password is prompted)' },
-    async func(flags: { readonly name?: string }, email?: string) {
         const config = loadConfig();
 
         intro('Create admin user');
         const answers = await group(
             {
-                email: async () => email ?? text({
+                email: async () => given.email ?? text({
                     message: 'Email',
                     validate: validateWith(emailSchema),
                 }),
-                name: async () => flags.name ?? text({
+                name: async () => given.name ?? text({
                     message: 'Name',
                     validate: validateWith(nameSchema),
                 }),
@@ -45,12 +54,7 @@ const createAdmin = buildCommand({
                     validate: validateWith(passwordSchema),
                 }),
             },
-            {
-                onCancel: () => {
-                    cancel('Cancelled');
-                    process.exit(1);
-                },
-            },
+            { onCancel: () => exitCancelled('Cancelled') },
         );
 
         const spin = spinner();
@@ -64,40 +68,16 @@ const createAdmin = buildCommand({
             });
             spin.stop(`Created ${user.email} (${user.id})`);
             outro('Done');
-        } catch (error) {
+        } catch (createError) {
             spin.error('Failed to create user');
-            throw error;
+            throw createError;
         } finally {
             await db.destroy();
         }
     },
-    parameters: {
-        flags: {
-            name: {
-                brief: 'Display name',
-                kind: 'parsed',
-                optional: true,
-                parse: parseWith(nameSchema),
-            },
-        },
-        positional: {
-            kind: 'tuple',
-            parameters: [{
-                brief: 'Email address',
-                optional: true,
-                parse: parseWith(emailSchema),
-                placeholder: 'email',
-            }],
-        },
-    },
 });
 
-const app = buildApplication(
-    buildRouteMap({
-        docs: { brief: 'Grid Governor admin CLI' },
-        routes: { 'create-admin': createAdmin },
-    }),
-    { name: 'gg' },
-);
-
-await run(app, process.argv.slice(2), { process });
+await runMain(defineCommand({
+    meta: { description: 'Grid Governor admin CLI', name: 'gg' },
+    subCommands: { 'create-admin': createAdmin },
+}));
