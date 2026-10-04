@@ -15,17 +15,15 @@
     "dependencies": {
         "@grid-governor/core": "workspace:*",
         "@hono/node-server": "^1.19.0",
-        "better-auth": "^1.7.2",
         "hono": "^4.11.11",
         "kysely": "^0.29.5",
-        "pg": "^8.23.0",
         "resend": "^6.30.0",
         "zod": "^4.5.4"
     },
     "devDependencies": {
         "@jarsec/eslint-config": "catalog:",
         "@types/node": "catalog:",
-        "@types/pg": "^8.23.1",
+        "better-auth": "^1.7.2",
         "eslint": "catalog:",
         "typescript": "catalog:",
         "vitest": "^4.1.11"
