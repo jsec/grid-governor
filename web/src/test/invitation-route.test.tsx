@@ -49,7 +49,7 @@ describe('invitation route', () => {
         const router = renderRoute('/invitations/invite-123');
 
         expect(await screen.findByRole('alert')).toHaveTextContent(/not the recipient/i);
-        fireEvent.click(screen.getByRole('button', { name: /sign in with a different account/i }));
+        fireEvent.click(screen.getByRole('link', { name: /sign in with a different account/i }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/sign-in'));
         expect(router.state.location.search).toEqual({ returnTo: '/invitations/invite-123' });

@@ -1,21 +1,27 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useCallback, useEffect } from 'react';
+import { createFileRoute, Link, redirect, useLocation } from '@tanstack/react-router';
 
 import { authClient } from '../../auth-client';
 
-export const Route = createFileRoute('/invitations/$invitationId')({ component: InvitationRoute });
+export const Route = createFileRoute('/invitations/$invitationId')({
+    beforeLoad: async ({ location }) => {
+        const { data } = await authClient.getSession();
+        if (!data) {
+            throw redirect({ search: { returnTo: location.href }, to: '/sign-in' });
+        }
+        return { user: data.user };
+    },
+    component: InvitationRoute,
+    remountDeps: ({ params }) => params,
+});
 
-type InvitationDetailsProps = {
-    invitationId: string;
-    userId: string;
-};
-
-function InvitationDetails({ invitationId, userId }: InvitationDetailsProps) {
-    const signIn = useSignInRedirect(invitationId);
+function InvitationRoute() {
+    const { invitationId } = Route.useParams();
+    const { user } = Route.useRouteContext();
+    const returnTo = useLocation({ select: location => location.href });
     const query = useQuery({
         queryFn: () => authClient.organization.getInvitation({ query: { id: invitationId } }),
-        queryKey: ['invitation', userId, invitationId],
+        queryKey: ['invitation', user.id, invitationId],
         retry: false,
     });
     const acceptance = useMutation({
@@ -41,9 +47,9 @@ function InvitationDetails({ invitationId, userId }: InvitationDetailsProps) {
                 <h1>Invitation unavailable</h1>
                 <p role="alert">{loadError?.message ?? 'Invitation not found.'}</p>
                 {query.data?.error?.status === 403 && (
-                    <button onClick={signIn} type="button">
+                    <Link search={{ returnTo }} to="/sign-in">
                         Sign in with a different account
-                    </button>
+                    </Link>
                 )}
             </main>
         );
@@ -66,41 +72,4 @@ function InvitationDetails({ invitationId, userId }: InvitationDetailsProps) {
             )}
         </main>
     );
-}
-
-function InvitationRoute() {
-    const { invitationId } = Route.useParams();
-    const signIn = useSignInRedirect(invitationId);
-    const session = authClient.useSession();
-    const user = session.data?.user;
-
-    useEffect(() => {
-        if (!user && !session.isPending) {
-            signIn();
-        }
-    }, [signIn, session.isPending, user]);
-
-    if (session.isPending) {
-        return <main><p>Loading invitation…</p></main>;
-    }
-    if (!user) {
-        return <main><p>Redirecting to sign in…</p></main>;
-    }
-
-    return (
-        <InvitationDetails
-            invitationId={invitationId}
-            key={`${user.id}:${invitationId}`}
-            userId={user.id}
-        />
-    );
-}
-
-function useSignInRedirect(invitationId: string) {
-    const navigate = useNavigate();
-
-    return useCallback(() => void navigate({
-        search: { returnTo: `/invitations/${encodeURIComponent(invitationId)}` },
-        to: '/sign-in',
-    }), [navigate, invitationId]);
 }
