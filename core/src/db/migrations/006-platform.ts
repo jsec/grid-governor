@@ -70,12 +70,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .execute();
 
-    await db.schema.createIndex('notification_read_at_idx')
-        .on('notification')
-        .column('read_at')
-        .where('read_at', 'is not', null)
-        .execute();
-
     await db.schema.createIndex('notification_recipient_user_id_idx')
         .on('notification')
         .column('recipient_user_id')

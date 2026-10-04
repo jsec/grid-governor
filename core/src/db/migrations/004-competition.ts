@@ -189,12 +189,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .execute();
 
     await db.schema
-        .createIndex('driver_display_name_idx')
-        .on('driver')
-        .using('gin')
-        .column(sql`display_name gin_trgm_ops`)
-        .execute();
-    await db.schema
         .createIndex('entry_driver_id_idx')
         .on('entry')
         .column('driver_id')

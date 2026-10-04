@@ -212,17 +212,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             column.notNull().defaultTo(sql`now()`),
         )
         .addForeignKeyConstraint(
-            'attachment_appeal_id_fkey',
-            ['appeal_id'],
-            'appeal',
-            ['appeal_id'],
-            constraint => constraint.onDelete('cascade'),
-        )
-        .addForeignKeyConstraint(
             'attachment_appeal_id_incident_id_fkey',
             ['appeal_id', 'incident_id'],
             'appeal',
             ['appeal_id', 'incident_id'],
+            constraint => constraint.onDelete('cascade'),
         )
         .addForeignKeyConstraint(
             'attachment_incident_id_fkey',
@@ -294,12 +288,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .createIndex('appeal_filed_by_entry_id_idx')
         .on('appeal')
         .column('filed_by_entry_id')
-        .execute();
-    await db.schema
-        .createIndex('appeal_incident_id_idx')
-        .on('appeal')
-        .column('incident_id')
-        .where(sql.ref('decided_at'), 'is', null)
         .execute();
     await db.schema
         .createIndex('race_ban_entry_id_idx')

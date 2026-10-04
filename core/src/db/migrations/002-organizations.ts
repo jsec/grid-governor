@@ -141,12 +141,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .execute();
 
     await db.schema
-        .createIndex('organization_name_idx')
-        .on('organization')
-        .using('gin')
-        .column(sql`name gin_trgm_ops`)
-        .execute();
-    await db.schema
         .createIndex('member_organizationId_idx')
         .on('member')
         .column('organizationId')
@@ -177,7 +171,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .on('league_membership')
         .unique()
         .columns(['user_id', 'role', 'league_id'])
-        .nullsNotDistinct()
         .where(sql.ref('revoked_at'), 'is', null)
         .execute();
 }
