@@ -11,5 +11,8 @@ catalog:
   eslint: ^10.9.0
 
 allowBuilds:
+  cpu-features: false
   esbuild: true
   msw: true
+  protobufjs: false
+  ssh2: false

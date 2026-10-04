@@ -38,16 +38,12 @@ export const createInviteHandler = (
     try {
         const invitation = invitationSchema.parse(await response.clone().json());
 
-        const [organization, inviter] = await Promise.all([
-            db.selectFrom('organization')
-                .select('name')
-                .where('id', '=', invitation.organizationId)
-                .executeTakeFirstOrThrow(),
-            db.selectFrom('user')
-                .select('name')
-                .where('id', '=', invitation.inviterId)
-                .executeTakeFirstOrThrow(),
-        ]);
+        const { inviterName, organizationName } = await db
+            .selectFrom(['organization', 'user'])
+            .select(['organization.name as organizationName', 'user.name as inviterName'])
+            .where('organization.id', '=', invitation.organizationId)
+            .where('user.id', '=', invitation.inviterId)
+            .executeTakeFirstOrThrow();
 
         const acceptUrl = new URL(
             `/invitations/${encodeURIComponent(invitation.id)}`,
@@ -56,8 +52,8 @@ export const createInviteHandler = (
 
         email = {
             from: config.INVITATION_FROM_EMAIL,
-            subject: `Invitation to join ${organization.name}`,
-            text: `${inviter.name} invited you to join ${organization.name} on Grid Governor.`
+            subject: `Invitation to join ${organizationName}`,
+            text: `${inviterName} invited you to join ${organizationName} on Grid Governor.`
                 + ` Accept the invitation: ${acceptUrl.href}`,
             to: invitation.email,
         };

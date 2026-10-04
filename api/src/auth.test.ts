@@ -1,13 +1,12 @@
 import type { AuthHandler } from '@grid-governor/core/auth';
+import type { TestDatabase } from '@grid-governor/core/testing/database';
 
 import { createAuth } from '@grid-governor/core/auth';
+import { createTestDatabase } from '@grid-governor/core/testing/database';
 import { hashPassword } from 'better-auth/crypto';
-import { afterEach, beforeAll, beforeEach, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-import type { TestDatabase } from '../test/database.ts';
-
-import { createTestDatabase, dbTests } from '../test/database.ts';
 import { emailConfig, failingEmails, recordEmails } from '../test/emails.ts';
 import { createInviteHandler } from './auth/invite-handler.ts';
 
@@ -30,7 +29,7 @@ function request(path: string, body: string, cookie?: string) {
     });
 }
 
-dbTests('Better Auth organization integration', () => {
+describe('Better Auth organization integration', () => {
     let fixture: TestDatabase;
     let handler: AuthHandler;
     let inviteHandler: AuthHandler;

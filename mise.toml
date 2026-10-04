@@ -1,5 +1,7 @@
 [env]
 _.file = '.env'
+DOCKER_HOST = 'unix://{{env.HOME}}/.orbstack/run/docker.sock'
+TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE = '/var/run/docker.sock'
 
 [tasks.gg]
 description = 'Run the gg CLI'

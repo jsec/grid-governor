@@ -24,11 +24,13 @@
     },
     "devDependencies": {
         "@jarsec/eslint-config": "catalog:",
+        "@testcontainers/postgresql": "^12.2.0",
         "@types/node": "catalog:",
         "@types/pg": "^8.23.1",
         "eslint": "catalog:",
         "kysely-codegen": "^0.20.0",
         "postgres-interval": "^4.1.0",
-        "typescript": "catalog:"
+        "typescript": "catalog:",
+        "vitest": "^4.1.11"
     }
 }

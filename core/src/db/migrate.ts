@@ -9,10 +9,9 @@ import type { DB } from './types.ts';
 
 const migrationFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), 'migrations');
 
-export const migrateToLatest = async (db: Kysely<DB>, migrationTableSchema?: string) => {
+export const migrateToLatest = async (db: Kysely<DB>) => {
     const migrator = new Migrator({
         db,
-        migrationTableSchema,
         provider: new FileMigrationProvider({
             fs,
             migrationFolder,

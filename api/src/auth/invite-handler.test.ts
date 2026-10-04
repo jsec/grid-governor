@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import type { TestDatabase } from '@grid-governor/core/testing/database';
 
-import type { TestDatabase } from '../../test/database.ts';
+import { createTestDatabase } from '@grid-governor/core/testing/database';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createTestDatabase, dbTests } from '../../test/database.ts';
 import { emailConfig, failingEmails, recordEmails } from '../../test/emails.ts';
 import { createInviteHandler } from './invite-handler.ts';
 
@@ -15,7 +15,7 @@ const invitation = {
 
 const request = () => new Request('http://localhost/api/auth/organization/invite-member', { method: 'POST' });
 
-dbTests('invitation post-processing', () => {
+describe('invitation post-processing', () => {
     let fixture: TestDatabase;
 
     beforeEach(async () => {
