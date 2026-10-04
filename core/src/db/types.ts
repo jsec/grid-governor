@@ -337,7 +337,7 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
 export type User = {
     banExpires: null | Timestamp;
-    banned: Generated<boolean | null>;
+    banned: Generated<boolean>;
     banReason: null | string;
     createdAt: Generated<Timestamp>;
     email: string;

@@ -19,7 +19,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
     await db.schema
         .alterTable('user')
         .addColumn('role', 'text')
-        .addColumn('banned', 'boolean', column => column.defaultTo(false))
+        .addColumn('banned', 'boolean', column => column.notNull().defaultTo(false))
         .addColumn('banReason', 'text')
         .addColumn('banExpires', 'timestamptz')
         .execute();

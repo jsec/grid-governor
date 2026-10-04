@@ -21,6 +21,18 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             column.notNull().defaultTo(sql`now()`),
         )
         .addColumn('read_at', 'timestamptz')
+        .addCheckConstraint('notification_type_code_check', sql`
+          type_code in (
+            'incident.needs_ruling',
+            'incident.response_due',
+            'ruling.published',
+            'ruling.amended',
+            'appeal.filed',
+            'appeal.decided',
+            'result.change_pending',
+            'entry.approved'
+          )
+        `)
         .addForeignKeyConstraint(
             'notification_recipient_user_id_fkey',
             ['recipient_user_id'],
@@ -47,6 +59,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('league_id', 'bigint')
         .addColumn('changes', 'jsonb', column =>
             column.notNull().defaultTo(sql`'[]'::jsonb`),
+        )
+        .addCheckConstraint('audit_entry_changes_check', sql`jsonb_typeof(changes) = 'array'`)
+        .addCheckConstraint(
+            'audit_entry_league_scope_names_org',
+            sql`league_id is null or organization_id is not null`,
         )
         .addForeignKeyConstraint(
             'audit_entry_actor_user_id_fkey',

@@ -54,6 +54,17 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             column.notNull().defaultTo(sql`now()`),
         )
         .addUniqueConstraint('season_league_id_name_key', ['league_id', 'name'])
+        .addCheckConstraint('season_drop_worst_check', sql`drop_worst >= 0`)
+        .addCheckConstraint('season_expiry_rounds_check', sql`expiry_rounds > 0`)
+        .addCheckConstraint('season_fastest_lap_bonus_check', sql`fastest_lap_bonus >= 0`)
+        .addCheckConstraint('season_grid_limit_check', sql`grid_limit > 0`)
+        .addCheckConstraint('season_points_scheme_check', sql`cardinality(points_scheme) > 0`)
+        .addCheckConstraint('season_points_scheme_non_negative', sql`0 <= all (points_scheme)`)
+        .addCheckConstraint('season_pole_bonus_check', sql`pole_bonus >= 0`)
+        .addCheckConstraint(
+            'season_registration_mode_check',
+            sql`registration_mode in ('open', 'approval', 'invite')`,
+        )
         .addForeignKeyConstraint(
             'season_league_id_fkey',
             ['league_id'],
@@ -81,6 +92,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             'season_id',
         ])
         .addUniqueConstraint('round_season_id_ordinal_key', ['season_id', 'ordinal'])
+        .addCheckConstraint('round_ordinal_check', sql`ordinal >= 1`)
+        .addCheckConstraint(
+            'round_official_needs_lock',
+            sql`official_at is null or grid_locked_at is not null`,
+        )
         .addForeignKeyConstraint(
             'round_season_id_fkey',
             ['season_id'],
@@ -105,6 +121,11 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .addUniqueConstraint('entry_entry_id_season_id_key', ['entry_id', 'season_id'])
         .addUniqueConstraint('entry_season_id_driver_id_key', ['season_id', 'driver_id'])
+        .addCheckConstraint('entry_car_number_check', sql`car_number between 0 and 999`)
+        .addCheckConstraint(
+            'entry_status_check',
+            sql`status in ('pending', 'confirmed', 'declined', 'withdrawn')`,
+        )
         .addForeignKeyConstraint(
             'entry_driver_id_fkey',
             ['driver_id'],
@@ -167,6 +188,34 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             column.notNull().defaultTo(sql`now()`),
         )
         .addPrimaryKeyConstraint('result_pkey', ['round_id', 'entry_id'])
+        .addCheckConstraint('result_finish_position_check', sql`finish_position >= 1`)
+        .addCheckConstraint(
+            'result_finish_status_check',
+            sql`finish_status in ('classified', 'dnf', 'dsq', 'dns')`,
+        )
+        .addCheckConstraint('result_grid_position_check', sql`grid_position >= 1`)
+        .addCheckConstraint(
+            'result_grid_source_check',
+            sql`grid_source in ('qualified', 'pit_lane', 'back_of_grid', 'manual')`,
+        )
+        .addCheckConstraint('result_source_check', sql`source in ('import', 'manual')`)
+        .addCheckConstraint(
+            'result_best_lap_pair',
+            sql`(best_lap is null) = (best_lap_set_at is null)`,
+        )
+        .addCheckConstraint(
+            'result_classified_has_position',
+            sql`(finish_status = 'classified') = (finish_position is not null)`,
+        )
+        .addCheckConstraint(
+            'result_classified_has_time',
+            sql`(finish_status = 'classified') = (race_time is not null)`,
+        )
+        .addCheckConstraint('result_edited_pair', sql`(edited_by is null) = (edited_at is null)`)
+        .addCheckConstraint(
+            'result_pit_lane_holds_no_slot',
+            sql`grid_source is null or (grid_position is null) = (grid_source = 'pit_lane')`,
+        )
         .addForeignKeyConstraint(
             'result_edited_by_fkey',
             ['edited_by'],

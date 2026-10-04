@@ -23,6 +23,10 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('created_at', 'timestamptz', column =>
             column.notNull().defaultTo(sql`now()`),
         )
+        .addCheckConstraint(
+            'offense_offense_group_check',
+            sql`offense_group in ('on_track', 'conduct', 'eligibility')`,
+        )
         .execute();
 
     await db.schema
@@ -59,6 +63,15 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .addColumn('created_at', 'timestamptz', column =>
             column.notNull().defaultTo(sql`now()`),
+        )
+        .addCheckConstraint('penalty_default_default_points_check', sql`default_points >= 0`)
+        .addCheckConstraint(
+            'penalty_default_default_time_seconds_check',
+            sql`default_time_seconds >= 0`,
+        )
+        .addCheckConstraint(
+            'penalty_default_default_ban_rounds_check',
+            sql`default_ban_rounds >= 0`,
         )
         .addForeignKeyConstraint(
             'penalty_default_league_id_organization_id_fkey',

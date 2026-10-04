@@ -30,6 +30,23 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .addColumn('ruled_at', 'timestamptz')
         .addColumn('appeal_closes_at', 'timestamptz')
+        .addCheckConstraint('incident_lap_check', sql`lap >= 1`)
+        .addCheckConstraint(
+            'incident_accused_response_pair',
+            sql`(accused_statement is null) = (accused_responded_at is null)`,
+        )
+        .addCheckConstraint(
+            'incident_parties_differ',
+            sql`accused_entry_id <> reported_by_entry_id`,
+        )
+        .addCheckConstraint(
+            'incident_reporter_statement_matches_reporter',
+            sql`(reported_by_entry_id is null) = (reporter_statement is null)`,
+        )
+        .addCheckConstraint(
+            'incident_ruled_pair',
+            sql`(ruled_at is null) = (appeal_closes_at is null)`,
+        )
         .addForeignKeyConstraint(
             'incident_accused_entry_id_season_id_fkey',
             ['accused_entry_id', 'season_id'],
@@ -81,6 +98,27 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('results_applied_at', 'timestamptz')
         .addColumn('results_rejected_at', 'timestamptz')
         .addPrimaryKeyConstraint('ruling_pkey', ['incident_id', 'revision'])
+        .addCheckConstraint('ruling_ban_rounds_check', sql`ban_rounds >= 0`)
+        .addCheckConstraint(
+            'ruling_fault_check',
+            sql`fault in ('predominant', 'shared', 'no_further_action')`,
+        )
+        .addCheckConstraint(
+            'ruling_origin_check',
+            sql`origin in ('original', 'amendment', 'appeal')`,
+        )
+        .addCheckConstraint('ruling_penalty_points_check', sql`penalty_points >= 0`)
+        .addCheckConstraint('ruling_reasoning_check', sql`length(btrim(reasoning)) >= 12`)
+        .addCheckConstraint('ruling_revision_check', sql`revision >= 1`)
+        .addCheckConstraint('ruling_time_penalty_seconds_check', sql`time_penalty_seconds >= 0`)
+        .addCheckConstraint(
+            'ruling_original_is_first',
+            sql`(origin = 'original') = (revision = 1)`,
+        )
+        .addCheckConstraint(
+            'ruling_results_decided_once',
+            sql`num_nonnulls(results_applied_at, results_rejected_at) <= 1`,
+        )
         .addForeignKeyConstraint(
             'ruling_author_user_id_fkey',
             ['author_user_id'],
@@ -129,6 +167,27 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             'incident_id',
         ])
         .addUniqueConstraint('appeal_incident_id_key', ['incident_id'])
+        .addCheckConstraint(
+            'appeal_decision_reasoning_check',
+            sql`length(btrim(decision_reasoning)) >= 12`,
+        )
+        .addCheckConstraint(
+            'appeal_grounds_check',
+            sql`grounds in ('new_evidence', 'rule_applied_incorrectly', 'procedural_error')`,
+        )
+        .addCheckConstraint(
+            'appeal_outcome_check',
+            sql`outcome in ('upheld', 'reduced', 'overturned')`,
+        )
+        .addCheckConstraint('appeal_statement_check', sql`length(btrim(statement)) >= 40`)
+        .addCheckConstraint(
+            'appeal_decided_together',
+            sql`num_nonnulls(outcome, decision_reasoning, decided_by, decided_at) in (0, 4)`,
+        )
+        .addCheckConstraint(
+            'appeal_upheld_creates_no_revision',
+            sql`outcome is null or (outcome = 'upheld') = (decision_revision is null)`,
+        )
         .addForeignKeyConstraint(
             'appeal_assigned_to_fkey',
             ['assigned_to'],
@@ -210,6 +269,19 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('submitted_by', 'text', column => column.notNull())
         .addColumn('submitted_at', 'timestamptz', column =>
             column.notNull().defaultTo(sql`now()`),
+        )
+        .addCheckConstraint('attachment_byte_size_check', sql`byte_size > 0`)
+        .addCheckConstraint(
+            'attachment_kind_check',
+            sql`kind in ('video', 'telemetry', 'image', 'document')`,
+        )
+        .addCheckConstraint(
+            'attachment_link_or_upload',
+            sql`(url is not null) <> (storage_key is not null)`,
+        )
+        .addCheckConstraint(
+            'attachment_upload_has_metadata',
+            sql`storage_key is null or (original_name is not null and byte_size is not null)`,
         )
         .addForeignKeyConstraint(
             'attachment_appeal_id_incident_id_fkey',

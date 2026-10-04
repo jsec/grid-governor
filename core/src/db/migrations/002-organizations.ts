@@ -35,6 +35,20 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             column.notNull().defaultTo(sql`now()`),
         )
         .addColumn('archived_at', 'timestamptz')
+        .addCheckConstraint(
+            'organization_appeal_decision_sla_hours_check',
+            sql`appeal_decision_sla_hours > 0`,
+        )
+        .addCheckConstraint(
+            'organization_appeal_quota_per_season_check',
+            sql`appeal_quota_per_season >= 0`,
+        )
+        .addCheckConstraint('organization_appeal_window_hours_check', sql`appeal_window_hours > 0`)
+        .addCheckConstraint('organization_ban_length_rounds_check', sql`ban_length_rounds > 0`)
+        .addCheckConstraint(
+            'organization_suspension_threshold_points_check',
+            sql`suspension_threshold_points > 0`,
+        )
         .execute();
 
     await db.schema
@@ -50,6 +64,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .addColumn('role', 'text', column => column.notNull())
         .addColumn('createdAt', 'timestamptz', column => column.notNull())
+        .addUniqueConstraint('member_organizationId_userId_key', ['organizationId', 'userId'])
         .execute();
 
     await db.schema
@@ -96,6 +111,12 @@ export async function up(db: Kysely<unknown>): Promise<void> {
             'organization_id',
             'name',
         ])
+        .addCheckConstraint('league_ban_length_rounds_check', sql`ban_length_rounds > 0`)
+        .addCheckConstraint('league_ruling_sla_hours_check', sql`ruling_sla_hours > 0`)
+        .addCheckConstraint(
+            'league_suspension_threshold_points_check',
+            sql`suspension_threshold_points > 0`,
+        )
         .addForeignKeyConstraint(
             'league_organization_id_fkey',
             ['organization_id'],
@@ -140,11 +161,6 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         )
         .execute();
 
-    await db.schema
-        .createIndex('member_organizationId_idx')
-        .on('member')
-        .column('organizationId')
-        .execute();
     await db.schema
         .createIndex('member_userId_idx')
         .on('member')
