@@ -296,4 +296,19 @@ describe('Better Auth organization integration', () => {
             .executeTakeFirstOrThrow();
         expect(member.role).toBe('member');
     });
+
+    it('returns the full organization with its members and invitations', async () => {
+        const { invitationId, organizationId } = await createInvitation();
+        const cookie = await signIn('admin@example.test');
+        const response = await handler(new Request(`http://localhost:3000/api/auth/organization/get-full-organization?organizationId=${organizationId}`, { headers: { cookie } }));
+        expect(response.status).toBe(200);
+        expect(await response.json()).toMatchObject({
+            banLengthRounds: 3,
+            id: organizationId,
+            invitations: [{ email: 'regular@example.test', id: invitationId }],
+            members: [{
+                role: 'owner', user: { email: 'admin@example.test' }, userId: 'global-admin',
+            }],
+        });
+    });
 });

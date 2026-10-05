@@ -3,357 +3,357 @@
  * Please do not edit it manually.
  */
 
-import type { ColumnType } from 'kysely';
-import type { IPostgresInterval } from 'postgres-interval';
-
-export type Account = {
-    accessToken: null | string;
-    accessTokenExpiresAt: null | Timestamp;
-    accountId: string;
-    createdAt: Generated<Timestamp>;
-    id: string;
-    idToken: null | string;
-    issuer: string;
-    password: null | string;
-    providerId: string;
-    refreshToken: null | string;
-    refreshTokenExpiresAt: null | Timestamp;
-    scope: null | string;
-    updatedAt: Generated<Timestamp>;
-    userId: string;
-};
-
-export type Appeal = {
-    acknowledged_at: Timestamp;
-    appeal_id: Generated<Int8>;
-    assigned_to: null | string;
-    decided_at: null | Timestamp;
-    decided_by: null | string;
-    decision_due_at: Timestamp;
-    decision_reasoning: null | string;
-    decision_revision: null | number;
-    filed_at: Generated<Timestamp>;
-    filed_by_entry_id: Int8;
-    grounds: string;
-    incident_id: Int8;
-    outcome: null | string;
-    season_id: Int8;
-    statement: string;
-};
-
-export type Attachment = {
-    appeal_id: Int8 | null;
-    attachment_id: Generated<Int8>;
-    byte_size: Int8 | null;
-    incident_id: Int8;
-    kind: string;
-    original_name: null | string;
-    storage_key: null | string;
-    submitted_at: Generated<Timestamp>;
-    submitted_by: string;
-    url: null | string;
-};
-
-export type AuditEntry = {
-    action: string;
-    actor_role: string;
-    actor_user_id: string;
-    audit_entry_id: Generated<Int8>;
-    changes: Generated<Json>;
-    league_id: Int8 | null;
-    occurred_at: Generated<Timestamp>;
-    organization_id: null | string;
-    target_id: Int8;
-    target_type: string;
-};
-
-export type DB = {
-    account: Account;
-    appeal: Appeal;
-    attachment: Attachment;
-    audit_entry: AuditEntry;
-    driver: Driver;
-    entry: Entry;
-    incident: Incident;
-    invitation: Invitation;
-    league: League;
-    league_membership: LeagueMembership;
-    member: Member;
-    notification: Notification;
-    offense: Offense;
-    organization: Organization;
-    penalty: Penalty;
-    penalty_default: PenaltyDefault;
-    race_ban: RaceBan;
-    result: Result;
-    round: Round;
-    ruling: Ruling;
-    season: Season;
-    session: Session;
-    user: User;
-    verification: Verification;
-};
-
-export type Driver = {
-    created_at: Generated<Timestamp>;
-    display_name: string;
-    driver_id: Generated<Int8>;
-    sim_id: string;
-    user_id: null | string;
-};
-
-export type Entry = {
-    car_number: number;
-    created_at: Generated<Timestamp>;
-    driver_id: Int8;
-    entry_id: Generated<Int8>;
-    season_id: Int8;
-    status: Generated<string>;
-};
+import type { ColumnType } from "kysely";
+import type { IPostgresInterval } from "postgres-interval";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
-    ? ColumnType<S, I | undefined, U>
-    : ColumnType<T, T | undefined, T>;
-
-export type Incident = {
-    accused_entry_id: Int8;
-    accused_responded_at: null | Timestamp;
-    accused_statement: null | string;
-    appeal_closes_at: null | Timestamp;
-    filed_at: Generated<Timestamp>;
-    incident_id: Generated<Int8>;
-    lap: null | number;
-    offense_id: Int8;
-    reported_by_entry_id: Int8 | null;
-    reporter_statement: null | string;
-    round_id: Int8;
-    ruled_at: null | Timestamp;
-    season_id: Int8;
-};
+  ? ColumnType<S, I | undefined, U>
+  : ColumnType<T, T | undefined, T>;
 
 export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
 
 export type Interval = ColumnType<IPostgresInterval, IPostgresInterval | number | string, IPostgresInterval | number | string>;
-
-export type Invitation = {
-    createdAt: Generated<Timestamp>;
-    email: string;
-    expiresAt: Timestamp;
-    id: string;
-    inviterId: string;
-    organizationId: string;
-    role: null | string;
-    status: string;
-};
 
 export type Json = JsonValue;
 
 export type JsonArray = JsonValue[];
 
 export type JsonObject = {
-    [x: string]: JsonValue | undefined;
+  [x: string]: JsonValue | undefined;
 };
 
-export type JsonPrimitive = boolean | null | number | string;
+export type JsonPrimitive = boolean | number | string | null;
 
 export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
-export type League = {
-    archived_at: null | Timestamp;
-    ban_length_rounds: null | number;
-    created_at: Generated<Timestamp>;
-    league_id: Generated<Int8>;
-    name: string;
-    organization_id: string;
-    ruling_sla_hours: Generated<number>;
-    suspension_threshold_points: null | number;
-};
-
-export type LeagueMembership = {
-    granted_at: Generated<Timestamp>;
-    granted_by: null | string;
-    league_id: Int8;
-    membership_id: Generated<Int8>;
-    revoked_at: null | Timestamp;
-    role: string;
-    user_id: string;
-};
-
-export type Member = {
-    createdAt: Timestamp;
-    id: string;
-    organizationId: string;
-    role: string;
-    userId: string;
-};
-
-export type Notification = {
-    created_at: Generated<Timestamp>;
-    notification_id: Generated<Int8>;
-    read_at: null | Timestamp;
-    recipient_user_id: string;
-    target_id: Int8;
-    target_type: string;
-    type_code: string;
-};
-
-export type Offense = {
-    code: string;
-    created_at: Generated<Timestamp>;
-    description: string;
-    display_order: number;
-    name: string;
-    offense_group: string;
-    offense_id: Generated<Int8>;
-    retired_at: null | Timestamp;
-};
-
-export type Organization = {
-    appeal_decision_sla_hours: Generated<number>;
-    appeal_quota_per_season: Generated<number>;
-    appeal_window_hours: Generated<number>;
-    archived_at: null | Timestamp;
-    ban_length_rounds: number;
-    createdAt: Generated<Timestamp>;
-    id: string;
-    logo: null | string;
-    metadata: null | string;
-    name: string;
-    slug: string;
-    suspension_threshold_points: number;
-};
-
-export type Penalty = {
-    code: string;
-    label: string;
-    penalty_id: Generated<Int8>;
-    retired_at: null | Timestamp;
-    severity_rank: number;
-};
-
-export type PenaltyDefault = {
-    created_at: Generated<Timestamp>;
-    default_ban_rounds: Generated<number>;
-    default_points: Generated<number>;
-    default_time_seconds: Generated<number>;
-    default_voids_result: Generated<boolean>;
-    league_id: Int8 | null;
-    offense_id: Int8;
-    organization_id: string;
-    penalty_default_id: Generated<Int8>;
-    penalty_id: Int8;
-};
-
-export type RaceBan = {
-    created_at: Generated<Timestamp>;
-    entry_id: Int8;
-    incident_id: Int8;
-    round_id: Int8;
-    season_id: Int8;
-    source_revision: number;
-};
-
-export type Result = {
-    best_lap: Interval | null;
-    best_lap_set_at: null | Timestamp;
-    created_at: Generated<Timestamp>;
-    edited_at: null | Timestamp;
-    edited_by: null | string;
-    entry_id: Int8;
-    fastest_lap_points: Generated<number>;
-    finish_position: null | number;
-    finish_status: null | string;
-    grid_position: null | number;
-    grid_source: null | string;
-    laps_completed: Generated<number>;
-    pole_points: Generated<number>;
-    position_points: Generated<number>;
-    quali_laps: Generated<number>;
-    quali_status: Generated<null | string>;
-    race_time: Interval | null;
-    round_id: Int8;
-    season_id: Int8;
-    source: Generated<string>;
-    total_points: Generated<null | number>;
-};
-
-export type Round = {
-    created_at: Generated<Timestamp>;
-    grid_locked_at: null | Timestamp;
-    official_at: null | Timestamp;
-    ordinal: number;
-    round_id: Generated<Int8>;
-    season_id: Int8;
-    starts_at: null | Timestamp;
-    track: string;
-};
-
-export type Ruling = {
-    author_user_id: string;
-    ban_rounds: Generated<number>;
-    created_at: Generated<Timestamp>;
-    fault: string;
-    incident_id: Int8;
-    origin: string;
-    penalty_id: Int8;
-    penalty_points: Generated<number>;
-    reasoning: string;
-    results_applied_at: null | Timestamp;
-    results_rejected_at: null | Timestamp;
-    revision: number;
-    time_penalty_seconds: Generated<number>;
-    voids_result: Generated<boolean>;
-};
-
-export type Season = {
-    created_at: Generated<Timestamp>;
-    drop_worst: Generated<number>;
-    expiry_rounds: null | number;
-    fastest_lap_bonus: Generated<number>;
-    grid_limit: null | number;
-    league_id: Int8;
-    name: string;
-    points_scheme: number[];
-    pole_bonus: Generated<number>;
-    registration_closes_at: null | Timestamp;
-    registration_mode: Generated<string>;
-    season_id: Generated<Int8>;
-};
-
-export type Session = {
-    activeOrganizationId: null | string;
-    createdAt: Generated<Timestamp>;
-    expiresAt: Timestamp;
-    id: string;
-    impersonatedBy: null | string;
-    ipAddress: null | string;
-    token: string;
-    updatedAt: Generated<Timestamp>;
-    userAgent: null | string;
-    userId: string;
-};
-
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export type User = {
-    banExpires: null | Timestamp;
-    banned: Generated<boolean>;
-    banReason: null | string;
-    createdAt: Generated<Timestamp>;
-    email: string;
-    emailVerified: Generated<boolean>;
-    id: string;
-    image: null | string;
-    name: string;
-    role: null | string;
-    updatedAt: Generated<Timestamp>;
-};
+export interface Account {
+  accessToken: string | null;
+  accessTokenExpiresAt: Timestamp | null;
+  accountId: string;
+  createdAt: Generated<Timestamp>;
+  id: string;
+  idToken: string | null;
+  issuer: string;
+  password: string | null;
+  providerId: string;
+  refreshToken: string | null;
+  refreshTokenExpiresAt: Timestamp | null;
+  scope: string | null;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
 
-export type Verification = {
-    createdAt: Generated<Timestamp>;
-    expiresAt: Timestamp;
-    id: string;
-    identifier: string;
-    updatedAt: Generated<Timestamp>;
-    value: string;
-};
+export interface Appeal {
+  acknowledgedAt: Timestamp;
+  appealId: Generated<Int8>;
+  assignedTo: string | null;
+  decidedAt: Timestamp | null;
+  decidedBy: string | null;
+  decisionDueAt: Timestamp;
+  decisionReasoning: string | null;
+  decisionRevision: number | null;
+  filedAt: Generated<Timestamp>;
+  filedByEntryId: Int8;
+  grounds: string;
+  incidentId: Int8;
+  outcome: string | null;
+  seasonId: Int8;
+  statement: string;
+}
+
+export interface Attachment {
+  appealId: Int8 | null;
+  attachmentId: Generated<Int8>;
+  byteSize: Int8 | null;
+  incidentId: Int8;
+  kind: string;
+  originalName: string | null;
+  storageKey: string | null;
+  submittedAt: Generated<Timestamp>;
+  submittedBy: string;
+  url: string | null;
+}
+
+export interface AuditEntry {
+  action: string;
+  actorRole: string;
+  actorUserId: string;
+  auditEntryId: Generated<Int8>;
+  changes: Generated<Json>;
+  leagueId: Int8 | null;
+  occurredAt: Generated<Timestamp>;
+  organizationId: string | null;
+  targetId: Int8;
+  targetType: string;
+}
+
+export interface Driver {
+  createdAt: Generated<Timestamp>;
+  displayName: string;
+  driverId: Generated<Int8>;
+  simId: string;
+  userId: string | null;
+}
+
+export interface Entry {
+  carNumber: number;
+  createdAt: Generated<Timestamp>;
+  driverId: Int8;
+  entryId: Generated<Int8>;
+  seasonId: Int8;
+  status: Generated<string>;
+}
+
+export interface Incident {
+  accusedEntryId: Int8;
+  accusedRespondedAt: Timestamp | null;
+  accusedStatement: string | null;
+  appealClosesAt: Timestamp | null;
+  filedAt: Generated<Timestamp>;
+  incidentId: Generated<Int8>;
+  lap: number | null;
+  offenseId: Int8;
+  reportedByEntryId: Int8 | null;
+  reporterStatement: string | null;
+  roundId: Int8;
+  ruledAt: Timestamp | null;
+  seasonId: Int8;
+}
+
+export interface Invitation {
+  createdAt: Generated<Timestamp>;
+  email: string;
+  expiresAt: Timestamp;
+  id: string;
+  inviterId: string;
+  organizationId: string;
+  role: string | null;
+  status: string;
+}
+
+export interface League {
+  archivedAt: Timestamp | null;
+  banLengthRounds: number | null;
+  createdAt: Generated<Timestamp>;
+  leagueId: Generated<Int8>;
+  name: string;
+  organizationId: string;
+  rulingSlaHours: Generated<number>;
+  suspensionThresholdPoints: number | null;
+}
+
+export interface LeagueMembership {
+  grantedAt: Generated<Timestamp>;
+  grantedBy: string | null;
+  leagueId: Int8;
+  membershipId: Generated<Int8>;
+  revokedAt: Timestamp | null;
+  role: string;
+  userId: string;
+}
+
+export interface Member {
+  createdAt: Timestamp;
+  id: string;
+  organizationId: string;
+  role: string;
+  userId: string;
+}
+
+export interface Notification {
+  createdAt: Generated<Timestamp>;
+  notificationId: Generated<Int8>;
+  readAt: Timestamp | null;
+  recipientUserId: string;
+  targetId: Int8;
+  targetType: string;
+  typeCode: string;
+}
+
+export interface Offense {
+  code: string;
+  createdAt: Generated<Timestamp>;
+  description: string;
+  displayOrder: number;
+  name: string;
+  offenseGroup: string;
+  offenseId: Generated<Int8>;
+  retiredAt: Timestamp | null;
+}
+
+export interface Organization {
+  appealDecisionSlaHours: Generated<number>;
+  appealQuotaPerSeason: Generated<number>;
+  appealWindowHours: Generated<number>;
+  archivedAt: Timestamp | null;
+  banLengthRounds: number;
+  createdAt: Generated<Timestamp>;
+  id: string;
+  logo: string | null;
+  metadata: string | null;
+  name: string;
+  slug: string;
+  suspensionThresholdPoints: number;
+}
+
+export interface Penalty {
+  code: string;
+  label: string;
+  penaltyId: Generated<Int8>;
+  retiredAt: Timestamp | null;
+  severityRank: number;
+}
+
+export interface PenaltyDefault {
+  createdAt: Generated<Timestamp>;
+  defaultBanRounds: Generated<number>;
+  defaultPoints: Generated<number>;
+  defaultTimeSeconds: Generated<number>;
+  defaultVoidsResult: Generated<boolean>;
+  leagueId: Int8 | null;
+  offenseId: Int8;
+  organizationId: string;
+  penaltyDefaultId: Generated<Int8>;
+  penaltyId: Int8;
+}
+
+export interface RaceBan {
+  createdAt: Generated<Timestamp>;
+  entryId: Int8;
+  incidentId: Int8;
+  roundId: Int8;
+  seasonId: Int8;
+  sourceRevision: number;
+}
+
+export interface Result {
+  bestLap: Interval | null;
+  bestLapSetAt: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+  editedAt: Timestamp | null;
+  editedBy: string | null;
+  entryId: Int8;
+  fastestLapPoints: Generated<number>;
+  finishPosition: number | null;
+  finishStatus: string | null;
+  gridPosition: number | null;
+  gridSource: string | null;
+  lapsCompleted: Generated<number>;
+  polePoints: Generated<number>;
+  positionPoints: Generated<number>;
+  qualiLaps: Generated<number>;
+  qualiStatus: Generated<string | null>;
+  raceTime: Interval | null;
+  roundId: Int8;
+  seasonId: Int8;
+  source: Generated<string>;
+  totalPoints: Generated<number | null>;
+}
+
+export interface Round {
+  createdAt: Generated<Timestamp>;
+  gridLockedAt: Timestamp | null;
+  officialAt: Timestamp | null;
+  ordinal: number;
+  roundId: Generated<Int8>;
+  seasonId: Int8;
+  startsAt: Timestamp | null;
+  track: string;
+}
+
+export interface Ruling {
+  authorUserId: string;
+  banRounds: Generated<number>;
+  createdAt: Generated<Timestamp>;
+  fault: string;
+  incidentId: Int8;
+  origin: string;
+  penaltyId: Int8;
+  penaltyPoints: Generated<number>;
+  reasoning: string;
+  resultsAppliedAt: Timestamp | null;
+  resultsRejectedAt: Timestamp | null;
+  revision: number;
+  timePenaltySeconds: Generated<number>;
+  voidsResult: Generated<boolean>;
+}
+
+export interface Season {
+  createdAt: Generated<Timestamp>;
+  dropWorst: Generated<number>;
+  expiryRounds: number | null;
+  fastestLapBonus: Generated<number>;
+  gridLimit: number | null;
+  leagueId: Int8;
+  name: string;
+  pointsScheme: number[];
+  poleBonus: Generated<number>;
+  registrationClosesAt: Timestamp | null;
+  registrationMode: Generated<string>;
+  seasonId: Generated<Int8>;
+}
+
+export interface Session {
+  activeOrganizationId: string | null;
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: string;
+  impersonatedBy: string | null;
+  ipAddress: string | null;
+  token: string;
+  updatedAt: Generated<Timestamp>;
+  userAgent: string | null;
+  userId: string;
+}
+
+export interface User {
+  banExpires: Timestamp | null;
+  banned: Generated<boolean>;
+  banReason: string | null;
+  createdAt: Generated<Timestamp>;
+  email: string;
+  emailVerified: Generated<boolean>;
+  id: string;
+  image: string | null;
+  name: string;
+  role: string | null;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface Verification {
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: string;
+  identifier: string;
+  updatedAt: Generated<Timestamp>;
+  value: string;
+}
+
+export interface DB {
+  account: Account;
+  appeal: Appeal;
+  attachment: Attachment;
+  auditEntry: AuditEntry;
+  driver: Driver;
+  entry: Entry;
+  incident: Incident;
+  invitation: Invitation;
+  league: League;
+  leagueMembership: LeagueMembership;
+  member: Member;
+  notification: Notification;
+  offense: Offense;
+  organization: Organization;
+  penalty: Penalty;
+  penaltyDefault: PenaltyDefault;
+  raceBan: RaceBan;
+  result: Result;
+  round: Round;
+  ruling: Ruling;
+  season: Season;
+  session: Session;
+  user: User;
+  verification: Verification;
+}

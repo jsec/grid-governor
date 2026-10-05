@@ -13,7 +13,7 @@
         "lint": "eslint .",
         "typecheck": "tsc",
         "migrate": "node src/db/migrate-cli.ts",
-        "codegen": "kysely-codegen --out-file src/db/types.ts"
+        "codegen": "kysely-codegen --camel-case --out-file src/db/types.ts"
     },
     "dependencies": {
         "@better-auth/kysely-adapter": "^1.7.2",

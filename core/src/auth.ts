@@ -12,6 +12,7 @@ export const createAuth = (
     config: Pick<Config, 'BETTER_AUTH_SECRET' | 'BETTER_AUTH_URL'>,
 ) => {
     return betterAuth({
+        advanced: { database: { joins: true } },
         baseURL: config.BETTER_AUTH_URL,
         database: kyselyAdapter(db, { type: 'postgres' }),
         emailAndPassword: {
@@ -27,33 +28,27 @@ export const createAuth = (
                     organization: {
                         additionalFields: {
                             appealDecisionSlaHours: {
-                                fieldName: 'appeal_decision_sla_hours',
                                 required: false,
                                 type: 'number',
                             },
                             appealQuotaPerSeason: {
-                                fieldName: 'appeal_quota_per_season',
                                 required: false,
                                 type: 'number',
                             },
                             appealWindowHours: {
-                                fieldName: 'appeal_window_hours',
                                 required: false,
                                 type: 'number',
                             },
                             archivedAt: {
-                                fieldName: 'archived_at',
                                 input: false,
                                 required: false,
                                 type: 'date',
                             },
                             banLengthRounds: {
-                                fieldName: 'ban_length_rounds',
                                 required: true,
                                 type: 'number',
                             },
                             suspensionThresholdPoints: {
-                                fieldName: 'suspension_threshold_points',
                                 required: true,
                                 type: 'number',
                             },

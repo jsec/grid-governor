@@ -29,11 +29,11 @@ describe('invitation post-processing', () => {
             .execute();
 
         await fixture.db.insertInto('organization').values({
-            ban_length_rounds: 3,
+            banLengthRounds: 3,
             id: 'org-1',
             name: 'Club',
             slug: 'club',
-            suspension_threshold_points: 12,
+            suspensionThresholdPoints: 12,
         })
             .execute();
     });

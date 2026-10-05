@@ -3,13 +3,13 @@ import type { Kysely } from 'kysely';
 export async function down(db: Kysely<unknown>): Promise<void> {
     await db.schema
         .alterTable('session')
-        .dropColumn('impersonatedBy')
+        .dropColumn('impersonated_by')
         .execute();
 
     await db.schema
         .alterTable('user')
-        .dropColumn('banExpires')
-        .dropColumn('banReason')
+        .dropColumn('ban_expires')
+        .dropColumn('ban_reason')
         .dropColumn('banned')
         .dropColumn('role')
         .execute();
@@ -20,12 +20,12 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .alterTable('user')
         .addColumn('role', 'text')
         .addColumn('banned', 'boolean', column => column.notNull().defaultTo(false))
-        .addColumn('banReason', 'text')
-        .addColumn('banExpires', 'timestamptz')
+        .addColumn('ban_reason', 'text')
+        .addColumn('ban_expires', 'timestamptz')
         .execute();
 
     await db.schema
         .alterTable('session')
-        .addColumn('impersonatedBy', 'text')
+        .addColumn('impersonated_by', 'text')
         .execute();
 }
