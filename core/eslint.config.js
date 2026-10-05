@@ -13,6 +13,7 @@ export default [
             '@stylistic/newline-per-chained-call': ['error', { ignoreChainWithDepth: 2 }],
             '@stylistic/object-curly-newline': ['error', { consistent: true, multiline: true }],
             '@stylistic/object-property-newline': ['error', { allowAllPropertiesOnSameLine: true }],
+            '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }],
             'curly': ['error', 'all'],
         },
     },

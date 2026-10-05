@@ -9,7 +9,6 @@ import { createDatabase } from '../db/client.ts';
 import { migrateToLatest } from '../db/migrate.ts';
 
 declare module 'vitest' {
-    // Must be an interface: this merges with the library's ProvidedContext declaration.
     // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
     export interface ProvidedContext {
         postgresUrl: string;
