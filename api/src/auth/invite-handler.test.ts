@@ -1,9 +1,10 @@
 import type { TestDatabase } from '@grid-governor/core/testing/database';
 
 import { createTestDatabase } from '@grid-governor/core/testing/database';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { emailConfig, failingEmails, recordEmails } from '../../test/emails.ts';
+import { createTestLogger } from '../../test/helpers.ts';
 import { createInviteHandler } from './invite-handler.ts';
 
 const invitation = {
@@ -14,6 +15,8 @@ const invitation = {
 };
 
 const request = () => new Request('http://localhost/api/auth/organization/invite-member', { method: 'POST' });
+
+const { logger } = createTestLogger();
 
 describe('invitation post-processing', () => {
     let fixture: TestDatabase;
@@ -39,15 +42,13 @@ describe('invitation post-processing', () => {
     });
 
     afterEach(async () => {
-        vi.restoreAllMocks();
-
         if (fixture) {
             await fixture.destroy();
         }
     });
 
     it('keeps delivery error details out of responses and logs', async () => {
-        const log = vi.spyOn(console, 'error');
+        const { lines, logger } = createTestLogger();
 
         const handler = createInviteHandler(
             async () => Response.json(invitation),
@@ -56,16 +57,22 @@ describe('invitation post-processing', () => {
             emailConfig,
         );
 
-        const response = await handler(request());
+        const response = await handler(request(), logger);
         const body = await response.json();
 
         expect(response.status).toBe(502);
         expect(body).toEqual({ error: 'Invitation email delivery failed' });
-        expect(log).toHaveBeenCalledWith('Invitation email delivery failed', 'Error');
+        expect(lines.map(line => JSON.parse(line))).toEqual([
+            expect.objectContaining({
+                error_name: 'Error',
+                level: 'error',
+                msg: 'Invitation email delivery failed',
+            }),
+        ]);
     });
 
     it('reports Resend rejections as delivery failures', async () => {
-        const log = vi.spyOn(console, 'error');
+        const { lines, logger } = createTestLogger();
 
         const handler = createInviteHandler(
             async () => Response.json(invitation),
@@ -86,10 +93,16 @@ describe('invitation post-processing', () => {
             emailConfig,
         );
 
-        const response = await handler(request());
+        const response = await handler(request(), logger);
 
         expect(response.status).toBe(502);
-        expect(log).toHaveBeenCalledWith('Invitation email delivery failed', 'validation_error');
+        expect(lines.map(line => JSON.parse(line))).toEqual([
+            expect.objectContaining({
+                error_name: 'validation_error',
+                level: 'error',
+                msg: 'Invitation email delivery failed',
+            }),
+        ]);
     });
 
     it('reports missing invitation context as a failure', async () => {
@@ -101,7 +114,7 @@ describe('invitation post-processing', () => {
             emailConfig,
         );
 
-        const response = await handler(request());
+        const response = await handler(request(), logger);
         expect(response.status).toBe(500);
         expect(sent).toEqual([]);
     });
@@ -115,7 +128,7 @@ describe('invitation post-processing', () => {
             emailConfig,
         );
 
-        const response = await handler(request());
+        const response = await handler(request(), logger);
         const body = await response.json();
 
         expect(response.status).toBe(200);
@@ -143,7 +156,7 @@ describe('invitation post-processing', () => {
             emailConfig,
         );
 
-        const response = await handler(request());
+        const response = await handler(request(), logger);
         const body = await response.json();
 
         expect(response.status).toBe(500);
@@ -160,7 +173,7 @@ describe('invitation post-processing', () => {
             emailConfig,
         );
 
-        const response = await handler(request());
+        const response = await handler(request(), logger);
         expect(response.status).toBe(500);
         expect(sent).toEqual([]);
     });

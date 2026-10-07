@@ -9,10 +9,6 @@ export type AppEnv = {
 };
 
 export const requestLogger = (logger: Logger) => createMiddleware<AppEnv>(async (ctx, next) => {
-    if (ctx.req.path === '/api/health') {
-        return next();
-    }
-
     const httpLogger = logger.child({
         request_id: ctx.get('requestId'),
     });
@@ -21,6 +17,10 @@ export const requestLogger = (logger: Logger) => createMiddleware<AppEnv>(async 
     const start = performance.now();
 
     await next();
+
+    if (ctx.req.path === '/api/health') {
+        return;
+    }
 
     httpLogger.info({
         duration_ms: Math.round(performance.now() - start),

@@ -15,4 +15,10 @@ export default [
             'curly': ['error', 'all'],
         },
     },
+    {
+        files: ['**/*.test.ts'],
+        rules: {
+            'unicorn/max-nested-calls': 'off',
+        },
+    },
 ];

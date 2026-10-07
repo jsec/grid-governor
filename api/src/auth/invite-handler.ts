@@ -1,5 +1,6 @@
 import type { AuthHandler } from '@grid-governor/core/auth';
 import type { DB } from '@grid-governor/core/db/types';
+import type { Logger } from '@grid-governor/core/logging';
 import type { Kysely } from 'kysely';
 import type { CreateEmailOptions, Resend } from 'resend';
 
@@ -16,12 +17,14 @@ const invitationSchema = z.object({
 
 const invitePath = '/api/auth/organization/invite-member';
 
+export type AuthRouteHandler = (request: Request, logger: Logger) => Promise<Response>;
+
 export const createInviteHandler = (
     authHandler: AuthHandler,
     db: Kysely<DB>,
     emails: Pick<Resend['emails'], 'send'>,
     config: Pick<ApiConfig, 'INVITATION_FROM_EMAIL' | 'WEB_URL'>,
-): AuthHandler => async (request) => {
+): AuthRouteHandler => async (request, logger) => {
     const url = new URL(request.url);
 
     if (request.method !== 'POST' || url.pathname !== invitePath) {
@@ -59,7 +62,7 @@ export const createInviteHandler = (
         };
     } catch (error) {
         const errorName = error instanceof Error ? error.name : 'unknown';
-        console.error('Invitation processing failed', errorName);
+        logger.error({ error_name: errorName }, 'Invitation processing failed');
 
         return Response.json(
             { error: 'Unable to process invitation' },
@@ -71,17 +74,17 @@ export const createInviteHandler = (
         const { error } = await emails.send(email);
 
         if (error) {
-            return deliveryFailed(error.name);
+            return deliveryFailed(error.name, logger);
         }
     } catch (error) {
-        return deliveryFailed(error instanceof Error ? error.name : 'unknown');
+        return deliveryFailed(error instanceof Error ? error.name : 'unknown', logger);
     }
 
     return response;
 };
 
-function deliveryFailed(errorName: string) {
-    console.error('Invitation email delivery failed', errorName);
+function deliveryFailed(errorName: string, logger: Logger) {
+    logger.error({ error_name: errorName }, 'Invitation email delivery failed');
 
     return Response.json(
         { error: 'Invitation email delivery failed' },

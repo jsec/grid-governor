@@ -6,10 +6,14 @@ import { hashPassword } from 'better-auth/crypto';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
+import type { AuthRouteHandler } from './auth/invite-handler.ts';
+
 import { emailConfig, failingEmails, recordEmails } from '../test/emails.ts';
+import { createTestLogger } from '../test/helpers.ts';
 import { createInviteHandler } from './auth/invite-handler.ts';
 
 const idSchema = z.object({ id: z.string().min(1) });
+const { logger } = createTestLogger();
 const organizationBody = {
     banLengthRounds: 3,
     name: 'Grid Club',
@@ -31,7 +35,7 @@ function request(path: string, body: string, cookie?: string) {
 describe('Better Auth organization integration', () => {
     let fixture: TestDatabase;
     let handler: AuthHandler;
-    let inviteHandler: AuthHandler;
+    let inviteHandler: AuthRouteHandler;
     let password: string;
 
     beforeAll(async () => {
@@ -131,7 +135,7 @@ describe('Better Auth organization integration', () => {
             email: 'regular@example.test',
             organizationId,
             role: 'member',
-        }), cookie));
+        }), cookie), logger);
 
         expect(response.status).toBe(200);
 
@@ -234,7 +238,7 @@ describe('Better Auth organization integration', () => {
                 email: 'regular@example.test',
                 organizationId,
                 role: 'member',
-            }), cookie));
+            }), cookie), logger);
 
             expect(response.status).toBe(404);
 
@@ -251,7 +255,7 @@ describe('Better Auth organization integration', () => {
         const cookie = await signIn('other-admin@example.test');
         const response = await inviteHandler(request('/organization/invite-member', JSON.stringify({
             email: 'regular@example.test', organizationId, role: 'member',
-        }), cookie));
+        }), cookie), logger);
         expect(response.ok).toBe(false);
         expect(await fixture.db.selectFrom('invitation').select('id')
             .where('organizationId', '=', organizationId)
@@ -269,6 +273,7 @@ describe('Better Auth organization integration', () => {
         );
         const failed = await failingHandler(
             request('/organization/invite-member', JSON.stringify(body), cookie),
+            logger,
         );
         expect(failed.status).toBe(502);
         const pending = await fixture.db
@@ -283,6 +288,7 @@ describe('Better Auth organization integration', () => {
         const resendBody = JSON.stringify({ ...body, resend: true });
         const resent = await resendHandler(
             request('/organization/invite-member', resendBody, cookie),
+            logger,
         );
         expect(resent.status).toBe(200);
         expect(sent).toEqual([expect.objectContaining({

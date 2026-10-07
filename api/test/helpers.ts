@@ -1,8 +1,10 @@
 import { createLogger } from '@grid-governor/core/logging';
 
+import type { AuthRouteHandler } from '../src/auth/invite-handler.ts';
+
 import { createApp } from '../src/app.ts';
 
-export const createTestApp = (status: number) => {
+export const createTestLogger = () => {
     const lines: string[] = [];
 
     const logger = createLogger({
@@ -18,5 +20,11 @@ export const createTestApp = (status: number) => {
         service: 'api',
     });
 
-    return { app: createApp(async () => new Response(null, { status }), logger), lines };
+    return { lines, logger };
+};
+
+export const createTestApp = (authHandler: AuthRouteHandler) => {
+    const { lines, logger } = createTestLogger();
+
+    return { app: createApp(authHandler, logger), lines };
 };
