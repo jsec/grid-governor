@@ -10,7 +10,7 @@
         "start": "node src/index.ts",
         "lint": "eslint .",
         "test": "vitest run",
-        "typecheck": "tsc"
+        "typecheck": "tsc --noEmit"
     },
     "dependencies": {
         "@grid-governor/core": "workspace:*",

@@ -1,6 +1,6 @@
 import pino from 'pino';
 
-import type { Config } from '../config/config.ts';
+import type { Config } from '../config.ts';
 
 import { prettify } from './tty.ts';
 
@@ -51,3 +51,5 @@ export const createLogger = ({ config, destination, service }: LoggerConfig) => 
         output,
     );
 };
+
+export type Logger = ReturnType<typeof createLogger>;

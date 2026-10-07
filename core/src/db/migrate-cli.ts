@@ -1,4 +1,4 @@
-import { envSchema } from '../config/config.ts';
+import { envSchema } from '../config.ts';
 import { createDatabase } from './client.ts';
 import { migrateToLatest } from './migrate.ts';
 

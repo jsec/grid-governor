@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { cancel, group, intro, outro, password, spinner, text } from '@clack/prompts';
 import { createAuth } from '@grid-governor/core/auth';
-import { loadConfig } from '@grid-governor/core/config/config';
+import { loadConfig } from '@grid-governor/core/config';
 import { createDatabase } from '@grid-governor/core/db/client';
 import { defineCommand, runMain } from 'citty';
 import { z } from 'zod';
@@ -66,6 +66,7 @@ const createAdmin = defineCommand({
             const { user } = await createAuth(db, config).api.createUser({
                 body: { ...answers, role: 'admin' },
             });
+
             spin.stop(`Created ${user.email} (${user.id})`);
             outro('Done');
         } catch (createError) {

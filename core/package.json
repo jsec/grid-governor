@@ -3,7 +3,12 @@
     "private": true,
     "type": "module",
     "exports": {
-        "./*": "./src/*.ts"
+        "./auth": "./src/auth.ts",
+        "./config": "./src/config.ts",
+        "./db/client": "./src/db/client.ts",
+        "./db/types": "./src/db/types.ts",
+        "./logging": "./src/logging/index.ts",
+        "./testing/database": "./src/testing/database.ts"
     },
     "sideEffects": false,
     "engines": {
@@ -12,7 +17,7 @@
     "scripts": {
         "lint": "eslint .",
         "test": "vitest run",
-        "typecheck": "tsc",
+        "typecheck": "tsc --noEmit",
         "migrate": "node src/db/migrate-cli.ts",
         "codegen": "kysely-codegen --camel-case --out-file src/db/types.ts"
     },

@@ -4,7 +4,7 @@ import { kyselyAdapter } from '@better-auth/kysely-adapter';
 import { betterAuth } from 'better-auth';
 import { admin, organization } from 'better-auth/plugins';
 
-import type { Config } from './config/config.ts';
+import type { Config } from './config.ts';
 import type { DB } from './db/types.ts';
 
 export const createAuth = (

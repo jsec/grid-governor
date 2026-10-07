@@ -1,8 +1,7 @@
 import type { AuthHandler } from '@grid-governor/core/auth';
-import type { TestDatabase } from '@grid-governor/core/testing/database';
 
 import { createAuth } from '@grid-governor/core/auth';
-import { createTestDatabase } from '@grid-governor/core/testing/database';
+import { createTestDatabase, type TestDatabase } from '@grid-governor/core/testing/database';
 import { hashPassword } from 'better-auth/crypto';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
@@ -81,10 +80,12 @@ describe('Better Auth organization integration', () => {
             },
         ])
             .execute();
+
         handler = createAuth(db, {
             BETTER_AUTH_SECRET: 'a-secret-long-enough-for-the-integration-test',
             BETTER_AUTH_URL: 'http://localhost:3000',
         }).handler;
+
         inviteHandler = createInviteHandler(handler, db, recordEmails().emails, emailConfig);
     });
 
@@ -98,30 +99,42 @@ describe('Better Auth organization integration', () => {
         const response = await handler(
             request('/sign-in/email', JSON.stringify({ email, password: 'test-password-123' })),
         );
+
         expect(response.status).toBe(200);
+
         const cookie = response.headers.get('set-cookie')?.split(';', 1)[0];
+
         if (!cookie) {
             throw new Error('Sign-in did not return a session cookie');
         }
+
         return cookie;
     }
 
     async function createOrganization() {
         const cookie = await signIn('admin@example.test');
+
         const response = await handler(
             request('/organization/create', JSON.stringify(organizationBody), cookie),
         );
+
         expect(response.status).toBe(200);
+
         const organization = idSchema.parse(await response.json());
         return { cookie, organizationId: organization.id };
     }
 
     async function createInvitation() {
         const { cookie, organizationId } = await createOrganization();
+
         const response = await inviteHandler(request('/organization/invite-member', JSON.stringify({
-            email: 'regular@example.test', organizationId, role: 'member',
+            email: 'regular@example.test',
+            organizationId,
+            role: 'member',
         }), cookie));
+
         expect(response.status).toBe(200);
+
         return { invitationId: idSchema.parse(await response.json()).id, organizationId };
     }
 
@@ -131,9 +144,13 @@ describe('Better Auth organization integration', () => {
 
     it('rejects public sign-up', async () => {
         const response = await handler(request('/sign-up/email', JSON.stringify({
-            email: 'new@example.test', name: 'New', password: 'test-password-123',
+            email: 'new@example.test',
+            name: 'New',
+            password: 'test-password-123',
         })));
+
         expect(response.ok).toBe(false);
+
         expect(await fixture.db.selectFrom('user').select('id')
             .where('email', '=', 'new@example.test')
             .execute()).toEqual([]);
@@ -143,49 +160,61 @@ describe('Better Auth organization integration', () => {
         const response = await handler(request('/organization/create', JSON.stringify({
             ...organizationBody, userId: 'global-admin',
         })));
+
         expect(response.status).toBe(401);
     });
 
     it('rejects organization creation by regular users', async () => {
         const cookie = await signIn('regular@example.test');
+
         const response = await handler(
             request('/organization/create', JSON.stringify(organizationBody), cookie),
         );
+
         expect(response.status).toBe(403);
     });
 
     it('requires organization policy fields', async () => {
         const cookie = await signIn('admin@example.test');
+
         const response = await handler(
             request('/organization/create', JSON.stringify({ name: 'Club', slug: 'club' }), cookie),
         );
+
         expect(response.ok).toBe(false);
     });
 
     it('creates an owner membership for the organization creator', async () => {
         const { organizationId } = await createOrganization();
+
         const members = await fixture.db
             .selectFrom('member')
             .select(['userId', 'role'])
             .where('organizationId', '=', organizationId)
             .execute();
+
         expect(members).toEqual([{ role: 'owner', userId: 'global-admin' }]);
     });
 
     it('rejects duplicate organization slugs', async () => {
         const { cookie } = await createOrganization();
+
         const response = await handler(
             request('/organization/create', JSON.stringify(organizationBody), cookie),
         );
+
         expect(response.ok).toBe(false);
     });
 
     it('disables organization deletion', async () => {
         const { cookie, organizationId } = await createOrganization();
+
         const response = await handler(
             request('/organization/delete', JSON.stringify({ organizationId }), cookie),
         );
+
         expect(response.ok).toBe(false);
+
         expect(await fixture.db.selectFrom('organization').select('id')
             .where('id', '=', organizationId)
             .execute()).toEqual([{ id: organizationId }]);
@@ -200,13 +229,19 @@ describe('Better Auth organization integration', () => {
             const { cookie, organizationId } = await createOrganization();
             const { emails, sent } = recordEmails();
             const alternateHandler = createInviteHandler(handler, fixture.db, emails, emailConfig);
+
             const response = await alternateHandler(request(path, JSON.stringify({
-                email: 'regular@example.test', organizationId, role: 'member',
+                email: 'regular@example.test',
+                organizationId,
+                role: 'member',
             }), cookie));
+
             expect(response.status).toBe(404);
+
             expect(await fixture.db.selectFrom('invitation').select('id')
                 .where('organizationId', '=', organizationId)
                 .execute()).toEqual([]);
+
             expect(sent).toEqual([]);
         },
     );
