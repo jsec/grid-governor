@@ -101,4 +101,55 @@ describe('createLogger', () => {
             expect.stringMatching(/^\d{2}:\d{2}:\d{2} INFO {2}league created league_id=67\n$/),
         );
     });
+
+    it('redacts sensitive fields', () => {
+        const { destination, lines } = capture({ isTTY: false });
+
+        const logger = createLogger({
+            config,
+            destination,
+            service: 'api',
+        });
+
+        logger.info(
+            {
+                password: 'hunter2',
+                req: {
+                    headers: {
+                        authorization: 'Bearer abc',
+                        cookie: 'session=abc',
+                    },
+                },
+                session: {
+                    accessToken: 'abc',
+                    refreshToken: 'def',
+                },
+                user: {
+                    email: 'member@example.test',
+                    id: 'u_3',
+                },
+            },
+            'signed in',
+        );
+
+        const result = JSON.parse(lines[0]);
+
+        expect(result).toMatchObject({
+            password: '[REDACTED]',
+            req: {
+                headers: {
+                    authorization: '[REDACTED]',
+                    cookie: '[REDACTED]',
+                },
+            },
+            session: {
+                accessToken: '[REDACTED]',
+                refreshToken: '[REDACTED]',
+            },
+            user: {
+                email: '[REDACTED]',
+                id: 'u_3',
+            },
+        });
+    });
 });
