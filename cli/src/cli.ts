@@ -3,6 +3,7 @@ import { cancel, group, intro, outro, password, spinner, text } from '@clack/pro
 import { createAuth } from '@grid-governor/core/auth';
 import { loadConfig } from '@grid-governor/core/config';
 import { createDatabase } from '@grid-governor/core/db/client';
+import { createLogger } from '@grid-governor/core/logging';
 import { defineCommand, runMain } from 'citty';
 import { z } from 'zod';
 
@@ -38,6 +39,12 @@ const createAdmin = defineCommand({
 
         const config = loadConfig();
 
+        const logger = createLogger({
+            config,
+            destination: process.stderr,
+            service: 'cli',
+        });
+
         intro('Create admin user');
         const answers = await group(
             {
@@ -67,11 +74,15 @@ const createAdmin = defineCommand({
                 body: { ...answers, role: 'admin' },
             });
 
+            logger.info({ user_id: user.id }, 'admin user created');
+
             spin.stop(`Created ${user.email} (${user.id})`);
             outro('Done');
-        } catch (createError) {
+        } catch (error) {
+            logger.error({ err: error }, 'admin user creation failed');
+
             spin.error('Failed to create user');
-            throw createError;
+            process.exitCode = 1;
         } finally {
             await db.destroy();
         }
