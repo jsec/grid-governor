@@ -1,4 +1,5 @@
 import type { TestDatabase } from '@grid-governor/core/testing/database';
+import type { Resend } from 'resend';
 
 import { createTestDatabase } from '@grid-governor/core/testing/database';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -14,9 +15,11 @@ const invitation = {
     organizationId: 'org-1',
 };
 
-const request = () => new Request('http://localhost/api/auth/organization/invite-member', { method: 'POST' });
-
 const { logger } = createTestLogger();
+
+function inviteRequest() {
+    return new Request('http://localhost/api/auth/organization/invite-member', { method: 'POST' });
+}
 
 describe('invitation post-processing', () => {
     let fixture: TestDatabase;
@@ -47,21 +50,32 @@ describe('invitation post-processing', () => {
         }
     });
 
+    function inviteHandlerReturning(
+        authResponse: Record<string, string>,
+        emails: Pick<Resend['emails'], 'send'>,
+    ) {
+        return createInviteHandler(
+            async () => Response.json(authResponse),
+            fixture.db,
+            emails,
+            emailConfig,
+        );
+    }
+
     it('keeps delivery error details out of responses and logs', async () => {
         const { lines, logger } = createTestLogger();
 
-        const handler = createInviteHandler(
-            async () => Response.json(invitation),
-            fixture.db,
+        const handler = inviteHandlerReturning(
+            invitation,
             failingEmails(new Error('Provider failure with private recipient details')),
-            emailConfig,
         );
 
-        const response = await handler(request(), logger);
+        const response = await handler(inviteRequest(), logger);
         const body = await response.json();
 
         expect(response.status).toBe(502);
         expect(body).toEqual({ error: 'Invitation email delivery failed' });
+
         expect(lines.map(line => JSON.parse(line))).toEqual([
             expect.objectContaining({
                 error_name: 'Error',
@@ -69,33 +83,29 @@ describe('invitation post-processing', () => {
                 msg: 'Invitation email delivery failed',
             }),
         ]);
+        expect(lines.join('')).not.toContain('private recipient details');
     });
 
-    it('reports Resend rejections as delivery failures', async () => {
+    it('reports a Resend rejection as a delivery failure', async () => {
         const { lines, logger } = createTestLogger();
-
-        const handler = createInviteHandler(
-            async () => Response.json(invitation),
-            fixture.db,
-            {
-                async send() {
-                    return {
-                        data: null,
-                        error: {
-                            message: 'Sender rejected',
-                            name: 'validation_error',
-                            statusCode: 422,
-                        },
-                        headers: null,
-                    };
-                },
+        const handler = inviteHandlerReturning(invitation, {
+            async send() {
+                return {
+                    data: null,
+                    error: {
+                        message: 'Sender rejected',
+                        name: 'validation_error',
+                        statusCode: 422,
+                    },
+                    headers: null,
+                };
             },
-            emailConfig,
-        );
+        });
 
-        const response = await handler(request(), logger);
+        const response = await handler(inviteRequest(), logger);
 
         expect(response.status).toBe(502);
+
         expect(lines.map(line => JSON.parse(line))).toEqual([
             expect.objectContaining({
                 error_name: 'validation_error',
@@ -105,34 +115,29 @@ describe('invitation post-processing', () => {
         ]);
     });
 
-    it('reports missing invitation context as a failure', async () => {
+    it('returns 500 without emailing when the organization does not exist', async () => {
         const { emails, sent } = recordEmails();
-        const handler = createInviteHandler(
-            async () => Response.json({ ...invitation, organizationId: 'missing' }),
-            fixture.db,
+        const handler = inviteHandlerReturning(
+            { ...invitation, organizationId: 'missing' },
             emails,
-            emailConfig,
         );
 
-        const response = await handler(request(), logger);
+        const response = await handler(inviteRequest(), logger);
+
         expect(response.status).toBe(500);
         expect(sent).toEqual([]);
     });
 
     it('emails an encoded invitation link, then returns the auth response', async () => {
         const { emails, sent } = recordEmails();
-        const handler = createInviteHandler(
-            async () => Response.json(invitation),
-            fixture.db,
-            emails,
-            emailConfig,
-        );
+        const handler = inviteHandlerReturning(invitation, emails);
 
-        const response = await handler(request(), logger);
+        const response = await handler(inviteRequest(), logger);
         const body = await response.json();
 
         expect(response.status).toBe(200);
         expect(body).toEqual(invitation);
+
         expect(sent).toEqual([{
             from: 'invites@example.test',
             subject: 'Invitation to join Club',
@@ -142,21 +147,16 @@ describe('invitation post-processing', () => {
         }]);
     });
 
-    it('reports database failures as processing failures', async () => {
+    it('returns 500 without emailing when the database query fails', async () => {
         await fixture.db.schema
             .alterTable('organization')
             .renameTo('unavailable_organization')
             .execute();
 
         const { emails, sent } = recordEmails();
-        const handler = createInviteHandler(
-            async () => Response.json(invitation),
-            fixture.db,
-            emails,
-            emailConfig,
-        );
+        const handler = inviteHandlerReturning(invitation, emails);
 
-        const response = await handler(request(), logger);
+        const response = await handler(inviteRequest(), logger);
         const body = await response.json();
 
         expect(response.status).toBe(500);
@@ -164,16 +164,12 @@ describe('invitation post-processing', () => {
         expect(sent).toEqual([]);
     });
 
-    it('reports invalid auth responses as processing failures', async () => {
+    it('returns 500 without emailing when the auth response is not an invitation', async () => {
         const { emails, sent } = recordEmails();
-        const handler = createInviteHandler(
-            async () => Response.json({ id: 'invite-1' }),
-            fixture.db,
-            emails,
-            emailConfig,
-        );
+        const handler = inviteHandlerReturning({ id: 'invite-1' }, emails);
 
-        const response = await handler(request(), logger);
+        const response = await handler(inviteRequest(), logger);
+
         expect(response.status).toBe(500);
         expect(sent).toEqual([]);
     });
