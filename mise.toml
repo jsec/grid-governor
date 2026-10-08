@@ -5,4 +5,4 @@ TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE = '/var/run/docker.sock'
 
 [tasks.gg]
 description = 'Run the gg CLI'
-run = 'node cli/src/cli.ts'
+run = 'node --import ./cli/src/telemetry.ts cli/src/cli.ts'
