@@ -24,7 +24,9 @@ if (config.OTEL_EXPORTER_OTLP_ENDPOINT) {
         instrumentations: [
             new HttpInstrumentation(),
             new PgInstrumentation(),
-            new PinoInstrumentation({ disableLogSending: true }),
+            new PinoInstrumentation({
+                disableLogSending: config.APP_ENV === 'production',
+            }),
         ],
         metricReaders: [
             new PeriodicExportingMetricReader({
