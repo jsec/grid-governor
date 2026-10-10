@@ -4,8 +4,10 @@ import { kyselyAdapter } from '@better-auth/kysely-adapter';
 import { betterAuth } from 'better-auth';
 import { admin, organization } from 'better-auth/plugins';
 
-import type { Config } from './config.ts';
-import type { DB } from './db/types.ts';
+import type { Config } from '../config.ts';
+import type { DB } from '../db/types.ts';
+
+import { accessControl, roles } from './access.ts';
 
 export const createAuth = (
     db: Kysely<DB>,
@@ -22,8 +24,10 @@ export const createAuth = (
         plugins: [
             admin(),
             organization({
+                ac: accessControl,
                 allowUserToCreateOrganization: user => user.role === 'admin',
                 disableOrganizationDeletion: true,
+                roles,
                 schema: {
                     organization: {
                         additionalFields: {

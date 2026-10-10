@@ -3,7 +3,8 @@
     "private": true,
     "type": "module",
     "exports": {
-        "./auth": "./src/auth.ts",
+        "./access": "./src/auth/access.ts",
+        "./auth": "./src/auth/auth.ts",
         "./config": "./src/config.ts",
         "./db/client": "./src/db/client.ts",
         "./db/types": "./src/db/types.ts",
