@@ -65,4 +65,6 @@ export const createAuth = (
     });
 };
 
-export type AuthHandler = ReturnType<typeof createAuth>['handler'];
+export type Auth = ReturnType<typeof createAuth>;
+export type AuthHandler = Auth['handler'];
+export type Session = Auth['$Infer']['Session'];

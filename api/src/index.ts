@@ -21,9 +21,14 @@ const apiConfig = loadApiConfig();
 const db = createDatabase(config.DATABASE_URL);
 const auth = createAuth(db, config);
 const resend = new Resend(apiConfig.RESEND_API_KEY);
-const inviteHandler = createInviteHandler(auth.handler, db, resend.emails, apiConfig);
+const authHandler = createInviteHandler(auth.handler, db, resend.emails, apiConfig);
 
-const app = createApp(inviteHandler, logger);
+const app = createApp({
+    auth,
+    authHandler,
+    config: apiConfig,
+    logger,
+});
 
 serve({
     fetch: app.fetch,

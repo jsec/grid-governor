@@ -1,4 +1,4 @@
-import type { AuthHandler } from '@grid-governor/core/auth';
+import type { Auth, AuthHandler } from '@grid-governor/core/auth';
 import type { CreateEmailOptions } from 'resend';
 
 import { createAuth } from '@grid-governor/core/auth';
@@ -10,15 +10,14 @@ import { z } from 'zod';
 import type { AuthRouteHandler } from './auth/invite-handler.ts';
 
 import { emailConfig, failingEmails, recordEmails } from '../test/emails.ts';
-import { createTestLogger } from '../test/helpers.ts';
+import { createTestLogger, signIn, testPassword } from '../test/helpers.ts';
 import { createInviteHandler } from './auth/invite-handler.ts';
 
 const idSchema = z.object({ id: z.string().min(1) });
 
 const { logger } = createTestLogger();
 
-const password = 'test-password-123';
-const passwordHash = await hashPassword(password);
+const passwordHash = await hashPassword(testPassword);
 
 const users = [
     { email: 'admin@example.test', id: 'global-admin', name: 'Admin', role: 'admin' },
@@ -59,6 +58,7 @@ function regularUserInvitation(organizationId: string) {
 }
 
 describe('Better Auth organization integration', () => {
+    let auth: Auth;
     let fixture: TestDatabase;
     let handler: AuthHandler;
     let inviteHandler: AuthRouteHandler;
@@ -80,10 +80,11 @@ describe('Better Auth organization integration', () => {
         })))
             .execute();
 
-        handler = createAuth(fixture.db, {
+        auth = createAuth(fixture.db, {
             BETTER_AUTH_SECRET: 'a-secret-long-enough-for-the-integration-test',
             BETTER_AUTH_URL: 'http://localhost:3000',
-        }).handler;
+        });
+        handler = auth.handler;
 
         const recorded = recordEmails();
         sent = recorded.sent;
@@ -97,22 +98,8 @@ describe('Better Auth organization integration', () => {
         }
     });
 
-    async function signIn(email: string): Promise<string> {
-        const response = await handler(post('/sign-in/email', { email, password }));
-
-        expect(response.status).toBe(200);
-
-        const cookie = response.headers.get('set-cookie')?.split(';', 1)[0];
-
-        if (!cookie) {
-            throw new Error('Sign-in did not return a session cookie');
-        }
-
-        return cookie;
-    }
-
     async function createOrganization() {
-        const cookie = await signIn('admin@example.test');
+        const cookie = await signIn(auth, 'admin@example.test');
 
         const response = await handler(post('/organization/create', organizationBody, cookie));
         const body = await response.json();
@@ -151,14 +138,14 @@ describe('Better Auth organization integration', () => {
     }
 
     it('signs in an existing account with its password', async () => {
-        await signIn('admin@example.test');
+        await signIn(auth, 'admin@example.test');
     });
 
     it('rejects public sign-up', async () => {
         const response = await handler(post('/sign-up/email', {
             email: 'new@example.test',
             name: 'New',
-            password,
+            password: testPassword,
         }));
 
         expect(response.status).toBe(400);
@@ -179,7 +166,7 @@ describe('Better Auth organization integration', () => {
     });
 
     it('rejects organization creation by regular users', async () => {
-        const cookie = await signIn('regular@example.test');
+        const cookie = await signIn(auth, 'regular@example.test');
 
         const response = await handler(post('/organization/create', organizationBody, cookie));
 
@@ -187,7 +174,7 @@ describe('Better Auth organization integration', () => {
     });
 
     it('rejects organizations without a ban length and suspension threshold', async () => {
-        const cookie = await signIn('admin@example.test');
+        const cookie = await signIn(auth, 'admin@example.test');
 
         const response = await handler(
             post('/organization/create', { name: 'Club', slug: 'club' }, cookie),
@@ -248,7 +235,7 @@ describe('Better Auth organization integration', () => {
 
     it('rejects invitations from a global admin who is not a member', async () => {
         const { organizationId } = await createOrganization();
-        const cookie = await signIn('other-admin@example.test');
+        const cookie = await signIn(auth, 'other-admin@example.test');
 
         const response = await inviteHandler(
             post('/organization/invite-member', regularUserInvitation(organizationId), cookie),
@@ -305,7 +292,7 @@ describe('Better Auth organization integration', () => {
 
     it('returns invitation details to the recipient', async () => {
         const { invitationId } = await createInvitation();
-        const cookie = await signIn('regular@example.test');
+        const cookie = await signIn(auth, 'regular@example.test');
 
         const response = await handler(
             get(`/organization/get-invitation?id=${invitationId}`, cookie),
@@ -323,7 +310,7 @@ describe('Better Auth organization integration', () => {
 
     it('rejects invitation detail requests from other accounts', async () => {
         const { invitationId } = await createInvitation();
-        const cookie = await signIn('other-admin@example.test');
+        const cookie = await signIn(auth, 'other-admin@example.test');
 
         const response = await handler(
             get(`/organization/get-invitation?id=${invitationId}`, cookie),
@@ -334,7 +321,7 @@ describe('Better Auth organization integration', () => {
 
     it('rejects invitation acceptance by other accounts', async () => {
         const { invitationId } = await createInvitation();
-        const cookie = await signIn('other-admin@example.test');
+        const cookie = await signIn(auth, 'other-admin@example.test');
 
         const response = await handler(
             post('/organization/accept-invitation', { invitationId }, cookie),
@@ -345,7 +332,7 @@ describe('Better Auth organization integration', () => {
 
     it('creates a member when the recipient accepts', async () => {
         const { invitationId, organizationId } = await createInvitation();
-        const cookie = await signIn('regular@example.test');
+        const cookie = await signIn(auth, 'regular@example.test');
 
         const response = await handler(
             post('/organization/accept-invitation', { invitationId }, cookie),
@@ -365,7 +352,7 @@ describe('Better Auth organization integration', () => {
 
     it('returns the full organization with its members and invitations', async () => {
         const { invitationId, organizationId } = await createInvitation();
-        const cookie = await signIn('admin@example.test');
+        const cookie = await signIn(auth, 'admin@example.test');
 
         const response = await handler(
             get(`/organization/get-full-organization?organizationId=${organizationId}`, cookie),
