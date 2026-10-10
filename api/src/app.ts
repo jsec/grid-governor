@@ -6,6 +6,7 @@ import { except } from 'hono/combine';
 import { csrf } from 'hono/csrf';
 import { HTTPException } from 'hono/http-exception';
 import { requestId } from 'hono/request-id';
+import { STATUS_CODES } from 'node:http';
 
 import type { AuthRouteHandler } from './auth/invite-handler.ts';
 import type { ApiConfig } from './config/config.ts';
@@ -45,7 +46,9 @@ export const createApp = (deps: AppDependencies) => {
 
     app.onError((error, ctx) => {
         if (error instanceof HTTPException) {
-            return error.getResponse();
+            return ctx.json({
+                error: STATUS_CODES[error.status],
+            }, error.status);
         }
 
         ctx.var.logger.error({ err: error }, 'Unhandled error');

@@ -88,8 +88,10 @@ describe('createApp', () => {
             const { app } = createTestApp(fixture.db, notFound);
 
             const response = await app.request('/api/organizations/1/leagues');
+            const body = await response.json();
 
             expect(response.status).toBe(401);
+            expect(body).toEqual({ error: 'Unauthorized' });
         });
 
         it('sets the signed-in user on the request', async () => {
@@ -122,8 +124,10 @@ describe('createApp', () => {
                 },
                 method: 'POST',
             });
+            const body = await response.json();
 
             expect(response.status).toBe(403);
+            expect(body).toEqual({ error: 'Forbidden' });
         });
     });
 });
