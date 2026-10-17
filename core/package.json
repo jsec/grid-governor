@@ -9,6 +9,7 @@
         "./db/client": "./src/db/client.ts",
         "./db/types": "./src/db/types.ts",
         "./logging": "./src/logging/index.ts",
+        "./schemas": "./src/schemas/index.ts",
         "./testing/database": "./src/testing/database.ts"
     },
     "sideEffects": false,

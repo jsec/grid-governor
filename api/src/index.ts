@@ -27,6 +27,7 @@ const app = createApp({
     auth,
     authHandler,
     config: apiConfig,
+    db,
     logger,
 });
 

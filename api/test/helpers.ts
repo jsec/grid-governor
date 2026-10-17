@@ -41,6 +41,7 @@ export const createTestApp = (db: Kysely<DB>, authHandler: AuthRouteHandler) => 
         auth,
         authHandler,
         config: { WEB_URL: 'http://localhost:5173' },
+        db,
         logger,
     });
 
