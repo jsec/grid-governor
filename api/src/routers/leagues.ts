@@ -1,8 +1,9 @@
 import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
-import { createLeagueSchema } from '@grid-governor/core/schemas';
+import { createLeagueSchema, updateLeagueSchema } from '@grid-governor/core/schemas';
 import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
 
 import type { SessionEnv } from '../middleware/session.ts';
 
@@ -15,6 +16,13 @@ const leagueColumns = [
     'leagueId as id',
     'name',
     'organizationId',
+    'rulingSlaHours',
+    'suspensionThresholdPoints',
+] as const;
+
+const updatableFields = [
+    'banLengthRounds',
+    'name',
     'rulingSlaHours',
     'suspensionThresholdPoints',
 ] as const;
@@ -72,6 +80,91 @@ export const organizationLeagueRouter = (db: Kysely<DB>) => {
         });
 
         return ctx.json(league, 201);
+    });
+
+    return router;
+};
+
+export const leagueRouter = (db: Kysely<DB>) => {
+    const router = new Hono<SessionEnv>();
+
+    router.get('/:leagueId{[0-9]+}', async (ctx) => {
+        const league = await db
+            .selectFrom('league')
+            .select(leagueColumns)
+            .where('leagueId', '=', ctx.req.param('leagueId'))
+            .executeTakeFirst();
+
+        if (!league) {
+            throw new HTTPException(404);
+        }
+
+        await requireMember(db, ctx.var.user.id, league.organizationId);
+
+        return ctx.json(league);
+    });
+
+    router.put('/:leagueId{[0-9]+}', validateBody(updateLeagueSchema), async (ctx) => {
+        const body = ctx.req.valid('json');
+        const userId = ctx.var.user.id;
+
+        const league = await db.transaction().execute(async (tx) => {
+            const existing = await tx
+                .selectFrom('league')
+                .select(leagueColumns)
+                .where('leagueId', '=', ctx.req.param('leagueId'))
+                .forUpdate()
+                .executeTakeFirst();
+
+            if (!existing) {
+                throw new HTTPException(404);
+            }
+
+            const role = await requirePermission(tx, userId, existing.organizationId, {
+                league: ['update'],
+            });
+
+            const changes = [];
+
+            for (const field of updatableFields) {
+                if (body[field] !== existing[field]) {
+                    changes.push({
+                        field,
+                        from: existing[field],
+                        to: body[field],
+                    });
+                }
+            }
+
+            if (changes.length === 0) {
+                return existing;
+            }
+
+            const updated = await tx
+                .updateTable('league')
+                .set(body)
+                .where('leagueId', '=', existing.id)
+                .returning(leagueColumns)
+                .executeTakeFirstOrThrow();
+
+            await tx
+                .insertInto('auditEntry')
+                .values({
+                    action: 'update',
+                    actorRole: role,
+                    actorUserId: userId,
+                    changes: JSON.stringify(changes),
+                    leagueId: existing.id,
+                    organizationId: existing.organizationId,
+                    targetId: existing.id,
+                    targetType: 'league',
+                })
+                .execute();
+
+            return updated;
+        });
+
+        return ctx.json(league);
     });
 
     return router;

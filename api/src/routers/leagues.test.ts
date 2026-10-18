@@ -23,35 +23,39 @@ describe('league routes', () => {
     beforeEach(async () => {
         fixture = await createTestDatabase();
 
-        await fixture.db.insertInto('user').values(users)
+        await fixture.db.insertInto('user')
+            .values(users)
             .execute();
 
-        await fixture.db.insertInto('account').values(users.map(user => ({
-            accountId: user.id,
-            id: `account-${user.id}`,
-            issuer: 'local:credential',
-            password: passwordHash,
-            providerId: 'credential',
-            userId: user.id,
-        })))
+        await fixture.db.insertInto('account')
+            .values(users.map(user => ({
+                accountId: user.id,
+                id: `account-${user.id}`,
+                issuer: 'local:credential',
+                password: passwordHash,
+                providerId: 'credential',
+                userId: user.id,
+            })))
             .execute();
 
-        await fixture.db.insertInto('organization').values({
-            banLengthRounds: 3,
-            id: 'grid-club',
-            name: 'Grid Club',
-            slug: 'grid-club',
-            suspensionThresholdPoints: 12,
-        })
+        await fixture.db.insertInto('organization')
+            .values({
+                banLengthRounds: 3,
+                id: 'grid-club',
+                name: 'Grid Club',
+                slug: 'grid-club',
+                suspensionThresholdPoints: 12,
+            })
             .execute();
 
-        await fixture.db.insertInto('member').values(['owner', 'admin', 'member'].map(role => ({
-            createdAt: new Date(),
-            id: `member-${role}`,
-            organizationId: 'grid-club',
-            role,
-            userId: role,
-        })))
+        await fixture.db.insertInto('member')
+            .values(['owner', 'admin', 'member'].map(role => ({
+                createdAt: new Date(),
+                id: `member-${role}`,
+                organizationId: 'grid-club',
+                role,
+                userId: role,
+            })))
             .execute();
 
         const { app, auth } = createTestApp(fixture.db, notFound);
@@ -76,6 +80,23 @@ describe('league routes', () => {
             .selectFrom('auditEntry')
             .select(['action', 'actorRole', 'actorUserId', 'targetType'])
             .execute();
+    }
+
+    async function auditChanges() {
+        return fixture.db
+            .selectFrom('auditEntry')
+            .select(['action', 'actorRole', 'changes'])
+            .execute();
+    }
+
+    async function insertLeague() {
+        const { leagueId } = await fixture.db
+            .insertInto('league')
+            .values({ banLengthRounds: 2, name: 'Sunday Cup', organizationId: 'grid-club' })
+            .returning('leagueId')
+            .executeTakeFirstOrThrow();
+
+        return `/api/leagues/${leagueId}`;
     }
 
     describe('POST /api/organizations/:organizationId/leagues', () => {
@@ -167,6 +188,106 @@ describe('league routes', () => {
             const response = await request('GET', path, 'global-admin@example.test');
 
             expect(response.status).toBe(404);
+        });
+    });
+
+    describe('GET /api/leagues/:leagueId', () => {
+        it('returns the league to a member', async () => {
+            const path = await insertLeague();
+
+            const response = await request('GET', path, 'member@example.test');
+            const body = await response.json();
+
+            expect(response.status).toBe(200);
+            expect(leagueSchema.parse(body)).toMatchObject({
+                name: 'Sunday Cup',
+                organizationId: 'grid-club',
+            });
+        });
+
+        it('responds 404 to a global admin who is not a member', async () => {
+            const path = await insertLeague();
+
+            const response = await request('GET', path, 'global-admin@example.test');
+
+            expect(response.status).toBe(404);
+        });
+
+        it.each(['/api/leagues/999', '/api/leagues/abc'])('responds 404 to %s', async (path) => {
+            const response = await request('GET', path, 'member@example.test');
+
+            expect(response.status).toBe(404);
+        });
+    });
+
+    describe('PUT /api/leagues/:leagueId', () => {
+        const unchanged = {
+            banLengthRounds: 2,
+            name: 'Sunday Cup',
+            rulingSlaHours: 24,
+            suspensionThresholdPoints: null,
+        };
+
+        it('updates the league and records each changed field', async () => {
+            const path = await insertLeague();
+
+            const response = await request('PUT', path, 'admin@example.test', {
+                banLengthRounds: null,
+                name: 'Saturday Cup',
+                rulingSlaHours: 24,
+                suspensionThresholdPoints: null,
+            });
+            const body = await response.json();
+
+            expect(response.status).toBe(200);
+            expect(leagueSchema.parse(body)).toMatchObject({
+                banLengthRounds: null,
+                name: 'Saturday Cup',
+            });
+            expect(await auditChanges()).toEqual([{
+                action: 'update',
+                actorRole: 'admin',
+                changes: [
+                    { field: 'banLengthRounds', from: 2, to: null },
+                    { field: 'name', from: 'Sunday Cup', to: 'Saturday Cup' },
+                ],
+            }]);
+        });
+
+        it('records nothing when no field changes', async () => {
+            const path = await insertLeague();
+
+            const response = await request('PUT', path, 'owner@example.test', unchanged);
+
+            expect(response.status).toBe(200);
+            expect(await auditChanges()).toEqual([]);
+        });
+
+        it('responds 403 to a member and records nothing', async () => {
+            const path = await insertLeague();
+
+            const response = await request('PUT', path, 'member@example.test', unchanged);
+
+            expect(response.status).toBe(403);
+            expect(await auditChanges()).toEqual([]);
+        });
+
+        it('responds 404 to a global admin who is not a member', async () => {
+            const path = await insertLeague();
+
+            const response = await request('PUT', path, 'global-admin@example.test', unchanged);
+
+            expect(response.status).toBe(404);
+        });
+
+        it('responds 400 when a field is missing', async () => {
+            const path = await insertLeague();
+
+            const response = await request('PUT', path, 'owner@example.test', {
+                name: 'Saturday Cup',
+            });
+
+            expect(response.status).toBe(400);
         });
     });
 });

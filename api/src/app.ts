@@ -16,7 +16,7 @@ import type { ApiConfig } from './config/config.ts';
 
 import { requestLogger } from './middleware/logger.ts';
 import { requireSession, type SessionEnv } from './middleware/session.ts';
-import { organizationLeagueRouter } from './routers/leagues.ts';
+import { leagueRouter, organizationLeagueRouter } from './routers/leagues.ts';
 
 // TODO: find a better place to put this
 const uniqueViolation = z.object({ code: z.literal('23505') });
@@ -54,6 +54,7 @@ export const createApp = (deps: AppDependencies) => {
     app.on(['GET', 'POST'], '/api/auth/*', ctx => authHandler(ctx.req.raw, ctx.var.logger));
 
     app.route('/api/organizations', organizationLeagueRouter(db));
+    app.route('/api/leagues', leagueRouter(db));
 
     app.onError((error, ctx) => {
         if (error instanceof HTTPException) {

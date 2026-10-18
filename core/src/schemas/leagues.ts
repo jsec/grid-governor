@@ -21,6 +21,7 @@ export const leagueListSchema = z.object({
 export const createLeagueSchema = z.object({
     banLengthRounds: z.number().int()
         .positive()
+        .nullable()
         .optional(),
     name: z.string()
         .trim()
@@ -30,5 +31,8 @@ export const createLeagueSchema = z.object({
         .optional(),
     suspensionThresholdPoints: z.number().int()
         .positive()
+        .nullable()
         .optional(),
 });
+
+export const updateLeagueSchema = createLeagueSchema.required();
