@@ -1,7 +1,23 @@
+import type { z } from 'zod';
+
+import { leagueSchema } from '@grid-governor/core/schemas';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
 export const server = setupServer();
+
+export function leagueFixture(overrides: Partial<z.infer<typeof leagueSchema>> = {}) {
+    return leagueSchema.parse({
+        banLengthRounds: null,
+        createdAt: '2026-10-01T12:00:00.000Z',
+        id: '1',
+        name: 'Sunday Cup',
+        organizationId: 'org-1',
+        rulingSlaHours: 24,
+        suspensionThresholdPoints: null,
+        ...overrides,
+    });
+}
 
 export function mockInvitation(email: string, options: { error?: string } = {}) {
     server.use(http.get('*/api/auth/organization/get-invitation', ({ request }) => {
@@ -26,6 +42,11 @@ export function mockInvitation(email: string, options: { error?: string } = {}) 
             status: 'pending',
         });
     }));
+}
+
+export function mockMemberRole(role: string) {
+    server.use(http.get('*/api/auth/organization/get-active-member-role', () =>
+        HttpResponse.json({ role })));
 }
 
 export function mockSession(email?: string) {

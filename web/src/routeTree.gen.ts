@@ -10,12 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as InvitationsInvitationIdRouteImport } from './routes/invitations/$invitationId'
+import { Route as AuthenticatedLeaguesLeagueIdRouteImport } from './routes/_authenticated/leagues/$leagueId'
+import { Route as AuthenticatedOrganizationsOrganizationIdLeaguesRouteImport } from './routes/_authenticated/organizations/$organizationId/leagues'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -28,33 +35,70 @@ const InvitationsInvitationIdRoute = InvitationsInvitationIdRouteImport.update({
   path: '/invitations/$invitationId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedLeaguesLeagueIdRoute =
+  AuthenticatedLeaguesLeagueIdRouteImport.update({
+    id: '/leagues/$leagueId',
+    path: '/leagues/$leagueId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedOrganizationsOrganizationIdLeaguesRoute =
+  AuthenticatedOrganizationsOrganizationIdLeaguesRouteImport.update({
+    id: '/organizations/$organizationId/leagues',
+    path: '/organizations/$organizationId/leagues',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/invitations/$invitationId': typeof InvitationsInvitationIdRoute
+  '/leagues/$leagueId': typeof AuthenticatedLeaguesLeagueIdRoute
+  '/organizations/$organizationId/leagues': typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sign-in': typeof SignInRoute
   '/invitations/$invitationId': typeof InvitationsInvitationIdRoute
+  '/leagues/$leagueId': typeof AuthenticatedLeaguesLeagueIdRoute
+  '/organizations/$organizationId/leagues': typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/sign-in': typeof SignInRoute
   '/invitations/$invitationId': typeof InvitationsInvitationIdRoute
+  '/_authenticated/leagues/$leagueId': typeof AuthenticatedLeaguesLeagueIdRoute
+  '/_authenticated/organizations/$organizationId/leagues': typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sign-in' | '/invitations/$invitationId'
+  fullPaths:
+    | '/'
+    | '/sign-in'
+    | '/invitations/$invitationId'
+    | '/leagues/$leagueId'
+    | '/organizations/$organizationId/leagues'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/sign-in' | '/invitations/$invitationId'
-  id: '__root__' | '/' | '/sign-in' | '/invitations/$invitationId'
+  to:
+    | '/'
+    | '/sign-in'
+    | '/invitations/$invitationId'
+    | '/leagues/$leagueId'
+    | '/organizations/$organizationId/leagues'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/sign-in'
+    | '/invitations/$invitationId'
+    | '/_authenticated/leagues/$leagueId'
+    | '/_authenticated/organizations/$organizationId/leagues'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   SignInRoute: typeof SignInRoute
   InvitationsInvitationIdRoute: typeof InvitationsInvitationIdRoute
 }
@@ -66,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -82,11 +133,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvitationsInvitationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/leagues/$leagueId': {
+      id: '/_authenticated/leagues/$leagueId'
+      path: '/leagues/$leagueId'
+      fullPath: '/leagues/$leagueId'
+      preLoaderRoute: typeof AuthenticatedLeaguesLeagueIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/organizations/$organizationId/leagues': {
+      id: '/_authenticated/organizations/$organizationId/leagues'
+      path: '/organizations/$organizationId/leagues'
+      fullPath: '/organizations/$organizationId/leagues'
+      preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationIdLeaguesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedLeaguesLeagueIdRoute: typeof AuthenticatedLeaguesLeagueIdRoute
+  AuthenticatedOrganizationsOrganizationIdLeaguesRoute: typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedLeaguesLeagueIdRoute: AuthenticatedLeaguesLeagueIdRoute,
+  AuthenticatedOrganizationsOrganizationIdLeaguesRoute:
+    AuthenticatedOrganizationsOrganizationIdLeaguesRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   SignInRoute: SignInRoute,
   InvitationsInvitationIdRoute: InvitationsInvitationIdRoute,
 }

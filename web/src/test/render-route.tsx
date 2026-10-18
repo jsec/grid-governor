@@ -1,25 +1,25 @@
+import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMemoryHistory, createRouter, RouterProvider } from '@tanstack/react-router';
+import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
 import { render } from '@testing-library/react';
 
 import { authClient } from '../auth-client';
-import { routeTree } from '../routeTree.gen';
+import { createAppRouter } from '../lib/router';
 
 export function renderRoute(path: string) {
     authClient.$store.notify('$sessionSignal');
 
-    const router = createRouter({
-        history: createMemoryHistory({ initialEntries: [path] }),
-        routeTree,
-    });
     const queryClient = new QueryClient({
         defaultOptions: { mutations: { retry: false }, queries: { retry: false } },
     });
+    const router = createAppRouter(queryClient, createMemoryHistory({ initialEntries: [path] }));
 
     render(
-        <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-        </QueryClientProvider>,
+        <MantineProvider>
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} />
+            </QueryClientProvider>
+        </MantineProvider>,
     );
 
     return router;
