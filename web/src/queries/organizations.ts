@@ -18,3 +18,18 @@ export function memberRoleQuery(organizationId: string) {
         queryKey: ['organizations', organizationId, 'role'],
     });
 }
+
+export function organizationListQuery() {
+    return queryOptions({
+        queryFn: async () => {
+            const { data, error } = await authClient.organization.list();
+
+            if (error) {
+                throw new Error(error.message ?? error.statusText);
+            }
+
+            return data;
+        },
+        queryKey: ['organizations'],
+    });
+}
