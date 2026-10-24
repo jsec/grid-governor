@@ -1,9 +1,10 @@
 import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
-import { roles } from '@grid-governor/core/access';
+import { leagueRoles, roles } from '@grid-governor/core/access';
 import { HTTPException } from 'hono/http-exception';
 
+type LeaguePermissions = Parameters<typeof leagueRoles.manager.authorize>[0];
 type Permissions = Parameters<typeof roles.member.authorize>[0];
 
 export const requireMember = async (db: Kysely<DB>, userId: string, organizationId: string) => {
@@ -37,4 +38,44 @@ export const requirePermission = async (
     }
 
     return role;
+};
+
+export const requireLeaguePermission = async (
+    db: Kysely<DB>,
+    userId: string,
+    leagueId: string,
+    permissions: LeaguePermissions,
+) => {
+    const league = await db
+        .selectFrom('league')
+        .select('organizationId')
+        .where('leagueId', '=', leagueId)
+        .executeTakeFirst();
+
+    if (!league) {
+        throw new HTTPException(404);
+    }
+
+    const organizationRole = await requireMember(db, userId, league.organizationId);
+
+    if (organizationRole === 'owner' || organizationRole === 'admin') {
+        return organizationRole;
+    }
+
+    const grants = await db
+        .selectFrom('leagueMembership')
+        .select('role')
+        .$narrowType<{ role: keyof typeof leagueRoles }>()
+        .where('leagueId', '=', leagueId)
+        .where('userId', '=', userId)
+        .where('revokedAt', 'is', null)
+        .execute();
+
+    for (const { role } of grants) {
+        if (leagueRoles[role].authorize(permissions).success) {
+            return role;
+        }
+    }
+
+    throw new HTTPException(403);
 };
