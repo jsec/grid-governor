@@ -3,12 +3,67 @@ import type { Kysely } from 'kysely';
 
 import { type Auth, createAuth } from '@grid-governor/core/auth';
 import { createLogger } from '@grid-governor/core/logging';
+import { hashPassword } from 'better-auth/crypto';
 
 import type { AuthRouteHandler } from '../src/auth/invite-handler.ts';
 
 import { createApp } from '../src/app.ts';
 
 export const testPassword = 'test-password-123';
+
+const passwordHash = await hashPassword(testPassword);
+
+const testUsers = [
+    { email: 'owner@example.test', id: 'owner', name: 'Owner', role: 'user' },
+    { email: 'admin@example.test', id: 'admin', name: 'Admin', role: 'user' },
+    { email: 'member@example.test', id: 'member', name: 'Member', role: 'user' },
+    { email: 'driver@example.test', id: 'driver', name: 'Driver', role: 'user' },
+    { email: 'global-admin@example.test', id: 'global-admin', name: 'Global', role: 'admin' },
+];
+
+const testMembers = [
+    { role: 'owner', userId: 'owner' },
+    { role: 'admin', userId: 'admin' },
+    { role: 'member', userId: 'member' },
+    { role: 'member', userId: 'driver' },
+];
+
+export const seedOrganization = async (db: Kysely<DB>) => {
+    await db.insertInto('user')
+        .values(testUsers)
+        .execute();
+
+    await db.insertInto('account')
+        .values(testUsers.map(user => ({
+            accountId: user.id,
+            id: `account-${user.id}`,
+            issuer: 'local:credential',
+            password: passwordHash,
+            providerId: 'credential',
+            userId: user.id,
+        })))
+        .execute();
+
+    await db.insertInto('organization')
+        .values({
+            banLengthRounds: 3,
+            id: 'grid-club',
+            name: 'Grid Club',
+            slug: 'grid-club',
+            suspensionThresholdPoints: 12,
+        })
+        .execute();
+
+    await db.insertInto('member')
+        .values(testMembers.map(({ role, userId }) => ({
+            createdAt: new Date(),
+            id: `member-${userId}`,
+            organizationId: 'grid-club',
+            role,
+            userId,
+        })))
+        .execute();
+};
 
 export const createTestLogger = () => {
     const lines: string[] = [];

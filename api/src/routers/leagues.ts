@@ -1,7 +1,11 @@
 import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
-import { createLeagueSchema, updateLeagueSchema } from '@grid-governor/core/schemas';
+import {
+    createLeagueSchema,
+    grantLeagueRoleSchema,
+    updateLeagueSchema,
+} from '@grid-governor/core/schemas';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
@@ -25,6 +29,13 @@ const updatableFields = [
     'name',
     'rulingSlaHours',
     'suspensionThresholdPoints',
+] as const;
+
+const leagueMembershipColumns = [
+    'leagueMembership.grantedAt',
+    'leagueMembership.membershipId as id',
+    'leagueMembership.role',
+    'leagueMembership.userId',
 ] as const;
 
 export const organizationLeagueRouter = (db: Kysely<DB>) => {
@@ -166,6 +177,99 @@ export const leagueRouter = (db: Kysely<DB>) => {
 
         return ctx.json(league);
     });
+
+    router.get('/:leagueId{[0-9]+}/memberships', async (ctx) => {
+        const leagueId = ctx.req.param('leagueId');
+
+        const league = await db
+            .selectFrom('league')
+            .select('organizationId')
+            .where('leagueId', '=', leagueId)
+            .executeTakeFirst();
+
+        if (!league) {
+            throw new HTTPException(404);
+        }
+
+        await requireMember(db, ctx.var.user.id, league.organizationId);
+
+        const memberships = await db
+            .selectFrom('leagueMembership')
+            .innerJoin('member', 'member.userId', 'leagueMembership.userId')
+            .select(leagueMembershipColumns)
+            .where('leagueMembership.leagueId', '=', leagueId)
+            .where('leagueMembership.revokedAt', 'is', null)
+            .where('member.organizationId', '=', league.organizationId)
+            .orderBy('leagueMembership.grantedAt')
+            .execute();
+
+        return ctx.json({ memberships });
+    });
+
+    router.post(
+        '/:leagueId{[0-9]+}/memberships',
+        validateBody(grantLeagueRoleSchema),
+        async (ctx) => {
+            const leagueId = ctx.req.param('leagueId');
+            const body = ctx.req.valid('json');
+            const userId = ctx.var.user.id;
+
+            const league = await db
+                .selectFrom('league')
+                .select('organizationId')
+                .where('leagueId', '=', leagueId)
+                .executeTakeFirst();
+
+            if (!league) {
+                throw new HTTPException(404);
+            }
+
+            const actorRole = await requirePermission(db, userId, league.organizationId, {
+                leagueRole: ['grant'],
+            });
+
+            const grantee = await db
+                .selectFrom('member')
+                .select('role')
+                .where('organizationId', '=', league.organizationId)
+                .where('userId', '=', body.userId)
+                .executeTakeFirst();
+
+            if (grantee?.role !== 'member') {
+                return ctx.json({
+                    error: 'Only organization members can hold league roles',
+                }, 400);
+            }
+
+            const membership = await db.transaction().execute(async (tx) => {
+                const created = await tx
+                    .insertInto('leagueMembership')
+                    .values({
+                        ...body,
+                        grantedBy: userId,
+                        leagueId,
+                    })
+                    .returning(leagueMembershipColumns)
+                    .executeTakeFirstOrThrow();
+
+                await tx
+                    .insertInto('auditEntry')
+                    .values({
+                        action: 'grant',
+                        actorRole,
+                        actorUserId: userId,
+                        leagueId,
+                        organizationId: league.organizationId,
+                        targetId: created.id,
+                        targetType: 'league_membership',
+                    })
+                    .execute();
+
+                return created;
+            });
+
+            return ctx.json(membership, 201);
+        });
 
     return router;
 };

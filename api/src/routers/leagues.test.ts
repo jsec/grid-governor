@@ -1,18 +1,8 @@
 import { leagueListSchema, leagueSchema } from '@grid-governor/core/schemas';
 import { createTestDatabase, type TestDatabase } from '@grid-governor/core/testing/database';
-import { hashPassword } from 'better-auth/crypto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { createTestApp, signIn, testPassword } from '../../test/helpers.ts';
-
-const passwordHash = await hashPassword(testPassword);
-
-const users = [
-    { email: 'owner@example.test', id: 'owner', name: 'Owner', role: 'user' },
-    { email: 'admin@example.test', id: 'admin', name: 'Admin', role: 'user' },
-    { email: 'member@example.test', id: 'member', name: 'Member', role: 'user' },
-    { email: 'global-admin@example.test', id: 'global-admin', name: 'Global', role: 'admin' },
-];
+import { createTestApp, seedOrganization, signIn } from '../../test/helpers.ts';
 
 const notFound = async () => new Response(null, { status: 404 });
 
@@ -23,40 +13,7 @@ describe('league routes', () => {
     beforeEach(async () => {
         fixture = await createTestDatabase();
 
-        await fixture.db.insertInto('user')
-            .values(users)
-            .execute();
-
-        await fixture.db.insertInto('account')
-            .values(users.map(user => ({
-                accountId: user.id,
-                id: `account-${user.id}`,
-                issuer: 'local:credential',
-                password: passwordHash,
-                providerId: 'credential',
-                userId: user.id,
-            })))
-            .execute();
-
-        await fixture.db.insertInto('organization')
-            .values({
-                banLengthRounds: 3,
-                id: 'grid-club',
-                name: 'Grid Club',
-                slug: 'grid-club',
-                suspensionThresholdPoints: 12,
-            })
-            .execute();
-
-        await fixture.db.insertInto('member')
-            .values(['owner', 'admin', 'member'].map(role => ({
-                createdAt: new Date(),
-                id: `member-${role}`,
-                organizationId: 'grid-club',
-                role,
-                userId: role,
-            })))
-            .execute();
+        await seedOrganization(fixture.db);
 
         const { app, auth } = createTestApp(fixture.db, notFound);
 

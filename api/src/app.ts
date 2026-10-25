@@ -16,6 +16,7 @@ import type { ApiConfig } from './config/config.ts';
 
 import { requestLogger } from './middleware/logger.ts';
 import { requireSession, type SessionEnv } from './middleware/session.ts';
+import { leagueMembershipRouter } from './routers/league-memberships.ts';
 import { leagueRouter, organizationLeagueRouter } from './routers/leagues.ts';
 
 // TODO: find a better place to put this
@@ -55,6 +56,7 @@ export const createApp = (deps: AppDependencies) => {
 
     app.route('/api/organizations', organizationLeagueRouter(db));
     app.route('/api/leagues', leagueRouter(db));
+    app.route('/api/league-memberships', leagueMembershipRouter(db));
 
     app.onError((error, ctx) => {
         if (error instanceof HTTPException) {
