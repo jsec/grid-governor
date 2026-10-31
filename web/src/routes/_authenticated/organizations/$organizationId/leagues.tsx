@@ -1,4 +1,3 @@
-import { leagueSchema } from '@grid-governor/core/schemas';
 import { Container, List, Stack, Text, Title } from '@mantine/core';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -24,8 +23,7 @@ function CreateLeague({ organizationId }: { organizationId: string }) {
     const queryClient = useQueryClient();
     const creation = useMutation({
         mutationFn: (values: LeagueFormValues) =>
-            api.post(`organizations/${organizationId}/leagues`, { json: values })
-                .json(leagueSchema),
+            api.post(`organizations/${organizationId}/leagues`, { json: values }),
         onSuccess: () => queryClient.invalidateQueries({
             queryKey: leagueListQuery(organizationId).queryKey,
         }),

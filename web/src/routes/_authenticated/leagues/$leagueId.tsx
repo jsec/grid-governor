@@ -52,6 +52,7 @@ function LeagueRoute() {
                     All leagues
                 </AnchorLink>
                 <Title order={1}>{league.name}</Title>
+                <AnchorLink params={{ leagueId }} to="/leagues/$leagueId/staff">Staff</AnchorLink>
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>

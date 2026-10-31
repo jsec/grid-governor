@@ -2,6 +2,23 @@ import { queryOptions } from '@tanstack/react-query';
 
 import { authClient } from '../auth-client';
 
+export function memberListQuery(organizationId: string) {
+    return queryOptions({
+        queryFn: async () => {
+            const { data, error } = await authClient.organization.listMembers({
+                query: { organizationId },
+            });
+
+            if (error) {
+                throw new Error(error.message ?? error.statusText);
+            }
+
+            return data.members;
+        },
+        queryKey: ['organizations', organizationId, 'members'],
+    });
+}
+
 export function memberRoleQuery(organizationId: string) {
     return queryOptions({
         queryFn: async () => {
