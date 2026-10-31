@@ -21,3 +21,12 @@ export const grantLeagueRoleSchema = z.object({
     role: leagueRoleSchema,
     userId: z.string().min(1),
 });
+
+export const leagueRolesSchema = z.object({
+    leagueRoles: z.array(leagueRoleSchema),
+    organizationRole: z.enum([
+        'admin',
+        'member',
+        'owner',
+    ]),
+});

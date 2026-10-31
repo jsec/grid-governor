@@ -46,17 +46,8 @@ export const requireLeaguePermission = async (
     leagueId: string,
     permissions: LeaguePermissions,
 ) => {
-    const league = await db
-        .selectFrom('league')
-        .select('organizationId')
-        .where('leagueId', '=', leagueId)
-        .executeTakeFirst();
-
-    if (!league) {
-        throw new HTTPException(404);
-    }
-
-    const organizationRole = await requireMember(db, userId, league.organizationId);
+    const organizationId = await requireLeague(db, leagueId);
+    const organizationRole = await requireMember(db, userId, organizationId);
 
     if (organizationRole === 'owner' || organizationRole === 'admin') {
         return organizationRole;
@@ -78,4 +69,18 @@ export const requireLeaguePermission = async (
     }
 
     throw new HTTPException(403);
+};
+
+export const requireLeague = async (db: Kysely<DB>, leagueId: string) => {
+    const league = await db
+        .selectFrom('league')
+        .select('organizationId')
+        .where('leagueId', '=', leagueId)
+        .executeTakeFirst();
+
+    if (!league) {
+        throw new HTTPException(404);
+    }
+
+    return league.organizationId;
 };

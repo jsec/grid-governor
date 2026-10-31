@@ -1,3 +1,4 @@
+import type { leagueRoles } from '@grid-governor/core/access';
 import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
@@ -11,7 +12,7 @@ import { HTTPException } from 'hono/http-exception';
 
 import type { SessionEnv } from '../middleware/session.ts';
 
-import { requireMember, requirePermission } from '../auth/access.ts';
+import { requireLeague, requireMember, requirePermission } from '../auth/access.ts';
 import { validateBody } from '../middleware/validator.ts';
 
 const leagueColumns = [
@@ -181,17 +182,8 @@ export const leagueRouter = (db: Kysely<DB>) => {
     router.get('/:leagueId{[0-9]+}/memberships', async (ctx) => {
         const leagueId = ctx.req.param('leagueId');
 
-        const league = await db
-            .selectFrom('league')
-            .select('organizationId')
-            .where('leagueId', '=', leagueId)
-            .executeTakeFirst();
-
-        if (!league) {
-            throw new HTTPException(404);
-        }
-
-        await requireMember(db, ctx.var.user.id, league.organizationId);
+        const organizationId = await requireLeague(db, leagueId);
+        await requireMember(db, ctx.var.user.id, organizationId);
 
         const memberships = await db
             .selectFrom('leagueMembership')
@@ -199,7 +191,7 @@ export const leagueRouter = (db: Kysely<DB>) => {
             .select(leagueMembershipColumns)
             .where('leagueMembership.leagueId', '=', leagueId)
             .where('leagueMembership.revokedAt', 'is', null)
-            .where('member.organizationId', '=', league.organizationId)
+            .where('member.organizationId', '=', organizationId)
             .orderBy('leagueMembership.grantedAt')
             .execute();
 
@@ -214,24 +206,16 @@ export const leagueRouter = (db: Kysely<DB>) => {
             const body = ctx.req.valid('json');
             const userId = ctx.var.user.id;
 
-            const league = await db
-                .selectFrom('league')
-                .select('organizationId')
-                .where('leagueId', '=', leagueId)
-                .executeTakeFirst();
+            const organizationId = await requireLeague(db, leagueId);
 
-            if (!league) {
-                throw new HTTPException(404);
-            }
-
-            const actorRole = await requirePermission(db, userId, league.organizationId, {
+            const actorRole = await requirePermission(db, userId, organizationId, {
                 leagueRole: ['grant'],
             });
 
             const grantee = await db
                 .selectFrom('member')
                 .select('role')
-                .where('organizationId', '=', league.organizationId)
+                .where('organizationId', '=', organizationId)
                 .where('userId', '=', body.userId)
                 .executeTakeFirst();
 
@@ -259,7 +243,7 @@ export const leagueRouter = (db: Kysely<DB>) => {
                         actorRole,
                         actorUserId: userId,
                         leagueId,
-                        organizationId: league.organizationId,
+                        organizationId,
                         targetId: created.id,
                         targetType: 'league_membership',
                     })
@@ -270,6 +254,28 @@ export const leagueRouter = (db: Kysely<DB>) => {
 
             return ctx.json(membership, 201);
         });
+
+    router.get('/:leagueId{[0-9]+}/roles', async (ctx) => {
+        const leagueId = ctx.req.param('leagueId');
+        const userId = ctx.var.user.id;
+
+        const organizationId = await requireLeague(db, leagueId);
+        const organizationRole = await requireMember(db, userId, organizationId);
+
+        const grants = await db
+            .selectFrom('leagueMembership')
+            .select('role')
+            .$narrowType<{ role: keyof typeof leagueRoles }>()
+            .where('leagueId', '=', leagueId)
+            .where('userId', '=', userId)
+            .where('revokedAt', 'is', null)
+            .execute();
+
+        return ctx.json({
+            leagueRoles: grants.map(grant => grant.role),
+            organizationRole,
+        });
+    });
 
     return router;
 };

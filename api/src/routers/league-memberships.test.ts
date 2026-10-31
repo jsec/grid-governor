@@ -1,4 +1,8 @@
-import { leagueMembershipListSchema, leagueMembershipSchema } from '@grid-governor/core/schemas';
+import {
+    leagueMembershipListSchema,
+    leagueMembershipSchema,
+    leagueRolesSchema,
+} from '@grid-governor/core/schemas';
 import { createTestDatabase, type TestDatabase } from '@grid-governor/core/testing/database';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -199,6 +203,61 @@ describe('league membership routes', () => {
             await request('DELETE', path, 'owner@example.test');
 
             const response = await request('DELETE', path, 'owner@example.test');
+
+            expect(response.status).toBe(404);
+        });
+    });
+
+    describe('GET /api/leagues/:leagueId/roles', () => {
+        it('returns a member\'s organization role and active league roles', async () => {
+            await grant('member', 'steward');
+            const revokedId = await grant('member', 'manager');
+            await fixture.db.updateTable('leagueMembership')
+                .set({ revokedAt: new Date() })
+                .where('membershipId', '=', revokedId)
+                .execute();
+
+            const response = await request(
+                'GET',
+                `/api/leagues/${leagueId}/roles`,
+                'member@example.test',
+            );
+            const body = await response.json();
+
+            expect(response.status).toBe(200);
+            expect(leagueRolesSchema.parse(body)).toEqual({
+                leagueRoles: ['steward'],
+                organizationRole: 'member',
+            });
+        });
+
+        it('returns an owner\'s organization role with no league roles', async () => {
+            const response = await request(
+                'GET',
+                `/api/leagues/${leagueId}/roles`,
+                'owner@example.test',
+            );
+            const body = await response.json();
+
+            expect(response.status).toBe(200);
+            expect(leagueRolesSchema.parse(body)).toEqual({
+                leagueRoles: [],
+                organizationRole: 'owner',
+            });
+        });
+
+        it('responds 404 to a user who is not a member', async () => {
+            const response = await request(
+                'GET',
+                `/api/leagues/${leagueId}/roles`,
+                'global-admin@example.test',
+            );
+
+            expect(response.status).toBe(404);
+        });
+
+        it('responds 404 for an unknown league', async () => {
+            const response = await request('GET', '/api/leagues/999/roles', 'owner@example.test');
 
             expect(response.status).toBe(404);
         });
