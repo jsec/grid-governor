@@ -110,7 +110,7 @@ describe('organization access checks', () => {
                 season: ['create'],
             });
 
-            expect(result).toBe(role);
+            expect(result).toEqual({ organizationId: 'grid-club', role });
         });
 
         it.each([
@@ -124,7 +124,7 @@ describe('organization access checks', () => {
                 permissions,
             );
 
-            expect(result).toBe(role);
+            expect(result).toEqual({ organizationId: 'grid-club', role });
         });
 
         it('responds 403 when only a revoked role allows the action', async () => {

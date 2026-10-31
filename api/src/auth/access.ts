@@ -50,7 +50,7 @@ export const requireLeaguePermission = async (
     const organizationRole = await requireMember(db, userId, organizationId);
 
     if (organizationRole === 'owner' || organizationRole === 'admin') {
-        return organizationRole;
+        return { organizationId, role: organizationRole };
     }
 
     const grants = await db
@@ -64,7 +64,7 @@ export const requireLeaguePermission = async (
 
     for (const { role } of grants) {
         if (leagueRoles[role].authorize(permissions).success) {
-            return role;
+            return { organizationId, role };
         }
     }
 
