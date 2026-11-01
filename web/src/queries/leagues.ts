@@ -1,6 +1,7 @@
 import {
     leagueListSchema,
     leagueMembershipListSchema,
+    leagueRolesSchema,
     leagueSchema,
 } from '@grid-governor/core/schemas';
 import { queryOptions } from '@tanstack/react-query';
@@ -26,5 +27,12 @@ export function leagueQuery(leagueId: string) {
     return queryOptions({
         queryFn: () => api.get(`leagues/${leagueId}`).json(leagueSchema),
         queryKey: ['leagues', leagueId],
+    });
+}
+
+export function leagueRolesQuery(leagueId: string) {
+    return queryOptions({
+        queryFn: () => api.get(`leagues/${leagueId}/roles`).json(leagueRolesSchema),
+        queryKey: ['leagues', leagueId, 'roles'],
     });
 }

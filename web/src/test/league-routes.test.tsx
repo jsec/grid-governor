@@ -1,8 +1,15 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { leagueFixture, mockMemberRole, mockSession, server } from './msw';
+import {
+    leagueFixture,
+    mockLeagueRoles,
+    mockMemberRole,
+    mockSeasons,
+    mockSession,
+    server,
+} from './msw';
 import { renderRoute } from './render-route';
 
 const listPath = '/organizations/org-1/leagues';
@@ -125,9 +132,13 @@ describe('league list route', () => {
 });
 
 describe('league route', () => {
+    beforeEach(() => {
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'member' });
+        mockSeasons([]);
+    });
+
     it('shows the league without the edit form for a plain member', async () => {
         mockSession('member@example.com');
-        mockMemberRole('member');
         mockLeague();
         renderRoute('/leagues/1');
 
@@ -138,7 +149,7 @@ describe('league route', () => {
 
     it('saves every field as an owner', async () => {
         mockSession('owner@example.com');
-        mockMemberRole('owner');
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
         mockLeague();
         let saved: unknown;
         server.use(http.put('*/api/leagues/1', async ({ request }) => {
@@ -147,7 +158,7 @@ describe('league route', () => {
         }));
         renderRoute('/leagues/1');
 
-        fireEvent.change(await screen.findByLabelText(/^Name/), {
+        fireEvent.change(await screen.findByDisplayValue('Sunday Cup'), {
             target: { value: 'Saturday Cup' },
         });
         fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));

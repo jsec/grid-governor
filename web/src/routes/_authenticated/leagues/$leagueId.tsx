@@ -1,35 +1,84 @@
 import { leagueSchema } from '@grid-governor/core/schemas';
-import { Container, Stack, Table, Title } from '@mantine/core';
+import { Container, List, Stack, Table, Text, Title } from '@mantine/core';
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
 import type { LeagueFormValues } from '../../../components/league-form';
+import type { SeasonFormValues } from '../../../components/season-form';
 
 import { authClient } from '../../../auth-client';
 import { AnchorLink } from '../../../components/anchor-link';
 import { LeagueForm } from '../../../components/league-form';
+import { SeasonForm } from '../../../components/season-form';
 import { api } from '../../../lib/api';
-import { leagueListQuery, leagueQuery } from '../../../queries/leagues';
-import { memberRoleQuery } from '../../../queries/organizations';
+import { hasSeasonPermission } from '../../../lib/season-permission';
+import { leagueListQuery, leagueQuery, leagueRolesQuery } from '../../../queries/leagues';
+import { seasonListQuery } from '../../../queries/seasons';
+
+const FIRST_SEASON_VALUES = {
+    dropWorst: 0,
+    expiryRounds: null,
+    fastestLapBonus: 0,
+    name: '',
+    pointsScheme: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1],
+    poleBonus: 0,
+} satisfies SeasonFormValues;
 
 export const Route = createFileRoute('/_authenticated/leagues/$leagueId')({
     component: LeagueRoute,
     loader: async ({ context: { queryClient }, params: { leagueId } }) => {
-        const league = await queryClient.ensureQueryData(leagueQuery(leagueId));
-        await queryClient.ensureQueryData(memberRoleQuery(league.organizationId));
+        await Promise.all([
+            queryClient.ensureQueryData(leagueQuery(leagueId)),
+            queryClient.ensureQueryData(leagueRolesQuery(leagueId)),
+            queryClient.ensureQueryData(seasonListQuery(leagueId)),
+        ]);
     },
 });
+
+function CreateSeason({ latestSeason, leagueId }: {
+    latestSeason?: SeasonFormValues;
+    leagueId: string;
+}) {
+    const queryClient = useQueryClient();
+
+    const creation = useMutation({
+        mutationFn: (values: SeasonFormValues) =>
+            api.post(`leagues/${leagueId}/seasons`, { json: values }),
+        onSuccess: () => queryClient.invalidateQueries({
+            queryKey: seasonListQuery(leagueId).queryKey,
+        }),
+    });
+
+    const startingValues = { ...(latestSeason ?? FIRST_SEASON_VALUES), name: '' };
+
+    return (
+        <Stack>
+            <Title order={2}>Create a season</Title>
+            <SeasonForm
+                error={creation.error}
+                isScoringLocked={false}
+                onSubmit={values => creation.mutate(values)}
+                pending={creation.isPending}
+                season={startingValues}
+                submitLabel="Create season"
+            />
+        </Stack>
+    );
+}
 
 function LeagueRoute() {
     const { leagueId } = Route.useParams();
     const { data: league } = useSuspenseQuery(leagueQuery(leagueId));
-    const { data: role } = useSuspenseQuery(memberRoleQuery(league.organizationId));
+    const { data: roles } = useSuspenseQuery(leagueRolesQuery(leagueId));
+    const { data: { seasons } } = useSuspenseQuery(seasonListQuery(leagueId));
     const queryClient = useQueryClient();
 
     const canUpdate = authClient.organization.checkRolePermission({
         permissions: { league: ['update'] },
-        role,
+        role: roles.organizationRole,
     });
+    const canCreateSeason = hasSeasonPermission(roles, 'create');
+    const [latestSeason] = seasons;
 
     const update = useMutation({
         mutationFn: (values: LeagueFormValues) =>
@@ -71,6 +120,24 @@ function LeagueRoute() {
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
+                <Title order={2}>Seasons</Title>
+                {seasons.length === 0 && <Text>No seasons yet.</Text>}
+                <List>
+                    {seasons.map(season => (
+                        <List.Item key={season.id}>
+                            <AnchorLink params={{ seasonId: season.id }} to="/seasons/$seasonId">
+                                {season.name}
+                            </AnchorLink>
+                        </List.Item>
+                    ))}
+                </List>
+                {canCreateSeason && (
+                    <CreateSeason
+                        key={latestSeason?.id}
+                        latestSeason={latestSeason}
+                        leagueId={leagueId}
+                    />
+                )}
                 {canUpdate && (
                     <Stack>
                         <Title order={2}>Edit league</Title>

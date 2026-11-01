@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 
-import { leagueSchema } from '@grid-governor/core/schemas';
+import { leagueRolesSchema, leagueSchema, seasonSchema } from '@grid-governor/core/schemas';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
@@ -44,9 +44,18 @@ export function mockInvitation(email: string, options: { error?: string } = {}) 
     }));
 }
 
+export function mockLeagueRoles(roles: z.input<typeof leagueRolesSchema>) {
+    server.use(http.get('*/api/leagues/1/roles', () =>
+        HttpResponse.json(leagueRolesSchema.parse(roles))));
+}
+
 export function mockMemberRole(role: string) {
     server.use(http.get('*/api/auth/organization/get-active-member-role', () =>
         HttpResponse.json({ role })));
+}
+
+export function mockSeasons(seasons: z.infer<typeof seasonSchema>[]) {
+    server.use(http.get('*/api/leagues/1/seasons', () => HttpResponse.json({ seasons })));
 }
 
 export function mockSession(email?: string) {
@@ -74,4 +83,20 @@ export function mockSession(email?: string) {
             },
         });
     }));
+}
+
+export function seasonFixture(overrides: Partial<z.infer<typeof seasonSchema>> = {}) {
+    return seasonSchema.parse({
+        createdAt: '2026-10-01T12:00:00.000Z',
+        dropWorst: 0,
+        expiryRounds: null,
+        fastestLapBonus: 0,
+        hasResults: false,
+        id: '7',
+        leagueId: '1',
+        name: '2026',
+        pointsScheme: [25, 18, 15],
+        poleBonus: 0,
+        ...overrides,
+    });
 }
