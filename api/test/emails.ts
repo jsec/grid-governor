@@ -19,7 +19,11 @@ export function recordEmails() {
         async send(email) {
             sent.push(email);
 
-            return { data: { id: `email-${sent.length}` }, error: null, headers: null };
+            return {
+                data: { id: `email-${sent.length}` },
+                error: null,
+                headers: null,
+            };
         },
     };
 

@@ -3,8 +3,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestApp, signIn, testPassword } from '../test/helpers.ts';
 
-const notFound = async () => new Response(null, { status: 404 });
-
 describe('createApp', () => {
     let fixture: TestDatabase;
 
@@ -17,8 +15,8 @@ describe('createApp', () => {
     });
 
     describe('GET /api/health', () => {
-        it('returns an OK status document', async () => {
-            const { app, lines } = createTestApp(fixture.db, notFound);
+        it('should return an OK status document', async () => {
+            const { app, lines } = createTestApp(fixture.db);
 
             const response = await app.request('/api/health');
             const body = await response.json();
@@ -30,11 +28,8 @@ describe('createApp', () => {
     });
 
     describe('request logging', () => {
-        it('writes a single line per request', async () => {
-            const { app, lines } = createTestApp(
-                fixture.db,
-                async () => new Response(null, { status: 401 }),
-            );
+        it('should write a single line per request', async () => {
+            const { app, lines } = createTestApp(fixture.db);
 
             await app.request('/api/auth/get-session');
 
@@ -47,45 +42,57 @@ describe('createApp', () => {
                 msg: 'request completed',
                 request_id: expect.any(String),
                 route: '/api/auth/*',
-                status: 401,
+                status: 200,
             });
         });
     });
 
     describe('unhandled errors', () => {
-        it('logs the stack trace and returns a 500', async () => {
-            const { app, lines } = createTestApp(fixture.db, async () => {
+        it('should log the stack trace and return a 500', async () => {
+            const { app, auth, lines } = createTestApp(fixture.db);
+
+            app.get('/api/failing', () => {
                 throw new Error('database error');
             });
 
-            const response = await app.request('/api/auth/get-session');
+            await auth.api.createUser({
+                body: {
+                    email: 'user@example.test',
+                    name: 'User',
+                    password: testPassword,
+                },
+            });
+
+            const cookie = await signIn(auth, 'user@example.test');
+
+            const response = await app.request('/api/failing', { headers: { cookie } });
             const body = await response.json();
             const logs = lines.map(line => JSON.parse(line));
 
             expect(response.status).toEqual(500);
             expect(body).toEqual({ error: 'Internal error' });
-            expect(logs).toEqual([
-                expect.objectContaining({
-                    err: expect.objectContaining({
+            expect(logs).toMatchObject([
+                {
+                    err: {
                         message: 'database error',
                         stack: expect.any(String),
                         type: 'Error',
-                    }),
+                    },
                     level: 'error',
                     msg: 'Unhandled error',
                     request_id: expect.any(String),
-                }),
-                expect.objectContaining({
+                },
+                {
                     msg: 'request completed',
                     status: 500,
-                }),
+                },
             ]);
         });
     });
 
     describe('sessions', () => {
-        it('rejects requests without a session', async () => {
-            const { app } = createTestApp(fixture.db, notFound);
+        it('should reject requests without a session', async () => {
+            const { app } = createTestApp(fixture.db);
 
             const response = await app.request('/api/organizations/1/leagues');
             const body = await response.json();
@@ -94,12 +101,17 @@ describe('createApp', () => {
             expect(body).toEqual({ error: 'Unauthorized' });
         });
 
-        it('sets the signed-in user on the request', async () => {
-            const { app, auth } = createTestApp(fixture.db, notFound);
+        it('should set the signed-in user on the request', async () => {
+            const { app, auth } = createTestApp(fixture.db);
+
             app.get('/api/me', ctx => ctx.json({ email: ctx.var.user.email }));
 
             await auth.api.createUser({
-                body: { email: 'user@example.test', name: 'User', password: testPassword },
+                body: {
+                    email: 'user@example.test',
+                    name: 'User',
+                    password: testPassword,
+                },
             });
 
             const cookie = await signIn(auth, 'user@example.test');
@@ -113,8 +125,8 @@ describe('createApp', () => {
     });
 
     describe('cross-site requests', () => {
-        it('rejects form posts from another origin', async () => {
-            const { app } = createTestApp(fixture.db, notFound);
+        it('should reject form posts from another origin', async () => {
+            const { app } = createTestApp(fixture.db);
 
             const response = await app.request('/api/organizations/1/leagues', {
                 body: 'name=League',

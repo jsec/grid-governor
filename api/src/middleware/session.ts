@@ -10,16 +10,16 @@ export type SessionEnv = AppEnv & {
 };
 
 export const requireSession = (auth: Auth) => createMiddleware<SessionEnv>(async (ctx, next) => {
-    const result = await auth.api.getSession({
+    const session = await auth.api.getSession({
         headers: ctx.req.raw.headers,
     });
 
-    if (!result) {
+    if (!session) {
         throw new HTTPException(401);
     }
 
-    ctx.set('session', result.session);
-    ctx.set('user', result.user);
+    ctx.set('session', session.session);
+    ctx.set('user', session.user);
 
     await next();
 });

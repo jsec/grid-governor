@@ -30,8 +30,11 @@ export const leagueMembershipRouter = (db: Kysely<DB>) => {
             throw new HTTPException(404);
         }
 
-        const actorRole = await requirePermission(db, userId, membership.organizationId, {
-            leagueRole: ['revoke'],
+        const actorRole = await requirePermission({
+            db,
+            organizationId: membership.organizationId,
+            permissions: { leagueRole: ['revoke'] },
+            userId,
         });
 
         await db.transaction().execute(async (tx) => {

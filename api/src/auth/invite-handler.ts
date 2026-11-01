@@ -19,11 +19,15 @@ const invitePath = '/api/auth/organization/invite-member';
 
 export type AuthRouteHandler = (request: Request, logger: Logger) => Promise<Response>;
 
+type InviteHandlerDependencies = {
+    authHandler: AuthHandler;
+    config: Pick<ApiConfig, 'INVITATION_FROM_EMAIL' | 'WEB_URL'>;
+    db: Kysely<DB>;
+    emails: Pick<Resend['emails'], 'send'>;
+};
+
 export const createInviteHandler = (
-    authHandler: AuthHandler,
-    db: Kysely<DB>,
-    emails: Pick<Resend['emails'], 'send'>,
-    config: Pick<ApiConfig, 'INVITATION_FROM_EMAIL' | 'WEB_URL'>,
+    { authHandler, config, db, emails }: InviteHandlerDependencies,
 ): AuthRouteHandler => async (request, logger) => {
     const url = new URL(request.url);
 
@@ -32,6 +36,7 @@ export const createInviteHandler = (
     }
 
     const response = await authHandler(request);
+
     if (!response.ok) {
         return response;
     }
@@ -39,7 +44,8 @@ export const createInviteHandler = (
     let email: CreateEmailOptions;
 
     try {
-        const invitation = invitationSchema.parse(await response.clone().json());
+        const body = await response.clone().json();
+        const invitation = invitationSchema.parse(body);
 
         const { inviterName, organizationName } = await db
             .selectFrom(['organization', 'user'])

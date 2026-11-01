@@ -23,11 +23,22 @@ export const requireMember = async (db: Kysely<DB>, userId: string, organization
     return member.role;
 };
 
+type LeaguePermissionCheck = {
+    db: Kysely<DB>;
+    leagueId: string;
+    permissions: LeaguePermissions;
+    userId: string;
+};
+
+type PermissionCheck = {
+    db: Kysely<DB>;
+    organizationId: string;
+    permissions: Permissions;
+    userId: string;
+};
+
 export const requirePermission = async (
-    db: Kysely<DB>,
-    userId: string,
-    organizationId: string,
-    permissions: Permissions,
+    { db, organizationId, permissions, userId }: PermissionCheck,
 ) => {
     const role = await requireMember(db, userId, organizationId);
 
@@ -41,10 +52,7 @@ export const requirePermission = async (
 };
 
 export const requireLeaguePermission = async (
-    db: Kysely<DB>,
-    userId: string,
-    leagueId: string,
-    permissions: LeaguePermissions,
+    { db, leagueId, permissions, userId }: LeaguePermissionCheck,
 ) => {
     const organizationId = await requireLeague(db, leagueId);
     const organizationRole = await requireMember(db, userId, organizationId);

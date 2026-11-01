@@ -6,7 +6,6 @@ import { serve } from '@hono/node-server';
 import { Resend } from 'resend';
 
 import { createApp } from './app.ts';
-import { createInviteHandler } from './auth/invite-handler.ts';
 import { loadApiConfig } from './config/config.ts';
 
 const config = loadConfig();
@@ -21,13 +20,12 @@ const apiConfig = loadApiConfig();
 const db = createDatabase(config.DATABASE_URL);
 const auth = createAuth(db, config);
 const resend = new Resend(apiConfig.RESEND_API_KEY);
-const authHandler = createInviteHandler(auth.handler, db, resend.emails, apiConfig);
 
 const app = createApp({
     auth,
-    authHandler,
     config: apiConfig,
     db,
+    emails: resend.emails,
     logger,
 });
 

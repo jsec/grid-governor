@@ -22,9 +22,24 @@ const idSchema = z.object({ id: z.string().min(1) });
 const { logger } = createTestLogger();
 
 const users = [
-    { email: 'admin@example.test', id: 'global-admin', name: 'Admin', role: 'admin' },
-    { email: 'regular@example.test', id: 'regular-user', name: 'Regular', role: 'user' },
-    { email: 'other-admin@example.test', id: 'other-admin', name: 'Other Admin', role: 'admin' },
+    {
+        email: 'admin@example.test',
+        id: 'global-admin',
+        name: 'Admin',
+        role: 'admin',
+    },
+    {
+        email: 'regular@example.test',
+        id: 'regular-user',
+        name: 'Regular',
+        role: 'user',
+    },
+    {
+        email: 'other-admin@example.test',
+        id: 'other-admin',
+        name: 'Other Admin',
+        role: 'admin',
+    },
 ];
 
 const organizationBody = {
@@ -56,7 +71,11 @@ const post = (path: string, body: Record<string, boolean | number | string>, coo
 };
 
 function regularUserInvitation(organizationId: string) {
-    return { email: 'regular@example.test', organizationId, role: 'member' };
+    return {
+        email: 'regular@example.test',
+        organizationId,
+        role: 'member',
+    };
 }
 
 describe('Better Auth organization integration', () => {
@@ -77,13 +96,16 @@ describe('Better Auth organization integration', () => {
         const recorded = recordEmails();
         sent = recorded.sent;
 
-        inviteHandler = createInviteHandler(handler, fixture.db, recorded.emails, emailConfig);
+        inviteHandler = createInviteHandler({
+            authHandler: handler,
+            config: emailConfig,
+            db: fixture.db,
+            emails: recorded.emails,
+        });
     });
 
     afterEach(async () => {
-        if (fixture) {
-            await fixture.destroy();
-        }
+        await fixture.destroy();
     });
 
     async function createOrganization() {
@@ -125,26 +147,28 @@ describe('Better Auth organization integration', () => {
             .execute();
     }
 
-    it('signs in an existing account with its password', async () => {
+    it('should sign in an existing account with its password', async () => {
         await signIn(auth, 'admin@example.test');
     });
 
-    it('rejects public sign-up', async () => {
+    it('should reject public sign-up', async () => {
         const response = await handler(post('/sign-up/email', {
             email: 'new@example.test',
             name: 'New',
             password: testPassword,
         }));
 
-        expect(response.status).toBe(400);
-        expect(await fixture.db
+        const users = await fixture.db
             .selectFrom('user')
             .select('id')
             .where('email', '=', 'new@example.test')
-            .execute()).toEqual([]);
+            .execute();
+
+        expect(response.status).toBe(400);
+        expect(users).toEqual([]);
     });
 
-    it('rejects signed-out organization creation that names a creator', async () => {
+    it('should reject signed-out organization creation that names a creator', async () => {
         const response = await handler(post('/organization/create', {
             ...organizationBody,
             userId: 'global-admin',
@@ -153,7 +177,7 @@ describe('Better Auth organization integration', () => {
         expect(response.status).toBe(401);
     });
 
-    it('rejects organization creation by regular users', async () => {
+    it('should reject organization creation by regular users', async () => {
         const cookie = await signIn(auth, 'regular@example.test');
 
         const response = await handler(post('/organization/create', organizationBody, cookie));
@@ -161,7 +185,7 @@ describe('Better Auth organization integration', () => {
         expect(response.status).toBe(403);
     });
 
-    it('rejects organizations without a ban length and suspension threshold', async () => {
+    it('should reject organizations without a ban length and suspension threshold', async () => {
         const cookie = await signIn(auth, 'admin@example.test');
 
         const response = await handler(
@@ -171,7 +195,7 @@ describe('Better Auth organization integration', () => {
         expect(response.status).toBe(400);
     });
 
-    it('makes the organization creator its owner', async () => {
+    it('should make the organization creator its owner', async () => {
         const { organizationId } = await createOrganization();
 
         const members = await fixture.db
@@ -183,7 +207,7 @@ describe('Better Auth organization integration', () => {
         expect(members).toEqual([{ role: 'owner', userId: 'global-admin' }]);
     });
 
-    it('rejects duplicate organization slugs', async () => {
+    it('should reject duplicate organization slugs', async () => {
         const { cookie } = await createOrganization();
 
         const response = await handler(post('/organization/create', organizationBody, cookie));
@@ -191,24 +215,26 @@ describe('Better Auth organization integration', () => {
         expect(response.status).toBe(400);
     });
 
-    it('does not delete organizations', async () => {
+    it('should not delete organizations', async () => {
         const { cookie, organizationId } = await createOrganization();
 
         const response = await handler(post('/organization/delete', { organizationId }, cookie));
 
-        expect(response.status).toBe(404);
-        expect(await fixture.db
+        const organizations = await fixture.db
             .selectFrom('organization')
             .select('id')
             .where('id', '=', organizationId)
-            .execute()).toEqual([{ id: organizationId }]);
+            .execute();
+
+        expect(response.status).toBe(404);
+        expect(organizations).toEqual([{ id: organizationId }]);
     });
 
     it.each([
         '/organization/invite-member/',
         '/organization%2Finvite-member',
         '//organization/invite-member',
-    ])('returns 404 and sends no invitation for the alternate path %s', async (path) => {
+    ])('should return 404 and send no invitation for the alternate path %s', async (path) => {
         const { cookie, organizationId } = await createOrganization();
 
         const response = await inviteHandler(
@@ -216,12 +242,14 @@ describe('Better Auth organization integration', () => {
             logger,
         );
 
+        const invitations = await invitationIds(organizationId);
+
         expect(response.status).toBe(404);
-        expect(await invitationIds(organizationId)).toEqual([]);
+        expect(invitations).toEqual([]);
         expect(sent).toEqual([]);
     });
 
-    it('rejects invitations from a global admin who is not a member', async () => {
+    it('should reject invitations from a global admin who is not a member', async () => {
         const { organizationId } = await createOrganization();
         const cookie = await signIn(auth, 'other-admin@example.test');
 
@@ -230,18 +258,20 @@ describe('Better Auth organization integration', () => {
             logger,
         );
 
+        const invitations = await invitationIds(organizationId);
+
         expect(response.status).toBe(400);
-        expect(await invitationIds(organizationId)).toEqual([]);
+        expect(invitations).toEqual([]);
     });
 
-    it('keeps a pending invitation after failed delivery and resends it', async () => {
+    it('should keep a pending invitation after failed delivery and resend it', async () => {
         const { cookie, organizationId } = await createOrganization();
-        const failingHandler = createInviteHandler(
-            handler,
-            fixture.db,
-            failingEmails(new Error('Provider failed')),
-            emailConfig,
-        );
+        const failingHandler = createInviteHandler({
+            authHandler: handler,
+            config: emailConfig,
+            db: fixture.db,
+            emails: failingEmails(new Error('Provider failed')),
+        });
 
         const failed = await failingHandler(
             post('/organization/invite-member', regularUserInvitation(organizationId), cookie),
@@ -271,14 +301,14 @@ describe('Better Auth organization integration', () => {
 
         expect(resent.status).toBe(200);
 
-        expect(sent).toEqual([expect.objectContaining({
+        expect(sent).toMatchObject([{
             text: expect.stringContaining(`/invitations/${pending.id}`),
-        })]);
+        }]);
 
         expect(idSchema.parse(body).id).toBe(pending.id);
     });
 
-    it('returns invitation details to the recipient', async () => {
+    it('should return invitation details to the recipient', async () => {
         const { invitationId } = await createInvitation();
         const cookie = await signIn(auth, 'regular@example.test');
 
@@ -296,7 +326,7 @@ describe('Better Auth organization integration', () => {
         expect(invitation.organizationName).toBe('Grid Club');
     });
 
-    it('rejects invitation detail requests from other accounts', async () => {
+    it('should reject invitation detail requests from other accounts', async () => {
         const { invitationId } = await createInvitation();
         const cookie = await signIn(auth, 'other-admin@example.test');
 
@@ -307,7 +337,7 @@ describe('Better Auth organization integration', () => {
         expect(response.status).toBe(403);
     });
 
-    it('rejects invitation acceptance by other accounts', async () => {
+    it('should reject invitation acceptance by other accounts', async () => {
         const { invitationId } = await createInvitation();
         const cookie = await signIn(auth, 'other-admin@example.test');
 
@@ -318,7 +348,7 @@ describe('Better Auth organization integration', () => {
         expect(response.status).toBe(403);
     });
 
-    it('creates a member when the recipient accepts', async () => {
+    it('should create a member when the recipient accepts', async () => {
         const { invitationId, organizationId } = await createInvitation();
         const cookie = await signIn(auth, 'regular@example.test');
 
@@ -338,7 +368,7 @@ describe('Better Auth organization integration', () => {
         expect(member.role).toBe('member');
     });
 
-    it('returns the full organization with its members and invitations', async () => {
+    it('should return the full organization with its members and invitations', async () => {
         const { invitationId, organizationId } = await createInvitation();
         const cookie = await signIn(auth, 'admin@example.test');
 

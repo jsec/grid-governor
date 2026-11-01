@@ -66,8 +66,11 @@ export const leagueSeasonRouter = (db: Kysely<DB>) => {
         const leagueId = ctx.req.param('leagueId');
         const userId = ctx.var.user.id;
 
-        const { organizationId, role } = await requireLeaguePermission(db, userId, leagueId, {
-            season: ['create'],
+        const { organizationId, role } = await requireLeaguePermission({
+            db,
+            leagueId,
+            permissions: { season: ['create'] },
+            userId,
         });
 
         const season = await db.transaction().execute(async (tx) => {
@@ -144,12 +147,12 @@ export const seasonRouter = (db: Kysely<DB>) => {
                 throw new HTTPException(404);
             }
 
-            const { organizationId, role } = await requireLeaguePermission(
-                tx,
+            const { organizationId, role } = await requireLeaguePermission({
+                db: tx,
+                leagueId: existing.leagueId,
+                permissions: { season: ['update'] },
                 userId,
-                existing.leagueId,
-                { season: ['update'] },
-            );
+            });
 
             const changes = [];
 

@@ -61,8 +61,11 @@ export const organizationLeagueRouter = (db: Kysely<DB>) => {
         const organizationId = ctx.req.param('organizationId');
         const userId = ctx.var.user.id;
 
-        const role = await requirePermission(db, userId, organizationId, {
-            league: ['create'],
+        const role = await requirePermission({
+            db,
+            organizationId,
+            permissions: { league: ['create'] },
+            userId,
         });
 
         const league = await db.transaction().execute(async (tx) => {
@@ -132,8 +135,11 @@ export const leagueRouter = (db: Kysely<DB>) => {
                 throw new HTTPException(404);
             }
 
-            const role = await requirePermission(tx, userId, existing.organizationId, {
-                league: ['update'],
+            const role = await requirePermission({
+                db: tx,
+                organizationId: existing.organizationId,
+                permissions: { league: ['update'] },
+                userId,
             });
 
             const changes = [];
@@ -208,8 +214,11 @@ export const leagueRouter = (db: Kysely<DB>) => {
 
             const organizationId = await requireLeague(db, leagueId);
 
-            const actorRole = await requirePermission(db, userId, organizationId, {
-                leagueRole: ['grant'],
+            const actorRole = await requirePermission({
+                db,
+                organizationId,
+                permissions: { leagueRole: ['grant'] },
+                userId,
             });
 
             const grantee = await db

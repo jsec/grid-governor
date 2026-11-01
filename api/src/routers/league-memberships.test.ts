@@ -8,8 +8,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestApp, seedOrganization, signIn } from '../../test/helpers.ts';
 
-const notFound = async () => new Response(null, { status: 404 });
-
 describe('league membership routes', () => {
     let fixture: TestDatabase;
     let leagueId: string;
@@ -28,7 +26,7 @@ describe('league membership routes', () => {
         leagueId = league.leagueId;
         membershipsPath = `/api/leagues/${leagueId}/memberships`;
 
-        const { app, auth } = createTestApp(fixture.db, notFound);
+        const { app, auth } = createTestApp(fixture.db);
 
         request = async (method, path, email, body) => {
             const cookie = await signIn(auth, email);
@@ -47,7 +45,11 @@ describe('league membership routes', () => {
 
     async function grant(userId: string, role: string) {
         const { membershipId } = await fixture.db.insertInto('leagueMembership')
-            .values({ leagueId, role, userId })
+            .values({
+                leagueId,
+                role,
+                userId,
+            })
             .returning('membershipId')
             .executeTakeFirstOrThrow();
 
@@ -62,7 +64,7 @@ describe('league membership routes', () => {
     }
 
     describe('GET /api/leagues/:leagueId/memberships', () => {
-        it('lists the active grants of current organization members', async () => {
+        it('should list the active grants of current organization members', async () => {
             const stewardId = await grant('member', 'steward');
             const revokedId = await grant('driver', 'manager');
             await grant('global-admin', 'appeals');
@@ -75,12 +77,16 @@ describe('league membership routes', () => {
             const body = await response.json();
 
             expect(response.status).toBe(200);
-            expect(leagueMembershipListSchema.parse(body).memberships).toEqual([
-                expect.objectContaining({ id: stewardId, role: 'steward', userId: 'member' }),
+            expect(leagueMembershipListSchema.parse(body).memberships).toMatchObject([
+                {
+                    id: stewardId,
+                    role: 'steward',
+                    userId: 'member',
+                },
             ]);
         });
 
-        it('responds 404 to a user who is not a member', async () => {
+        it('should respond 404 to a user who is not a member', async () => {
             const response = await request('GET', membershipsPath, 'global-admin@example.test');
 
             expect(response.status).toBe(404);
@@ -88,19 +94,21 @@ describe('league membership routes', () => {
     });
 
     describe('POST /api/leagues/:leagueId/memberships', () => {
-        it.each(['owner', 'admin'])('lets an %s grant a role and records it', async (role) => {
+        it.each(['owner', 'admin'])('should let an %s grant a role and record it', async (role) => {
             const response = await request('POST', membershipsPath, `${role}@example.test`, {
                 role: 'steward',
                 userId: 'member',
             });
             const body = await response.json();
 
+            const entries = await auditEntries();
+
             expect(response.status).toBe(201);
             expect(leagueMembershipSchema.parse(body)).toMatchObject({
                 role: 'steward',
                 userId: 'member',
             });
-            expect(await auditEntries()).toEqual([{
+            expect(entries).toEqual([{
                 action: 'grant',
                 actorRole: role,
                 actorUserId: role,
@@ -108,17 +116,19 @@ describe('league membership routes', () => {
             }]);
         });
 
-        it('responds 403 to a plain member and records nothing', async () => {
+        it('should respond 403 to a plain member and record nothing', async () => {
             const response = await request('POST', membershipsPath, 'member@example.test', {
                 role: 'steward',
                 userId: 'driver',
             });
 
+            const entries = await auditEntries();
+
             expect(response.status).toBe(403);
-            expect(await auditEntries()).toEqual([]);
+            expect(entries).toEqual([]);
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const response = await request('POST', membershipsPath, 'global-admin@example.test', {
                 role: 'steward',
                 userId: 'member',
@@ -127,7 +137,10 @@ describe('league membership routes', () => {
             expect(response.status).toBe(404);
         });
 
-        it.each(['admin', 'global-admin'])('responds 400 to a grant for %s', async (userId) => {
+        it.each([
+            'admin',
+            'global-admin',
+        ])('should respond 400 to a grant for %s', async (userId) => {
             const response = await request('POST', membershipsPath, 'owner@example.test', {
                 role: 'steward',
                 userId,
@@ -140,7 +153,7 @@ describe('league membership routes', () => {
             });
         });
 
-        it('responds 400 to a role that does not exist', async () => {
+        it('should respond 400 to a role that does not exist', async () => {
             const response = await request('POST', membershipsPath, 'owner@example.test', {
                 role: 'owner',
                 userId: 'member',
@@ -149,7 +162,7 @@ describe('league membership routes', () => {
             expect(response.status).toBe(400);
         });
 
-        it('responds 409 when the user already holds the role', async () => {
+        it('should respond 409 when the user already holds the role', async () => {
             await grant('member', 'steward');
 
             const response = await request('POST', membershipsPath, 'owner@example.test', {
@@ -162,7 +175,7 @@ describe('league membership routes', () => {
     });
 
     describe('DELETE /api/league-memberships/:membershipId', () => {
-        it('revokes the grant and records it', async () => {
+        it('should revoke the grant and record it', async () => {
             const membershipId = await grant('member', 'steward');
 
             const response = await request(
@@ -175,9 +188,11 @@ describe('league membership routes', () => {
                 .where('membershipId', '=', membershipId)
                 .executeTakeFirstOrThrow();
 
+            const entries = await auditEntries();
+
             expect(response.status).toBe(204);
             expect(membership.revokedAt).toBeInstanceOf(Date);
-            expect(await auditEntries()).toEqual([{
+            expect(entries).toEqual([{
                 action: 'revoke',
                 actorRole: 'admin',
                 actorUserId: 'admin',
@@ -185,7 +200,7 @@ describe('league membership routes', () => {
             }]);
         });
 
-        it('responds 403 to a plain member', async () => {
+        it('should respond 403 to a plain member', async () => {
             const membershipId = await grant('member', 'steward');
 
             const response = await request(
@@ -197,7 +212,7 @@ describe('league membership routes', () => {
             expect(response.status).toBe(403);
         });
 
-        it('responds 404 to a grant that is already revoked', async () => {
+        it('should respond 404 to a grant that is already revoked', async () => {
             const membershipId = await grant('member', 'steward');
             const path = `/api/league-memberships/${membershipId}`;
             await request('DELETE', path, 'owner@example.test');
@@ -209,7 +224,7 @@ describe('league membership routes', () => {
     });
 
     describe('GET /api/leagues/:leagueId/roles', () => {
-        it('returns a member\'s organization role and active league roles', async () => {
+        it('should return a member\'s organization role and active league roles', async () => {
             await grant('member', 'steward');
             const revokedId = await grant('member', 'manager');
             await fixture.db.updateTable('leagueMembership')
@@ -231,7 +246,7 @@ describe('league membership routes', () => {
             });
         });
 
-        it('returns an owner\'s organization role with no league roles', async () => {
+        it('should return an owner\'s organization role with no league roles', async () => {
             const response = await request(
                 'GET',
                 `/api/leagues/${leagueId}/roles`,
@@ -246,7 +261,7 @@ describe('league membership routes', () => {
             });
         });
 
-        it('responds 404 to a user who is not a member', async () => {
+        it('should respond 404 to a user who is not a member', async () => {
             const response = await request(
                 'GET',
                 `/api/leagues/${leagueId}/roles`,
@@ -256,7 +271,7 @@ describe('league membership routes', () => {
             expect(response.status).toBe(404);
         });
 
-        it('responds 404 for an unknown league', async () => {
+        it('should respond 404 for an unknown league', async () => {
             const response = await request('GET', '/api/leagues/999/roles', 'owner@example.test');
 
             expect(response.status).toBe(404);

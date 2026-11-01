@@ -4,16 +4,16 @@ import { errorBodySchema } from '@grid-governor/core/schemas';
 import { validator } from 'hono/validator';
 
 export const validateBody = <T extends ZodType>(schema: T) => validator('json', (body, ctx) => {
-    const result = schema.safeParse(body);
+    const parsed = schema.safeParse(body);
 
-    if (!result.success) {
+    if (!parsed.success) {
         const errorBody = errorBodySchema.parse({
             error: 'Invalid request',
-            issues: result.error.issues,
+            issues: parsed.error.issues,
         });
 
         return ctx.json(errorBody, 400);
     }
 
-    return result.data;
+    return parsed.data;
 });

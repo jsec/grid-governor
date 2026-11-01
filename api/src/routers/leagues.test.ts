@@ -4,8 +4,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestApp, seedOrganization, signIn } from '../../test/helpers.ts';
 
-const notFound = async () => new Response(null, { status: 404 });
-
 describe('league routes', () => {
     let fixture: TestDatabase;
     let request: (method: string, path: string, email: string, body?: object) => Promise<Response>;
@@ -15,7 +13,7 @@ describe('league routes', () => {
 
         await seedOrganization(fixture.db);
 
-        const { app, auth } = createTestApp(fixture.db, notFound);
+        const { app, auth } = createTestApp(fixture.db);
 
         request = async (method, path, email, body) => {
             const cookie = await signIn(auth, email);
@@ -49,7 +47,11 @@ describe('league routes', () => {
     async function insertLeague() {
         const { leagueId } = await fixture.db
             .insertInto('league')
-            .values({ banLengthRounds: 2, name: 'Sunday Cup', organizationId: 'grid-club' })
+            .values({
+                banLengthRounds: 2,
+                name: 'Sunday Cup',
+                organizationId: 'grid-club',
+            })
             .returning('leagueId')
             .executeTakeFirstOrThrow();
 
@@ -59,11 +61,16 @@ describe('league routes', () => {
     describe('POST /api/organizations/:organizationId/leagues', () => {
         const path = '/api/organizations/grid-club/leagues';
 
-        it.each(['owner', 'admin'])('lets an %s create a league and records it', async (role) => {
+        it.each([
+            'owner',
+            'admin',
+        ])('should let an %s create a league and record it', async (role) => {
             const response = await request('POST', path, `${role}@example.test`, {
                 name: 'Sunday Cup',
             });
             const body = await response.json();
+
+            const entries = await auditEntries();
 
             expect(response.status).toBe(201);
             expect(leagueSchema.parse(body)).toMatchObject({
@@ -72,7 +79,7 @@ describe('league routes', () => {
                 organizationId: 'grid-club',
                 rulingSlaHours: 24,
             });
-            expect(await auditEntries()).toEqual([{
+            expect(entries).toEqual([{
                 action: 'create',
                 actorRole: role,
                 actorUserId: role,
@@ -80,16 +87,18 @@ describe('league routes', () => {
             }]);
         });
 
-        it('responds 403 to a member and records nothing', async () => {
+        it('should respond 403 to a member and record nothing', async () => {
             const response = await request('POST', path, 'member@example.test', {
                 name: 'Sunday Cup',
             });
 
+            const entries = await auditEntries();
+
             expect(response.status).toBe(403);
-            expect(await auditEntries()).toEqual([]);
+            expect(entries).toEqual([]);
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const response = await request('POST', path, 'global-admin@example.test', {
                 name: 'Sunday Cup',
             });
@@ -97,7 +106,7 @@ describe('league routes', () => {
             expect(response.status).toBe(404);
         });
 
-        it('responds 400 with the issues for an invalid body', async () => {
+        it('should respond 400 with the issues for an invalid body', async () => {
             const response = await request('POST', path, 'owner@example.test', {
                 name: '',
                 rulingSlaHours: 0,
@@ -105,16 +114,16 @@ describe('league routes', () => {
             const body = await response.json();
 
             expect(response.status).toBe(400);
-            expect(body).toEqual({
+            expect(body).toMatchObject({
                 error: 'Invalid request',
                 issues: [
-                    { message: expect.any(String), path: ['name'] },
-                    { message: expect.any(String), path: ['rulingSlaHours'] },
+                    { path: ['name'] },
+                    { path: ['rulingSlaHours'] },
                 ],
             });
         });
 
-        it('responds 409 to a duplicate name in the organization', async () => {
+        it('should respond 409 to a duplicate name in the organization', async () => {
             await request('POST', path, 'owner@example.test', { name: 'Sunday Cup' });
 
             const response = await request('POST', path, 'owner@example.test', {
@@ -130,7 +139,7 @@ describe('league routes', () => {
     describe('GET /api/organizations/:organizationId/leagues', () => {
         const path = '/api/organizations/grid-club/leagues';
 
-        it('lists the organization\'s leagues for a member', async () => {
+        it('should list the organization\'s leagues for a member', async () => {
             await request('POST', path, 'owner@example.test', { name: 'Sunday Cup' });
 
             const response = await request('GET', path, 'member@example.test');
@@ -141,7 +150,7 @@ describe('league routes', () => {
             expect(leagues.map(({ name }) => name)).toEqual(['Sunday Cup']);
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const response = await request('GET', path, 'global-admin@example.test');
 
             expect(response.status).toBe(404);
@@ -149,7 +158,7 @@ describe('league routes', () => {
     });
 
     describe('GET /api/leagues/:leagueId', () => {
-        it('returns the league to a member', async () => {
+        it('should return the league to a member', async () => {
             const path = await insertLeague();
 
             const response = await request('GET', path, 'member@example.test');
@@ -162,7 +171,7 @@ describe('league routes', () => {
             });
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const path = await insertLeague();
 
             const response = await request('GET', path, 'global-admin@example.test');
@@ -170,7 +179,10 @@ describe('league routes', () => {
             expect(response.status).toBe(404);
         });
 
-        it.each(['/api/leagues/999', '/api/leagues/abc'])('responds 404 to %s', async (path) => {
+        it.each([
+            '/api/leagues/999',
+            '/api/leagues/abc',
+        ])('should respond 404 to %s', async (path) => {
             const response = await request('GET', path, 'member@example.test');
 
             expect(response.status).toBe(404);
@@ -185,7 +197,7 @@ describe('league routes', () => {
             suspensionThresholdPoints: null,
         };
 
-        it('updates the league and records each changed field', async () => {
+        it('should update the league and record each changed field', async () => {
             const path = await insertLeague();
 
             const response = await request('PUT', path, 'admin@example.test', {
@@ -196,40 +208,54 @@ describe('league routes', () => {
             });
             const body = await response.json();
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(200);
             expect(leagueSchema.parse(body)).toMatchObject({
                 banLengthRounds: null,
                 name: 'Saturday Cup',
             });
-            expect(await auditChanges()).toEqual([{
+            expect(changes).toEqual([{
                 action: 'update',
                 actorRole: 'admin',
                 changes: [
-                    { field: 'banLengthRounds', from: 2, to: null },
-                    { field: 'name', from: 'Sunday Cup', to: 'Saturday Cup' },
+                    {
+                        field: 'banLengthRounds',
+                        from: 2,
+                        to: null,
+                    },
+                    {
+                        field: 'name',
+                        from: 'Sunday Cup',
+                        to: 'Saturday Cup',
+                    },
                 ],
             }]);
         });
 
-        it('records nothing when no field changes', async () => {
+        it('should record nothing when no field changes', async () => {
             const path = await insertLeague();
 
             const response = await request('PUT', path, 'owner@example.test', unchanged);
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(200);
-            expect(await auditChanges()).toEqual([]);
+            expect(changes).toEqual([]);
         });
 
-        it('responds 403 to a member and records nothing', async () => {
+        it('should respond 403 to a member and record nothing', async () => {
             const path = await insertLeague();
 
             const response = await request('PUT', path, 'member@example.test', unchanged);
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(403);
-            expect(await auditChanges()).toEqual([]);
+            expect(changes).toEqual([]);
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const path = await insertLeague();
 
             const response = await request('PUT', path, 'global-admin@example.test', unchanged);
@@ -237,7 +263,7 @@ describe('league routes', () => {
             expect(response.status).toBe(404);
         });
 
-        it('responds 400 when a field is missing', async () => {
+        it('should respond 400 when a field is missing', async () => {
             const path = await insertLeague();
 
             const response = await request('PUT', path, 'owner@example.test', {

@@ -4,8 +4,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createTestApp, seedOrganization, signIn } from '../../test/helpers.ts';
 
-const notFound = async () => new Response(null, { status: 404 });
-
 const seasonBody = {
     dropWorst: 0,
     expiryRounds: null,
@@ -35,12 +33,20 @@ describe('season routes', () => {
 
         await fixture.db.insertInto('leagueMembership')
             .values([
-                { leagueId, role: 'manager', userId: 'member' },
-                { leagueId, role: 'steward', userId: 'driver' },
+                {
+                    leagueId,
+                    role: 'manager',
+                    userId: 'member',
+                },
+                {
+                    leagueId,
+                    role: 'steward',
+                    userId: 'driver',
+                },
             ])
             .execute();
 
-        const { app, auth } = createTestApp(fixture.db, notFound);
+        const { app, auth } = createTestApp(fixture.db);
 
         request = async (method, path, email, body) => {
             const cookie = await signIn(auth, email);
@@ -59,7 +65,11 @@ describe('season routes', () => {
 
     async function insertSeason(name: string) {
         const { seasonId } = await fixture.db.insertInto('season')
-            .values({ ...seasonBody, leagueId, name })
+            .values({
+                ...seasonBody,
+                leagueId,
+                name,
+            })
             .returning('seasonId')
             .executeTakeFirstOrThrow();
 
@@ -73,17 +83,29 @@ describe('season routes', () => {
             .executeTakeFirstOrThrow();
 
         const { entryId } = await fixture.db.insertInto('entry')
-            .values({ carNumber: 7, driverId, seasonId })
+            .values({
+                carNumber: 7,
+                driverId,
+                seasonId,
+            })
             .returning('entryId')
             .executeTakeFirstOrThrow();
 
         const { roundId } = await fixture.db.insertInto('round')
-            .values({ ordinal: 1, seasonId, track: 'Spa' })
+            .values({
+                ordinal: 1,
+                seasonId,
+                track: 'Spa',
+            })
             .returning('roundId')
             .executeTakeFirstOrThrow();
 
         await fixture.db.insertInto('result')
-            .values({ entryId, roundId, seasonId })
+            .values({
+                entryId,
+                roundId,
+                seasonId,
+            })
             .execute();
     }
 
@@ -102,7 +124,7 @@ describe('season routes', () => {
     }
 
     describe('GET /api/leagues/:leagueId/seasons', () => {
-        it('lists the seasons newest first, with whether each has results', async () => {
+        it('should list the seasons newest first, with whether each has results', async () => {
             const firstId = await insertSeason('2026');
             await insertSeason('2027');
             await addResult(firstId);
@@ -118,7 +140,7 @@ describe('season routes', () => {
             ]);
         });
 
-        it('responds 404 to a user who is not a member', async () => {
+        it('should respond 404 to a user who is not a member', async () => {
             const response = await request('GET', seasonsPath, 'global-admin@example.test');
 
             expect(response.status).toBe(404);
@@ -130,10 +152,12 @@ describe('season routes', () => {
             ['owner', 'owner'],
             ['admin', 'admin'],
             ['member', 'manager'],
-        ])('lets %s create a season as %s and records it', async (userId, role) => {
+        ])('should let %s create a season as %s and record it', async (userId, role) => {
             const email = `${userId}@example.test`;
             const response = await request('POST', seasonsPath, email, seasonBody);
             const body = await response.json();
+
+            const entries = await auditEntries();
 
             expect(response.status).toBe(201);
             expect(seasonSchema.parse(body)).toMatchObject({
@@ -141,7 +165,7 @@ describe('season routes', () => {
                 hasResults: false,
                 leagueId,
             });
-            expect(await auditEntries()).toEqual([{
+            expect(entries).toEqual([{
                 action: 'create',
                 actorRole: role,
                 actorUserId: userId,
@@ -149,14 +173,16 @@ describe('season routes', () => {
             }]);
         });
 
-        it('responds 403 to a steward and records nothing', async () => {
+        it('should respond 403 to a steward and record nothing', async () => {
             const response = await request('POST', seasonsPath, 'driver@example.test', seasonBody);
 
+            const entries = await auditEntries();
+
             expect(response.status).toBe(403);
-            expect(await auditEntries()).toEqual([]);
+            expect(entries).toEqual([]);
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const response = await request(
                 'POST',
                 seasonsPath,
@@ -167,7 +193,7 @@ describe('season routes', () => {
             expect(response.status).toBe(404);
         });
 
-        it('responds 400 with the issues for an invalid body', async () => {
+        it('should respond 400 with the issues for an invalid body', async () => {
             const response = await request('POST', seasonsPath, 'owner@example.test', {
                 ...seasonBody,
                 expiryRounds: 0,
@@ -176,16 +202,16 @@ describe('season routes', () => {
             const body = await response.json();
 
             expect(response.status).toBe(400);
-            expect(body).toEqual({
+            expect(body).toMatchObject({
                 error: 'Invalid request',
                 issues: [
-                    { message: expect.any(String), path: ['expiryRounds'] },
-                    { message: expect.any(String), path: ['pointsScheme'] },
+                    { path: ['expiryRounds'] },
+                    { path: ['pointsScheme'] },
                 ],
             });
         });
 
-        it('responds 409 to a duplicate name in the league', async () => {
+        it('should respond 409 to a duplicate name in the league', async () => {
             await insertSeason('2027');
 
             const response = await request('POST', seasonsPath, 'owner@example.test', seasonBody);
@@ -195,7 +221,7 @@ describe('season routes', () => {
     });
 
     describe('GET /api/seasons/:seasonId', () => {
-        it('returns the season to a member, with whether it has results', async () => {
+        it('should return the season to a member, with whether it has results', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
@@ -213,7 +239,7 @@ describe('season routes', () => {
             });
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
@@ -222,7 +248,10 @@ describe('season routes', () => {
             expect(response.status).toBe(404);
         });
 
-        it.each(['/api/seasons/999', '/api/seasons/abc'])('responds 404 to %s', async (path) => {
+        it.each([
+            '/api/seasons/999',
+            '/api/seasons/abc',
+        ])('should respond 404 to %s', async (path) => {
             const response = await request('GET', path, 'owner@example.test');
 
             expect(response.status).toBe(404);
@@ -232,24 +261,30 @@ describe('season routes', () => {
     describe('PUT /api/seasons/:seasonId', () => {
         const unchanged = { ...seasonBody, name: '2026' };
 
-        it('lets a manager rename the season and records the change', async () => {
+        it('should let a manager rename the season and record the change', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
             const response = await request('PUT', path, 'member@example.test', seasonBody);
             const body = await response.json();
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(200);
             expect(seasonSchema.parse(body)).toMatchObject({ hasResults: false, name: '2027' });
-            expect(await auditChanges()).toEqual([{
+            expect(changes).toEqual([{
                 action: 'update',
                 actorRole: 'manager',
-                changes: [{ field: 'name', from: '2026', to: '2027' }],
+                changes: [{
+                    field: 'name',
+                    from: '2026',
+                    to: '2027',
+                }],
                 targetType: 'season',
             }]);
         });
 
-        it('changes the scoring before the season has results', async () => {
+        it('should change the scoring before the season has results', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
@@ -259,24 +294,32 @@ describe('season routes', () => {
             });
             const body = await response.json();
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(200);
             expect(seasonSchema.parse(body)).toMatchObject({ pointsScheme: [10, 5] });
-            expect(await auditChanges()).toEqual([{
+            expect(changes).toEqual([{
                 action: 'update',
                 actorRole: 'owner',
-                changes: [{ field: 'pointsScheme', from: [25, 18, 15], to: [10, 5] }],
+                changes: [{
+                    field: 'pointsScheme',
+                    from: [25, 18, 15],
+                    to: [10, 5],
+                }],
                 targetType: 'season',
             }]);
         });
 
-        it('records nothing when no field changes', async () => {
+        it('should record nothing when no field changes', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
             const response = await request('PUT', path, 'owner@example.test', unchanged);
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(200);
-            expect(await auditChanges()).toEqual([]);
+            expect(changes).toEqual([]);
         });
 
         it.each([
@@ -285,7 +328,7 @@ describe('season routes', () => {
             ['fastestLapBonus', 0],
             ['pointsScheme', [25, 18, 15, 12]],
             ['poleBonus', 1],
-        ])('responds 409 to a change of %s once the season has results', async (field, value) => {
+        ])('should respond 409 to a %s change on a scored season', async (field, value) => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
@@ -295,11 +338,13 @@ describe('season routes', () => {
                 [field]: value,
             });
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(409);
-            expect(await auditChanges()).toEqual([]);
+            expect(changes).toEqual([]);
         });
 
-        it('renames a season with results when the scoring is unchanged', async () => {
+        it('should rename a season with results when the scoring is unchanged', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
@@ -311,7 +356,7 @@ describe('season routes', () => {
             expect(seasonSchema.parse(body)).toMatchObject({ hasResults: true, name: '2027' });
         });
 
-        it('responds 403 to a steward on a season with results and records nothing', async () => {
+        it('should respond 403 to a steward on a scored season and record nothing', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
@@ -321,11 +366,13 @@ describe('season routes', () => {
                 poleBonus: 1,
             });
 
+            const changes = await auditChanges();
+
             expect(response.status).toBe(403);
-            expect(await auditChanges()).toEqual([]);
+            expect(changes).toEqual([]);
         });
 
-        it('responds 404 to a global admin who is not a member', async () => {
+        it('should respond 404 to a global admin who is not a member', async () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 

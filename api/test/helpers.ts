@@ -5,20 +5,44 @@ import { type Auth, createAuth } from '@grid-governor/core/auth';
 import { createLogger } from '@grid-governor/core/logging';
 import { hashPassword } from 'better-auth/crypto';
 
-import type { AuthRouteHandler } from '../src/auth/invite-handler.ts';
-
 import { createApp } from '../src/app.ts';
+import { recordEmails } from './emails.ts';
 
 export const testPassword = 'test-password-123';
 
 const passwordHash = await hashPassword(testPassword);
 
 const testUsers = [
-    { email: 'owner@example.test', id: 'owner', name: 'Owner', role: 'user' },
-    { email: 'admin@example.test', id: 'admin', name: 'Admin', role: 'user' },
-    { email: 'member@example.test', id: 'member', name: 'Member', role: 'user' },
-    { email: 'driver@example.test', id: 'driver', name: 'Driver', role: 'user' },
-    { email: 'global-admin@example.test', id: 'global-admin', name: 'Global', role: 'admin' },
+    {
+        email: 'owner@example.test',
+        id: 'owner',
+        name: 'Owner',
+        role: 'user',
+    },
+    {
+        email: 'admin@example.test',
+        id: 'admin',
+        name: 'Admin',
+        role: 'user',
+    },
+    {
+        email: 'member@example.test',
+        id: 'member',
+        name: 'Member',
+        role: 'user',
+    },
+    {
+        email: 'driver@example.test',
+        id: 'driver',
+        name: 'Driver',
+        role: 'user',
+    },
+    {
+        email: 'global-admin@example.test',
+        id: 'global-admin',
+        name: 'Global',
+        role: 'admin',
+    },
 ];
 
 const testMembers = [
@@ -93,19 +117,27 @@ export const createTestAuth = (db: Kysely<DB>) => createAuth(db, {
     BETTER_AUTH_URL: 'http://localhost:3000',
 });
 
-export const createTestApp = (db: Kysely<DB>, authHandler: AuthRouteHandler) => {
+export const createTestApp = (db: Kysely<DB>) => {
     const { lines, logger } = createTestLogger();
     const auth = createTestAuth(db);
+    const { emails } = recordEmails();
 
     const app = createApp({
         auth,
-        authHandler,
-        config: { WEB_URL: 'http://localhost:5173' },
+        config: {
+            INVITATION_FROM_EMAIL: 'invites@example.test',
+            WEB_URL: 'http://localhost:5173',
+        },
         db,
+        emails,
         logger,
     });
 
-    return { app, auth, lines };
+    return {
+        app,
+        auth,
+        lines,
+    };
 };
 
 export const signIn = async (auth: Auth, email: string) => {

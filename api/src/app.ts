@@ -2,6 +2,7 @@ import type { Auth } from '@grid-governor/core/auth';
 import type { DB } from '@grid-governor/core/db/types';
 import type { Logger } from '@grid-governor/core/logging';
 import type { Kysely } from 'kysely';
+import type { Resend } from 'resend';
 
 import { Hono } from 'hono';
 import { except } from 'hono/combine';
@@ -11,9 +12,9 @@ import { requestId } from 'hono/request-id';
 import { STATUS_CODES } from 'node:http';
 import { z } from 'zod';
 
-import type { AuthRouteHandler } from './auth/invite-handler.ts';
 import type { ApiConfig } from './config/config.ts';
 
+import { createInviteHandler } from './auth/invite-handler.ts';
 import { requestLogger } from './middleware/logger.ts';
 import { requireSession, type SessionEnv } from './middleware/session.ts';
 import { leagueMembershipRouter } from './routers/league-memberships.ts';
@@ -24,14 +25,21 @@ const uniqueViolation = z.object({ code: z.literal('23505') });
 
 type AppDependencies = {
     auth: Auth;
-    authHandler: AuthRouteHandler;
-    config: Pick<ApiConfig, 'WEB_URL'>;
+    config: Pick<ApiConfig, 'INVITATION_FROM_EMAIL' | 'WEB_URL'>;
     db: Kysely<DB>;
+    emails: Pick<Resend['emails'], 'send'>;
     logger: Logger;
 };
 
-export const createApp = ({ auth, authHandler, config, db, logger }: AppDependencies) => {
+export const createApp = ({ auth, config, db, emails, logger }: AppDependencies) => {
     const app = new Hono<SessionEnv>();
+
+    const inviteHandler = createInviteHandler({
+        authHandler: auth.handler,
+        config,
+        db,
+        emails,
+    });
 
     app.use('/api/*',
         requestId(),
@@ -44,7 +52,7 @@ export const createApp = ({ auth, authHandler, config, db, logger }: AppDependen
     );
 
     app.get('/api/health', ctx => ctx.json({ status: 'ok' }));
-    app.on(['GET', 'POST'], '/api/auth/*', ctx => authHandler(ctx.req.raw, ctx.var.logger));
+    app.on(['GET', 'POST'], '/api/auth/*', ctx => inviteHandler(ctx.req.raw, ctx.var.logger));
 
     app.route('/api/organizations', organizationLeagueRouter(db));
     app.route('/api/leagues', leagueRouter(db));
