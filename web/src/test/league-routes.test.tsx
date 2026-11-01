@@ -31,7 +31,7 @@ function mockLeagueListError(status: number) {
 }
 
 describe('league list route', () => {
-    it('redirects signed-out visitors to sign-in with the page as returnTo', async () => {
+    it('should redirect signed-out visitors to sign-in with the page as returnTo', async () => {
         mockSession();
         const router = renderRoute(listPath);
 
@@ -39,7 +39,7 @@ describe('league list route', () => {
         expect(router.state.location.search).toEqual({ returnTo: listPath });
     });
 
-    it('redirects to sign-in when the API responds 401', async () => {
+    it('should redirect to sign-in when the API responds 401', async () => {
         mockSession('member@example.com');
         mockLeagueListError(401);
         const router = renderRoute(listPath);
@@ -48,17 +48,19 @@ describe('league list route', () => {
         expect(router.state.location.search).toEqual({ returnTo: listPath });
     });
 
-    it('lists the leagues without the create form for a plain member', async () => {
+    it('should list the leagues without the create form for a plain member', async () => {
         mockSession('member@example.com');
         mockMemberRole('member');
         mockLeagueList(['Sunday Cup']);
         renderRoute(listPath);
 
-        expect(await screen.findByRole('link', { name: 'Sunday Cup' })).toBeInTheDocument();
+        const sundayCupLink = await screen.findByRole('link', { name: 'Sunday Cup' });
+
+        expect(sundayCupLink).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Create league' })).not.toBeInTheDocument();
     });
 
-    it('creates a league as an admin and shows it in the list', async () => {
+    it('should create a league as an admin and show it in the list', async () => {
         mockSession('admin@example.com');
         mockMemberRole('admin');
         mockLeagueList([]);
@@ -66,16 +68,20 @@ describe('league list route', () => {
         server.use(http.post('*/api/organizations/org-1/leagues', async ({ request }) => {
             created = await request.json();
             mockLeagueList(['Saturday Cup']);
+
             return HttpResponse.json(leagueFixture({ name: 'Saturday Cup' }), { status: 201 });
         }));
         renderRoute(listPath);
 
-        fireEvent.change(await screen.findByLabelText(/^Name/), {
+        const nameField = await screen.findByLabelText(/^Name/);
+        fireEvent.change(nameField, {
             target: { value: 'Saturday Cup' },
         });
         fireEvent.click(screen.getByRole('button', { name: 'Create league' }));
 
-        expect(await screen.findByRole('link', { name: 'Saturday Cup' })).toBeInTheDocument();
+        const saturdayCupLink = await screen.findByRole('link', { name: 'Saturday Cup' });
+
+        expect(saturdayCupLink).toBeInTheDocument();
         expect(created).toEqual({
             banLengthRounds: null,
             name: 'Saturday Cup',
@@ -84,7 +90,7 @@ describe('league list route', () => {
         });
     });
 
-    it('shows the issues from a 400 next to their fields', async () => {
+    it('should show the issues from a 400 next to their fields', async () => {
         mockSession('admin@example.com');
         mockMemberRole('admin');
         mockLeagueList([]);
@@ -94,40 +100,51 @@ describe('league list route', () => {
         }, { status: 400 })));
         renderRoute(listPath);
 
-        fireEvent.change(await screen.findByLabelText(/^Name/), { target: { value: ' ' } });
+        const nameField = await screen.findByLabelText(/^Name/);
+        fireEvent.change(nameField, { target: { value: ' ' } });
         fireEvent.click(screen.getByRole('button', { name: 'Create league' }));
 
-        expect(await screen.findByText('Name is too short')).toBeInTheDocument();
+        const message = await screen.findByText('Name is too short');
+
+        expect(message).toBeInTheDocument();
     });
 
-    it('shows the no-access view for a 403', async () => {
+    it('should show the no-access view for a 403', async () => {
         mockSession('member@example.com');
         mockLeagueListError(403);
         renderRoute(listPath);
 
-        expect(await screen.findByRole('alert')).toHaveTextContent(/don't have access/);
+        const alert = await screen.findByRole('alert');
+
+        expect(alert).toHaveTextContent(/don't have access/);
     });
 
-    it('shows the not-found view for a 404', async () => {
+    it('should show the not-found view for a 404', async () => {
         mockSession('outsider@example.com');
         mockLeagueListError(404);
         renderRoute(listPath);
 
-        expect(await screen.findByRole('heading', { name: 'Not found' })).toBeInTheDocument();
+        const notFoundHeading = await screen.findByRole('heading', { name: 'Not found' });
+
+        expect(notFoundHeading).toBeInTheDocument();
     });
 
-    it('shows an error with a retry for a 500', async () => {
+    it('should show an error with a retry for a 500', async () => {
         mockSession('member@example.com');
         mockMemberRole('member');
         mockLeagueListError(500);
         renderRoute(listPath);
 
-        expect(await screen.findByRole('alert')).toHaveTextContent(/couldn't be loaded/);
+        const alert = await screen.findByRole('alert');
+
+        expect(alert).toHaveTextContent(/couldn't be loaded/);
 
         mockLeagueList(['Sunday Cup']);
         fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
-        expect(await screen.findByRole('link', { name: 'Sunday Cup' })).toBeInTheDocument();
+        const sundayCupLink = await screen.findByRole('link', { name: 'Sunday Cup' });
+
+        expect(sundayCupLink).toBeInTheDocument();
     });
 });
 
@@ -137,33 +154,39 @@ describe('league route', () => {
         mockSeasons([]);
     });
 
-    it('shows the league without the edit form for a plain member', async () => {
+    it('should show the league without the edit form for a plain member', async () => {
         mockSession('member@example.com');
         mockLeague();
         renderRoute('/leagues/1');
 
-        expect(await screen.findByRole('heading', { name: 'Sunday Cup' })).toBeInTheDocument();
+        const sundayCupHeading = await screen.findByRole('heading', { name: 'Sunday Cup' });
+
+        expect(sundayCupHeading).toBeInTheDocument();
         expect(screen.getByText('24 hours')).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
     });
 
-    it('saves every field as an owner', async () => {
+    it('should save every field as an owner', async () => {
         mockSession('owner@example.com');
         mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
         mockLeague();
         let saved: unknown;
         server.use(http.put('*/api/leagues/1', async ({ request }) => {
             saved = await request.json();
+
             return HttpResponse.json(leagueFixture({ name: 'Saturday Cup' }));
         }));
         renderRoute('/leagues/1');
 
-        fireEvent.change(await screen.findByDisplayValue('Sunday Cup'), {
+        const field = await screen.findByDisplayValue('Sunday Cup');
+        fireEvent.change(field, {
             target: { value: 'Saturday Cup' },
         });
         fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
 
-        expect(await screen.findByRole('heading', { name: 'Saturday Cup' })).toBeInTheDocument();
+        const saturdayCupHeading = await screen.findByRole('heading', { name: 'Saturday Cup' });
+
+        expect(saturdayCupHeading).toBeInTheDocument();
         expect(saved).toEqual({
             banLengthRounds: 2,
             name: 'Saturday Cup',

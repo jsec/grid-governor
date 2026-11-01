@@ -8,6 +8,7 @@ import { createRoot } from 'react-dom/client';
 import { queryClient, router } from './lib/router';
 
 const rootElement = document.querySelector('#root');
+
 if (!rootElement) {
     throw new Error('root element missing');
 }

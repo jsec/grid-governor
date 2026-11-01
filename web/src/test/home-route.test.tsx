@@ -17,7 +17,7 @@ function mockOrganizations(names: string[]) {
 }
 
 describe('home route', () => {
-    it('redirects signed-out visitors to sign-in', async () => {
+    it('should redirect signed-out visitors to sign-in', async () => {
         mockSession();
         const router = renderRoute('/');
 
@@ -25,7 +25,7 @@ describe('home route', () => {
         expect(router.state.location.search).toEqual({ returnTo: '/' });
     });
 
-    it('lists the organizations and links to their leagues', async () => {
+    it('should list the organizations and link to their leagues', async () => {
         mockSession('member@example.com');
         mockOrganizations(['Grid Club']);
         mockMemberRole('member');
@@ -33,18 +33,21 @@ describe('home route', () => {
             HttpResponse.json({ leagues: [] })));
         const router = renderRoute('/');
 
-        fireEvent.click(await screen.findByRole('link', { name: 'Grid Club' }));
+        const gridClubLink = await screen.findByRole('link', { name: 'Grid Club' });
+        fireEvent.click(gridClubLink);
 
         await waitFor(() => {
             expect(router.state.location.pathname).toBe('/organizations/org-1/leagues');
         });
     });
 
-    it('says so when the user has no organizations', async () => {
+    it('should say so when the user has no organizations', async () => {
         mockSession('member@example.com');
         mockOrganizations([]);
         renderRoute('/');
 
-        expect(await screen.findByText(/aren't a member of any organization/)).toBeInTheDocument();
+        const message = await screen.findByText(/aren't a member of any organization/);
+
+        expect(message).toBeInTheDocument();
     });
 });

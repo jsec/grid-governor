@@ -31,7 +31,7 @@ function SeasonRoute() {
     const { data: roles } = useSuspenseQuery(leagueRolesQuery(season.leagueId));
     const queryClient = useQueryClient();
 
-    const canUpdate = hasSeasonPermission(roles, 'update');
+    const hasUpdatePermission = hasSeasonPermission(roles, 'update');
     const penaltyExpiry = season.expiryRounds === null
         ? 'End of season'
         : `${season.expiryRounds} rounds`;
@@ -79,14 +79,14 @@ function SeasonRoute() {
                         </Table.Tr>
                     </Table.Tbody>
                 </Table>
-                {canUpdate && (
+                {hasUpdatePermission && (
                     <Stack>
                         <Title order={2}>Edit season</Title>
                         <SeasonForm
                             error={update.error}
+                            isPending={update.isPending}
                             isScoringLocked={season.hasResults}
                             onSubmit={values => update.mutate(values)}
-                            pending={update.isPending}
                             season={season}
                             submitLabel="Save changes"
                         />

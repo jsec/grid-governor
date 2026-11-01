@@ -12,34 +12,36 @@ function InvitationRoute() {
     const { invitationId } = Route.useParams();
     const { user } = Route.useRouteContext();
     const returnTo = useLocation({ select: location => location.href });
-    const query = useQuery({
+    const invitationQuery = useQuery({
         queryFn: () => authClient.organization.getInvitation({ query: { id: invitationId } }),
         queryKey: ['invitation', user.id, invitationId],
         retry: false,
     });
     const acceptance = useMutation({
         mutationFn: async () => {
-            const result = await authClient.organization.acceptInvitation({ invitationId });
-            if (result.error) {
-                throw new Error(result.error.message ?? 'Unable to accept invitation.');
+            const accepted = await authClient.organization.acceptInvitation({ invitationId });
+
+            if (accepted.error) {
+                throw new Error(accepted.error.message ?? 'Unable to accept invitation.');
             }
-            return result.data;
+
+            return accepted.data;
         },
     });
 
-    if (query.isPending) {
+    if (invitationQuery.isPending) {
         return <main><p>Loading invitation…</p></main>;
     }
 
-    const invitation = query.data?.data;
-    const loadError = query.data?.error ?? query.error;
+    const invitation = invitationQuery.data?.data;
+    const loadError = invitationQuery.data?.error ?? invitationQuery.error;
 
     if (!invitation) {
         return (
             <main>
                 <h1>Invitation unavailable</h1>
                 <p role="alert">{loadError?.message ?? 'Invitation not found.'}</p>
-                {query.data?.error?.status === 403 && (
+                {invitationQuery.data?.error?.status === 403 && (
                     <Link search={{ returnTo }} to="/sign-in">
                         Sign in with a different account
                     </Link>

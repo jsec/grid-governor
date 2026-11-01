@@ -7,15 +7,16 @@ import { mockInvitation, mockSession, server } from './msw';
 import { renderRoute } from './render-route';
 
 describe('sign-in route', () => {
-    it('rejects external return URLs', () => {
+    it('should reject external return URLs', () => {
         expect(safeReturnTo('https://evil.example/path')).toBe('/');
         expect(safeReturnTo('//evil.example/path')).toBe('/');
     });
 
-    it('posts credentials to Better Auth and returns to the internal invitation path', async () => {
+    it('should post credentials to Better Auth and return to the invitation path', async () => {
         let postedCredentials: string | undefined;
         server.use(http.post('*/api/auth/sign-in/email', async ({ request }) => {
             postedCredentials = await request.text();
+
             return HttpResponse.json({
                 token: 'session-token',
                 user: {
@@ -32,14 +33,18 @@ describe('sign-in route', () => {
         mockInvitation('member@example.com');
         const router = renderRoute('/sign-in?returnTo=%2Finvitations%2Finvite-123');
 
-        fireEvent.change(await screen.findByLabelText(/email/i), {
+        const emailField = await screen.findByLabelText(/email/i);
+        fireEvent.change(emailField, {
             target: { value: 'member@example.com' },
         });
         fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'secret' } });
         fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/invitations/invite-123'));
-        expect(await screen.findByText(/invited to Club/)).toBeInTheDocument();
+
+        const message = await screen.findByText(/invited to Club/);
+
+        expect(message).toBeInTheDocument();
         expect(postedCredentials).toBe('{"email":"member@example.com","password":"secret"}');
     });
 });

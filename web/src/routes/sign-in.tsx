@@ -4,8 +4,14 @@ import { z } from 'zod';
 
 import { authClient } from '../auth-client';
 
+const credentialsSchema = z.object({
+    email: z.string(),
+    password: z.string(),
+});
+
 export function safeReturnTo(value: string): string {
     const url = URL.parse(value, location.origin);
+
     if (!url || url.origin !== location.origin) {
         return '/';
     }
@@ -24,16 +30,18 @@ export const Route = createFileRoute('/sign-in')({
 function SignInRoute() {
     const { returnTo } = Route.useSearch();
     const navigate = useNavigate();
-    const [error, submit, pending] = useActionState(async (_: string, form: FormData) => {
+
+    const [error, submit, isPending] = useActionState(async (_: string, form: FormData) => {
         try {
-            const result = await authClient.signIn.email({
-                email: String(form.get('email')),
-                password: String(form.get('password')),
-            });
-            if (result.error) {
-                return result.error.message ?? 'Unable to sign in.';
+            const credentials = credentialsSchema.parse(Object.fromEntries(form));
+            const signIn = await authClient.signIn.email(credentials);
+
+            if (signIn.error) {
+                return signIn.error.message ?? 'Unable to sign in.';
             }
+
             await navigate({ to: returnTo });
+
             return '';
         } catch {
             return 'Unable to sign in.';
@@ -55,8 +63,8 @@ function SignInRoute() {
                     type="password"
                 />
                 {error && <p role="alert">{error}</p>}
-                <button disabled={pending} type="submit">
-                    {pending ? 'Signing in…' : 'Sign in'}
+                <button disabled={isPending} type="submit">
+                    {isPending ? 'Signing in…' : 'Sign in'}
                 </button>
             </form>
         </main>

@@ -34,10 +34,10 @@ function CreateLeague({ organizationId }: { organizationId: string }) {
             <Title order={2}>Create a league</Title>
             <LeagueForm
                 error={creation.error}
+                isPending={creation.isPending}
                 onSubmit={(values, form) => {
                     creation.mutate(values, { onSuccess: () => form.reset() });
                 }}
-                pending={creation.isPending}
                 submitLabel="Create league"
             />
         </Stack>
@@ -49,7 +49,7 @@ function LeaguesRoute() {
     const { data: { leagues } } = useSuspenseQuery(leagueListQuery(organizationId));
     const { data: role } = useSuspenseQuery(memberRoleQuery(organizationId));
 
-    const canCreate = authClient.organization.checkRolePermission({
+    const hasCreatePermission = authClient.organization.checkRolePermission({
         permissions: { league: ['create'] },
         role,
     });
@@ -68,7 +68,7 @@ function LeaguesRoute() {
                         </List.Item>
                     ))}
                 </List>
-                {canCreate && <CreateLeague organizationId={organizationId} />}
+                {hasCreatePermission && <CreateLeague organizationId={organizationId} />}
             </Stack>
         </Container>
     );

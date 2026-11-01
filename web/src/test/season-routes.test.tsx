@@ -79,7 +79,11 @@ describe('league route seasons', () => {
 
         it('should start from the latest season with an empty name', async () => {
             mockLeagueRoles({ leagueRoles: ['manager'], organizationRole: 'member' });
-            mockSeasons([seasonFixture({ expiryRounds: 4, pointsScheme: [10, 5], poleBonus: 1 })]);
+            mockSeasons([seasonFixture({
+                expiryRounds: 4,
+                pointsScheme: [10, 5],
+                poleBonus: 1,
+            })]);
             renderRoute(leaguePath);
 
             const firstPosition = await screen.findByLabelText(/^Position 1\b/);

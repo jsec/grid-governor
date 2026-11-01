@@ -6,7 +6,7 @@ import { mockInvitation, mockSession, server } from './msw';
 import { renderRoute } from './render-route';
 
 describe('invitation route', () => {
-    it('redirects unauthenticated visitors to sign-in with the invitation path', async () => {
+    it('should redirect unauthenticated visitors to sign-in with the invitation path', async () => {
         mockSession();
         const router = renderRoute('/invitations/invite-123');
 
@@ -14,12 +14,13 @@ describe('invitation route', () => {
         expect(router.state.location.search).toEqual({ returnTo: '/invitations/invite-123' });
     });
 
-    it('loads and accepts an invitation as its signed-in recipient', async () => {
+    it('should load and accept an invitation as its signed-in recipient', async () => {
         mockSession('member@example.com');
         mockInvitation('member@example.com');
         let acceptedInvitation = '';
         server.use(http.post('*/api/auth/organization/accept-invitation', async ({ request }) => {
             acceptedInvitation = await request.text();
+
             return HttpResponse.json({
                 invitation: { id: 'invite-123', status: 'accepted' },
                 member: { id: 'member-1' },
@@ -27,14 +28,19 @@ describe('invitation route', () => {
         }));
         renderRoute('/invitations/invite-123');
 
-        expect(await screen.findByText(/Club/)).toBeInTheDocument();
+        const organizationName = await screen.findByText(/Club/);
+
+        expect(organizationName).toBeInTheDocument();
+
         fireEvent.click(screen.getByRole('button', { name: /accept invitation/i }));
 
-        expect(await screen.findByText(/invitation accepted/i)).toBeInTheDocument();
+        const acceptedMessage = await screen.findByText(/invitation accepted/i);
+
+        expect(acceptedMessage).toBeInTheDocument();
         expect(acceptedInvitation).toBe('{"invitationId":"invite-123"}');
     });
 
-    it('does not accept an invitation for a different signed-in user', async () => {
+    it('should not accept an invitation for a different signed-in user', async () => {
         mockSession('other@example.com');
         server.use(http.get('*/api/auth/organization/get-invitation', () =>
             HttpResponse.json({
@@ -44,11 +50,14 @@ describe('invitation route', () => {
         let isAcceptRequested = false;
         server.use(http.post('*/api/auth/organization/accept-invitation', () => {
             isAcceptRequested = true;
+
             return HttpResponse.json({});
         }));
         const router = renderRoute('/invitations/invite-123');
 
-        expect(await screen.findByRole('alert')).toHaveTextContent(/not the recipient/i);
+        const alert = await screen.findByRole('alert');
+
+        expect(alert).toHaveTextContent(/not the recipient/i);
         fireEvent.click(screen.getByRole('link', { name: /sign in with a different account/i }));
 
         await waitFor(() => expect(router.state.location.pathname).toBe('/sign-in'));
@@ -56,7 +65,7 @@ describe('invitation route', () => {
         expect(isAcceptRequested).toBe(false);
     });
 
-    it('clears accepted invitation state when navigating to a different invitation', async () => {
+    it('should clear the accepted state when navigating to another invitation', async () => {
         mockSession('member@example.com');
         mockInvitation('member@example.com');
         server.use(http.post('*/api/auth/organization/accept-invitation', () =>
@@ -65,7 +74,9 @@ describe('invitation route', () => {
                 member: { id: 'member-1' },
             })));
         const router = renderRoute('/invitations/first');
-        fireEvent.click(await screen.findByRole('button', { name: /accept invitation/i }));
+
+        const acceptButton = await screen.findByRole('button', { name: /accept invitation/i });
+        fireEvent.click(acceptButton);
         await screen.findByText(/invitation accepted/i);
 
         mockInvitation('member@example.com', { error: 'Invitation not found' });
@@ -74,23 +85,27 @@ describe('invitation route', () => {
             to: '/invitations/$invitationId',
         });
 
-        expect(await screen.findByRole('alert')).toHaveTextContent('Invitation not found');
+        const alert = await screen.findByRole('alert');
+        const staleAcceptButton = screen.queryByRole('button', { name: /accept invitation/i });
+
+        expect(alert).toHaveTextContent('Invitation not found');
         expect(screen.queryByText(/invitation accepted/i)).not.toBeInTheDocument();
         expect(screen.queryByText(/You have been invited/)).not.toBeInTheDocument();
-        const acceptButton = screen.queryByRole('button', { name: /accept invitation/i });
-        expect(acceptButton).not.toBeInTheDocument();
+        expect(staleAcceptButton).not.toBeInTheDocument();
     });
 
-    it('shows missing or expired invitation errors', async () => {
+    it('should show missing or expired invitation errors', async () => {
         mockSession('member@example.com');
         mockInvitation('member@example.com', { error: 'Invitation expired' });
         renderRoute('/invitations/missing');
 
-        expect(await screen.findByText(/invitation expired/i)).toBeInTheDocument();
+        const message = await screen.findByText(/invitation expired/i);
+
+        expect(message).toBeInTheDocument();
         expect(screen.queryByText(/invitation accepted/i)).not.toBeInTheDocument();
     });
 
-    it('does not show success when acceptance fails', async () => {
+    it('should not show success when acceptance fails', async () => {
         mockSession('member@example.com');
         mockInvitation('member@example.com');
         server.use(http.post('*/api/auth/organization/accept-invitation', () => HttpResponse.json(
@@ -99,8 +114,12 @@ describe('invitation route', () => {
         )));
         renderRoute('/invitations/invite-123');
 
-        fireEvent.click(await screen.findByRole('button', { name: /accept invitation/i }));
-        expect(await screen.findByText(/invitation expired/i)).toBeInTheDocument();
+        const acceptButton = await screen.findByRole('button', { name: /accept invitation/i });
+        fireEvent.click(acceptButton);
+
+        const message = await screen.findByText(/invitation expired/i);
+
+        expect(message).toBeInTheDocument();
         expect(screen.queryByText(/invitation accepted/i)).not.toBeInTheDocument();
     });
 });

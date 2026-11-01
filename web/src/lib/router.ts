@@ -7,6 +7,8 @@ import { HTTPError } from 'ky';
 import { routeTree } from '../routeTree.gen';
 import { NotFound, Pending, RouteError } from './route-error';
 
+const MAX_QUERY_RETRIES = 2;
+
 export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -19,7 +21,7 @@ export const queryClient = new QueryClient({
                     return false;
                 }
 
-                return failureCount < 2;
+                return failureCount < MAX_QUERY_RETRIES;
             },
         },
     },

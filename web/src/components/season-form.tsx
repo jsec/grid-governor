@@ -37,18 +37,18 @@ export type SeasonFormValues = z.input<typeof seasonInputSchema>;
 
 type SeasonFormProps = {
     error: Error | null;
+    isPending: boolean;
     isScoringLocked: boolean;
     onSubmit: (values: SeasonFormValues) => void;
-    pending: boolean;
     season: SeasonFormValues;
     submitLabel: string;
 };
 
 export function SeasonForm({
     error,
+    isPending,
     isScoringLocked,
     onSubmit,
-    pending,
     season,
     submitLabel,
 }: SeasonFormProps) {
@@ -174,7 +174,7 @@ export function SeasonForm({
                 {error && issues.length === 0 && (
                     <Alert color="red" role="alert">{errorMessage}</Alert>
                 )}
-                <Button loading={pending} type="submit">{submitLabel}</Button>
+                <Button loading={isPending} type="submit">{submitLabel}</Button>
             </Stack>
         </form>
     );

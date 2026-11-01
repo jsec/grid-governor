@@ -31,11 +31,11 @@ import {
 } from '../../../queries/leagues';
 import { memberListQuery } from '../../../queries/organizations';
 
-const roleLabels: Record<z.infer<typeof leagueRoleSchema>, string> = {
+const roleLabels = {
     appeals: 'Appeals',
     manager: 'Manager',
     steward: 'Steward',
-};
+} satisfies Record<z.infer<typeof leagueRoleSchema>, string>;
 
 export const Route = createFileRoute('/_authenticated/leagues/$leagueId_/staff')({
     component: LeagueStaffRoute,
@@ -58,11 +58,11 @@ function LeagueStaffRoute() {
     const { data: { organizationRole: role } } = useSuspenseQuery(leagueRolesQuery(leagueId));
     const queryClient = useQueryClient();
 
-    const canGrant = authClient.organization.checkRolePermission({
+    const hasGrantPermission = authClient.organization.checkRolePermission({
         permissions: { leagueRole: ['grant'] },
         role,
     });
-    const canRevoke = authClient.organization.checkRolePermission({
+    const hasRevokePermission = authClient.organization.checkRolePermission({
         permissions: { leagueRole: ['revoke'] },
         role,
     });
@@ -121,7 +121,7 @@ function LeagueStaffRoute() {
                                     <Table.Tr key={membership.id}>
                                         <Table.Td>{name}</Table.Td>
                                         <Table.Td>{roleLabel}</Table.Td>
-                                        {canRevoke && (
+                                        {hasRevokePermission && (
                                             <Table.Td>
                                                 <Button
                                                     aria-label={`Revoke ${roleLabel} from ${name}`}
@@ -143,10 +143,10 @@ function LeagueStaffRoute() {
                 {revoke.error && (
                     <Alert color="red" role="alert">The role couldn't be revoked.</Alert>
                 )}
-                {canGrant && candidates.length === 0 && (
+                {hasGrantPermission && candidates.length === 0 && (
                     <Text>There are no members to give a league role to.</Text>
                 )}
-                {canGrant && candidates.length > 0 && (
+                {hasGrantPermission && candidates.length > 0 && (
                     <form onSubmit={submitGrant}>
                         <Stack align="flex-start">
                             <Title order={2}>Grant a role</Title>

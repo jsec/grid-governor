@@ -56,9 +56,9 @@ function CreateSeason({ latestSeason, leagueId }: {
             <Title order={2}>Create a season</Title>
             <SeasonForm
                 error={creation.error}
+                isPending={creation.isPending}
                 isScoringLocked={false}
                 onSubmit={values => creation.mutate(values)}
-                pending={creation.isPending}
                 season={startingValues}
                 submitLabel="Create season"
             />
@@ -73,11 +73,11 @@ function LeagueRoute() {
     const { data: { seasons } } = useSuspenseQuery(seasonListQuery(leagueId));
     const queryClient = useQueryClient();
 
-    const canUpdate = authClient.organization.checkRolePermission({
+    const hasUpdatePermission = authClient.organization.checkRolePermission({
         permissions: { league: ['update'] },
         role: roles.organizationRole,
     });
-    const canCreateSeason = hasSeasonPermission(roles, 'create');
+    const hasCreateSeasonPermission = hasSeasonPermission(roles, 'create');
     const [latestSeason] = seasons;
 
     const update = useMutation({
@@ -85,6 +85,7 @@ function LeagueRoute() {
             api.put(`leagues/${leagueId}`, { json: values }).json(leagueSchema),
         onSuccess: (updated) => {
             queryClient.setQueryData(leagueQuery(leagueId).queryKey, updated);
+
             return queryClient.invalidateQueries({
                 queryKey: leagueListQuery(updated.organizationId).queryKey,
             });
@@ -131,21 +132,21 @@ function LeagueRoute() {
                         </List.Item>
                     ))}
                 </List>
-                {canCreateSeason && (
+                {hasCreateSeasonPermission && (
                     <CreateSeason
                         key={latestSeason?.id}
                         latestSeason={latestSeason}
                         leagueId={leagueId}
                     />
                 )}
-                {canUpdate && (
+                {hasUpdatePermission && (
                     <Stack>
                         <Title order={2}>Edit league</Title>
                         <LeagueForm
                             error={update.error}
+                            isPending={update.isPending}
                             league={league}
                             onSubmit={values => update.mutate(values)}
-                            pending={update.isPending}
                             submitLabel="Save changes"
                         />
                     </Stack>

@@ -27,7 +27,9 @@ export function mockInvitation(email: string, options: { error?: string } = {}) 
                 { status: 404 },
             );
         }
+
         const id = new URL(request.url).searchParams.get('id');
+
         return HttpResponse.json({
             createdAt: new Date().toISOString(),
             email,
@@ -63,7 +65,9 @@ export function mockSession(email?: string) {
         if (!email) {
             return HttpResponse.json(null);
         }
+
         const timestamp = new Date().toISOString();
+
         return HttpResponse.json({
             session: {
                 createdAt: timestamp,

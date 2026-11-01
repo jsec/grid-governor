@@ -14,6 +14,8 @@ const optionalNumber = z.string().transform((value) => {
     return Number(value);
 });
 
+const DEFAULT_RULING_SLA_HOURS = 24;
+
 const leagueFormSchema = z.object({
     banLengthRounds: optionalNumber,
     name: z.string(),
@@ -25,13 +27,13 @@ export type LeagueFormValues = z.input<typeof updateLeagueSchema>;
 
 type LeagueFormProps = {
     error: Error | null;
+    isPending: boolean;
     league?: z.infer<typeof leagueSchema>;
     onSubmit: (values: LeagueFormValues, form: HTMLFormElement) => void;
-    pending: boolean;
     submitLabel: string;
 };
 
-export function LeagueForm({ error, league, onSubmit, pending, submitLabel }: LeagueFormProps) {
+export function LeagueForm({ error, isPending, league, onSubmit, submitLabel }: LeagueFormProps) {
     const errorBody = errorBodySchema.safeParse(error instanceof HTTPError ? error.data : null);
     const issues = errorBody.data?.issues ?? [];
     const fieldError = (field: keyof LeagueFormValues) =>
@@ -42,7 +44,7 @@ export function LeagueForm({ error, league, onSubmit, pending, submitLabel }: Le
         const form = event.currentTarget;
         const entries = Object.fromEntries(new FormData(form));
 
-        const values: LeagueFormValues = leagueFormSchema.parse(entries);
+        const values = leagueFormSchema.parse(entries);
 
         onSubmit(values, form);
     };
@@ -59,7 +61,7 @@ export function LeagueForm({ error, league, onSubmit, pending, submitLabel }: Le
                 />
                 <NumberInput
                     allowDecimal={false}
-                    defaultValue={league?.rulingSlaHours ?? 24}
+                    defaultValue={league?.rulingSlaHours ?? DEFAULT_RULING_SLA_HOURS}
                     error={fieldError('rulingSlaHours')}
                     label="Ruling deadline (hours)"
                     min={1}
@@ -87,7 +89,7 @@ export function LeagueForm({ error, league, onSubmit, pending, submitLabel }: Le
                 {error && issues.length === 0 && (
                     <Alert color="red" role="alert">{errorBody.data?.error ?? error.message}</Alert>
                 )}
-                <Button loading={pending} type="submit">{submitLabel}</Button>
+                <Button loading={isPending} type="submit">{submitLabel}</Button>
             </Stack>
         </form>
     );
