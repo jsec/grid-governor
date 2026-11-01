@@ -1,23 +1,25 @@
 import type { Auth, AuthHandler } from '@grid-governor/core/auth';
 import type { CreateEmailOptions } from 'resend';
 
-import { createAuth } from '@grid-governor/core/auth';
 import { createTestDatabase, type TestDatabase } from '@grid-governor/core/testing/database';
-import { hashPassword } from 'better-auth/crypto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import type { AuthRouteHandler } from './auth/invite-handler.ts';
 
 import { emailConfig, failingEmails, recordEmails } from '../test/emails.ts';
-import { createTestLogger, signIn, testPassword } from '../test/helpers.ts';
+import {
+    createTestAuth,
+    createTestLogger,
+    seedUsers,
+    signIn,
+    testPassword,
+} from '../test/helpers.ts';
 import { createInviteHandler } from './auth/invite-handler.ts';
 
 const idSchema = z.object({ id: z.string().min(1) });
 
 const { logger } = createTestLogger();
-
-const passwordHash = await hashPassword(testPassword);
 
 const users = [
     { email: 'admin@example.test', id: 'global-admin', name: 'Admin', role: 'admin' },
@@ -67,23 +69,9 @@ describe('Better Auth organization integration', () => {
     beforeEach(async () => {
         fixture = await createTestDatabase();
 
-        await fixture.db.insertInto('user').values(users)
-            .execute();
+        await seedUsers(fixture.db, users);
 
-        await fixture.db.insertInto('account').values(users.map(user => ({
-            accountId: user.id,
-            id: `account-${user.id}`,
-            issuer: 'local:credential',
-            password: passwordHash,
-            providerId: 'credential',
-            userId: user.id,
-        })))
-            .execute();
-
-        auth = createAuth(fixture.db, {
-            BETTER_AUTH_SECRET: 'a-secret-long-enough-for-the-integration-test',
-            BETTER_AUTH_URL: 'http://localhost:3000',
-        });
+        auth = createTestAuth(fixture.db);
         handler = auth.handler;
 
         const recorded = recordEmails();

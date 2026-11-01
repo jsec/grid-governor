@@ -1,5 +1,5 @@
-import type { DB } from '@grid-governor/core/db/types';
-import type { Kysely } from 'kysely';
+import type { DB, User } from '@grid-governor/core/db/types';
+import type { Insertable, Kysely } from 'kysely';
 
 import { type Auth, createAuth } from '@grid-governor/core/auth';
 import { createLogger } from '@grid-governor/core/logging';
@@ -28,13 +28,13 @@ const testMembers = [
     { role: 'member', userId: 'driver' },
 ];
 
-export const seedOrganization = async (db: Kysely<DB>) => {
+export const seedUsers = async (db: Kysely<DB>, users: Insertable<User>[]) => {
     await db.insertInto('user')
-        .values(testUsers)
+        .values(users)
         .execute();
 
     await db.insertInto('account')
-        .values(testUsers.map(user => ({
+        .values(users.map(user => ({
             accountId: user.id,
             id: `account-${user.id}`,
             issuer: 'local:credential',
@@ -43,6 +43,10 @@ export const seedOrganization = async (db: Kysely<DB>) => {
             userId: user.id,
         })))
         .execute();
+};
+
+export const seedOrganization = async (db: Kysely<DB>) => {
+    await seedUsers(db, testUsers);
 
     await db.insertInto('organization')
         .values({
@@ -84,13 +88,14 @@ export const createTestLogger = () => {
     return { lines, logger };
 };
 
+export const createTestAuth = (db: Kysely<DB>) => createAuth(db, {
+    BETTER_AUTH_SECRET: 'a-secret-long-enough-for-the-integration-test',
+    BETTER_AUTH_URL: 'http://localhost:3000',
+});
+
 export const createTestApp = (db: Kysely<DB>, authHandler: AuthRouteHandler) => {
     const { lines, logger } = createTestLogger();
-
-    const auth = createAuth(db, {
-        BETTER_AUTH_SECRET: 'a-secret-long-enough-for-the-integration-test',
-        BETTER_AUTH_URL: 'http://localhost:3000',
-    });
+    const auth = createTestAuth(db);
 
     const app = createApp({
         auth,

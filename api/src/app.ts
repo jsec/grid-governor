@@ -20,7 +20,6 @@ import { leagueMembershipRouter } from './routers/league-memberships.ts';
 import { leagueRouter, organizationLeagueRouter } from './routers/leagues.ts';
 import { leagueSeasonRouter, seasonRouter } from './routers/seasons.ts';
 
-// TODO: find a better place to put this
 const uniqueViolation = z.object({ code: z.literal('23505') });
 
 type AppDependencies = {
@@ -31,15 +30,7 @@ type AppDependencies = {
     logger: Logger;
 };
 
-export const createApp = (deps: AppDependencies) => {
-    const {
-        auth,
-        authHandler,
-        config,
-        db,
-        logger,
-    } = deps;
-
+export const createApp = ({ auth, authHandler, config, db, logger }: AppDependencies) => {
     const app = new Hono<SessionEnv>();
 
     app.use('/api/*',

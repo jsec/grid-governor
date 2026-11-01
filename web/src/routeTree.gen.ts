@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as InvitationsInvitationIdRouteImport } from './routes/invitations/$invitationId'
+import { Route as AuthenticatedInvitationsInvitationIdRouteImport } from './routes/_authenticated/invitations/$invitationId'
 import { Route as AuthenticatedLeaguesLeagueIdRouteImport } from './routes/_authenticated/leagues/$leagueId'
 import { Route as AuthenticatedSeasonsSeasonIdRouteImport } from './routes/_authenticated/seasons/$seasonId'
 import { Route as AuthenticatedLeaguesLeagueIdStaffRouteImport } from './routes/_authenticated/leagues/$leagueId_.staff'
@@ -32,11 +32,12 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const InvitationsInvitationIdRoute = InvitationsInvitationIdRouteImport.update({
-  id: '/invitations/$invitationId',
-  path: '/invitations/$invitationId',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const AuthenticatedInvitationsInvitationIdRoute =
+  AuthenticatedInvitationsInvitationIdRouteImport.update({
+    id: '/invitations/$invitationId',
+    path: '/invitations/$invitationId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedLeaguesLeagueIdRoute =
   AuthenticatedLeaguesLeagueIdRouteImport.update({
     id: '/leagues/$leagueId',
@@ -65,7 +66,7 @@ const AuthenticatedOrganizationsOrganizationIdLeaguesRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/sign-in': typeof SignInRoute
-  '/invitations/$invitationId': typeof InvitationsInvitationIdRoute
+  '/invitations/$invitationId': typeof AuthenticatedInvitationsInvitationIdRoute
   '/leagues/$leagueId': typeof AuthenticatedLeaguesLeagueIdRoute
   '/seasons/$seasonId': typeof AuthenticatedSeasonsSeasonIdRoute
   '/leagues/$leagueId/staff': typeof AuthenticatedLeaguesLeagueIdStaffRoute
@@ -73,8 +74,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
-  '/invitations/$invitationId': typeof InvitationsInvitationIdRoute
   '/': typeof AuthenticatedIndexRoute
+  '/invitations/$invitationId': typeof AuthenticatedInvitationsInvitationIdRoute
   '/leagues/$leagueId': typeof AuthenticatedLeaguesLeagueIdRoute
   '/seasons/$seasonId': typeof AuthenticatedSeasonsSeasonIdRoute
   '/leagues/$leagueId/staff': typeof AuthenticatedLeaguesLeagueIdStaffRoute
@@ -84,8 +85,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/sign-in': typeof SignInRoute
-  '/invitations/$invitationId': typeof InvitationsInvitationIdRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/invitations/$invitationId': typeof AuthenticatedInvitationsInvitationIdRoute
   '/_authenticated/leagues/$leagueId': typeof AuthenticatedLeaguesLeagueIdRoute
   '/_authenticated/seasons/$seasonId': typeof AuthenticatedSeasonsSeasonIdRoute
   '/_authenticated/leagues/$leagueId_/staff': typeof AuthenticatedLeaguesLeagueIdStaffRoute
@@ -104,8 +105,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sign-in'
-    | '/invitations/$invitationId'
     | '/'
+    | '/invitations/$invitationId'
     | '/leagues/$leagueId'
     | '/seasons/$seasonId'
     | '/leagues/$leagueId/staff'
@@ -114,8 +115,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/sign-in'
-    | '/invitations/$invitationId'
     | '/_authenticated/'
+    | '/_authenticated/invitations/$invitationId'
     | '/_authenticated/leagues/$leagueId'
     | '/_authenticated/seasons/$seasonId'
     | '/_authenticated/leagues/$leagueId_/staff'
@@ -125,7 +126,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   SignInRoute: typeof SignInRoute
-  InvitationsInvitationIdRoute: typeof InvitationsInvitationIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -151,12 +151,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/invitations/$invitationId': {
-      id: '/invitations/$invitationId'
+    '/_authenticated/invitations/$invitationId': {
+      id: '/_authenticated/invitations/$invitationId'
       path: '/invitations/$invitationId'
       fullPath: '/invitations/$invitationId'
-      preLoaderRoute: typeof InvitationsInvitationIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedInvitationsInvitationIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/leagues/$leagueId': {
       id: '/_authenticated/leagues/$leagueId'
@@ -191,6 +191,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedInvitationsInvitationIdRoute: typeof AuthenticatedInvitationsInvitationIdRoute
   AuthenticatedLeaguesLeagueIdRoute: typeof AuthenticatedLeaguesLeagueIdRoute
   AuthenticatedSeasonsSeasonIdRoute: typeof AuthenticatedSeasonsSeasonIdRoute
   AuthenticatedLeaguesLeagueIdStaffRoute: typeof AuthenticatedLeaguesLeagueIdStaffRoute
@@ -199,6 +200,8 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedInvitationsInvitationIdRoute:
+    AuthenticatedInvitationsInvitationIdRoute,
   AuthenticatedLeaguesLeagueIdRoute: AuthenticatedLeaguesLeagueIdRoute,
   AuthenticatedSeasonsSeasonIdRoute: AuthenticatedSeasonsSeasonIdRoute,
   AuthenticatedLeaguesLeagueIdStaffRoute:
@@ -214,7 +217,6 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   SignInRoute: SignInRoute,
-  InvitationsInvitationIdRoute: InvitationsInvitationIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

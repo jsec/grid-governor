@@ -24,8 +24,12 @@ import { HTTPError } from 'ky';
 import { authClient } from '../../../auth-client';
 import { AnchorLink } from '../../../components/anchor-link';
 import { api } from '../../../lib/api';
-import { leagueMembershipListQuery, leagueQuery } from '../../../queries/leagues';
-import { memberListQuery, memberRoleQuery } from '../../../queries/organizations';
+import {
+    leagueMembershipListQuery,
+    leagueQuery,
+    leagueRolesQuery,
+} from '../../../queries/leagues';
+import { memberListQuery } from '../../../queries/organizations';
 
 const roleLabels: Record<z.infer<typeof leagueRoleSchema>, string> = {
     appeals: 'Appeals',
@@ -40,8 +44,8 @@ export const Route = createFileRoute('/_authenticated/leagues/$leagueId_/staff')
 
         await Promise.all([
             queryClient.ensureQueryData(leagueMembershipListQuery(leagueId)),
+            queryClient.ensureQueryData(leagueRolesQuery(leagueId)),
             queryClient.ensureQueryData(memberListQuery(league.organizationId)),
-            queryClient.ensureQueryData(memberRoleQuery(league.organizationId)),
         ]);
     },
 });
@@ -51,7 +55,7 @@ function LeagueStaffRoute() {
     const { data: league } = useSuspenseQuery(leagueQuery(leagueId));
     const { data: { memberships } } = useSuspenseQuery(leagueMembershipListQuery(leagueId));
     const { data: members } = useSuspenseQuery(memberListQuery(league.organizationId));
-    const { data: role } = useSuspenseQuery(memberRoleQuery(league.organizationId));
+    const { data: { organizationRole: role } } = useSuspenseQuery(leagueRolesQuery(leagueId));
     const queryClient = useQueryClient();
 
     const canGrant = authClient.organization.checkRolePermission({

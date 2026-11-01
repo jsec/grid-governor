@@ -9,5 +9,7 @@ export const Route = createFileRoute('/_authenticated')({
         if (!data) {
             throw redirect({ search: { returnTo: location.href }, to: '/sign-in' });
         }
+
+        return { user: data.user };
     },
 });

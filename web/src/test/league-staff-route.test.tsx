@@ -3,7 +3,7 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { leagueFixture, mockMemberRole, mockSession, server } from './msw';
+import { leagueFixture, mockLeagueRoles, mockSession, server } from './msw';
 import { renderRoute } from './render-route';
 
 const staffPath = '/leagues/1/staff';
@@ -50,7 +50,7 @@ describe('league staff route', () => {
 
     it('lists the staff without grant or revoke controls for a plain member', async () => {
         mockSession('member@example.com');
-        mockMemberRole('member');
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'member' });
         mockStaff([membership('10', 'member', 'steward')]);
         renderRoute(staffPath);
 
@@ -63,7 +63,7 @@ describe('league staff route', () => {
 
     it('grants a role as an owner and shows it in the list', async () => {
         mockSession('owner@example.com');
-        mockMemberRole('owner');
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
         let granted: unknown;
         server.use(http.post('*/api/leagues/1/memberships', async ({ request }) => {
             granted = await request.json();
@@ -82,7 +82,7 @@ describe('league staff route', () => {
 
     it('offers only plain members in the grant form', async () => {
         mockSession('owner@example.com');
-        mockMemberRole('owner');
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
         renderRoute(staffPath);
 
         const options = within(await screen.findByLabelText('Member')).getAllByRole('option');
@@ -92,7 +92,7 @@ describe('league staff route', () => {
 
     it('says so when the user already holds the role', async () => {
         mockSession('owner@example.com');
-        mockMemberRole('owner');
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
         server.use(http.post('*/api/leagues/1/memberships', () =>
             HttpResponse.json({ error: 'Conflict' }, { status: 409 })));
         renderRoute(staffPath);
@@ -106,7 +106,7 @@ describe('league staff route', () => {
 
     it('revokes a role as an admin and removes it from the list', async () => {
         mockSession('admin@example.com');
-        mockMemberRole('admin');
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'admin' });
         mockStaff([membership('10', 'member', 'steward')]);
         let revoked = '';
         server.use(http.delete('*/api/league-memberships/:membershipId', ({ params }) => {
@@ -127,7 +127,7 @@ describe('league staff route', () => {
 
     it('says so when there is no one to give a role to', async () => {
         mockSession('owner@example.com');
-        mockMemberRole('owner');
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
         mockMembers([members[0]]);
         renderRoute(staffPath);
 

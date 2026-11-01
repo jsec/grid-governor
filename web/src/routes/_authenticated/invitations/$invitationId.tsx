@@ -1,16 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link, redirect, useLocation } from '@tanstack/react-router';
+import { createFileRoute, Link, useLocation } from '@tanstack/react-router';
 
-import { authClient } from '../../auth-client';
+import { authClient } from '../../../auth-client';
 
-export const Route = createFileRoute('/invitations/$invitationId')({
-    beforeLoad: async ({ location }) => {
-        const { data } = await authClient.getSession();
-        if (!data) {
-            throw redirect({ search: { returnTo: location.href }, to: '/sign-in' });
-        }
-        return { user: data.user };
-    },
+export const Route = createFileRoute('/_authenticated/invitations/$invitationId')({
     component: InvitationRoute,
     remountDeps: ({ params }) => params,
 });
