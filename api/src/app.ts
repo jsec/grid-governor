@@ -18,7 +18,7 @@ import { requestLogger } from './middleware/logger.ts';
 import { requireSession, type SessionEnv } from './middleware/session.ts';
 import { leagueMembershipRouter } from './routers/league-memberships.ts';
 import { leagueRouter, organizationLeagueRouter } from './routers/leagues.ts';
-import { leagueSeasonRouter } from './routers/seasons.ts';
+import { leagueSeasonRouter, seasonRouter } from './routers/seasons.ts';
 
 // TODO: find a better place to put this
 const uniqueViolation = z.object({ code: z.literal('23505') });
@@ -59,6 +59,7 @@ export const createApp = (deps: AppDependencies) => {
     app.route('/api/leagues', leagueRouter(db));
     app.route('/api/leagues', leagueSeasonRouter(db));
     app.route('/api/league-memberships', leagueMembershipRouter(db));
+    app.route('/api/seasons', seasonRouter(db));
 
     app.onError((error, ctx) => {
         if (error instanceof HTTPException) {

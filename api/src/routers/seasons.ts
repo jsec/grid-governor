@@ -3,6 +3,8 @@ import type { ExpressionBuilder, Kysely } from 'kysely';
 
 import { seasonInputSchema } from '@grid-governor/core/schemas';
 import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
+import { isDeepStrictEqual } from 'node:util';
 
 import type { SessionEnv } from '../middleware/session.ts';
 
@@ -19,6 +21,15 @@ const seasonColumns = [
     'season.pointsScheme',
     'season.poleBonus',
     'season.seasonId as id',
+] as const;
+
+const updatableFields = [
+    'dropWorst',
+    'expiryRounds',
+    'fastestLapBonus',
+    'name',
+    'pointsScheme',
+    'poleBonus',
 ] as const;
 
 const hasResults = (eb: ExpressionBuilder<DB, 'season'>) => {
@@ -86,6 +97,108 @@ export const leagueSeasonRouter = (db: Kysely<DB>) => {
         });
 
         return ctx.json({ ...season, hasResults: false }, 201);
+    });
+
+    return router;
+};
+
+export const seasonRouter = (db: Kysely<DB>) => {
+    const router = new Hono<SessionEnv>();
+
+    router.get('/:seasonId{[0-9]+}', async (ctx) => {
+        const season = await db
+            .selectFrom('season')
+            .select([
+                ...seasonColumns,
+                hasResults,
+            ])
+            .where('season.seasonId', '=', ctx.req.param('seasonId'))
+            .executeTakeFirst();
+
+        if (!season) {
+            throw new HTTPException(404);
+        }
+
+        const organizationId = await requireLeague(db, season.leagueId);
+        await requireMember(db, ctx.var.user.id, organizationId);
+
+        return ctx.json(season);
+    });
+
+    router.put('/:seasonId{[0-9]+}', validateBody(seasonInputSchema), async (ctx) => {
+        const body = ctx.req.valid('json');
+        const userId = ctx.var.user.id;
+
+        const season = await db.transaction().execute(async (tx) => {
+            const existing = await tx
+                .selectFrom('season')
+                .select([
+                    ...seasonColumns,
+                    hasResults,
+                ])
+                .where('season.seasonId', '=', ctx.req.param('seasonId'))
+                .forUpdate()
+                .executeTakeFirst();
+
+            if (!existing) {
+                throw new HTTPException(404);
+            }
+
+            const { organizationId, role } = await requireLeaguePermission(
+                tx,
+                userId,
+                existing.leagueId,
+                { season: ['update'] },
+            );
+
+            const changes = [];
+
+            for (const field of updatableFields) {
+                if (!isDeepStrictEqual(body[field], existing[field])) {
+                    changes.push({
+                        field,
+                        from: existing[field],
+                        to: body[field],
+                    });
+                }
+            }
+
+            if (existing.hasResults && changes.some(change => change.field !== 'name')) {
+                throw new HTTPException(409);
+            }
+
+            if (changes.length === 0) {
+                return existing;
+            }
+
+            const updated = await tx
+                .updateTable('season')
+                .set(body)
+                .where('season.seasonId', '=', existing.id)
+                .returning(seasonColumns)
+                .executeTakeFirstOrThrow();
+
+            await tx
+                .insertInto('auditEntry')
+                .values({
+                    action: 'update',
+                    actorRole: role,
+                    actorUserId: userId,
+                    changes: JSON.stringify(changes),
+                    leagueId: existing.leagueId,
+                    organizationId,
+                    targetId: existing.id,
+                    targetType: 'season',
+                })
+                .execute();
+
+            return {
+                ...updated,
+                hasResults: existing.hasResults,
+            };
+        });
+
+        return ctx.json(season);
     });
 
     return router;
