@@ -2,7 +2,7 @@ import type { AuthHandler } from '@grid-governor/core/auth';
 import type { DB } from '@grid-governor/core/db/types';
 import type { Logger } from '@grid-governor/core/logging';
 import type { Kysely } from 'kysely';
-import type { CreateEmailOptions, Resend } from 'resend';
+import type { Resend } from 'resend';
 
 import { z } from 'zod';
 
@@ -41,8 +41,6 @@ export const createInviteHandler = (
         return response;
     }
 
-    let email: CreateEmailOptions;
-
     try {
         const body = await response.clone().json();
         const invitation = invitationSchema.parse(body);
@@ -59,13 +57,25 @@ export const createInviteHandler = (
             config.WEB_URL,
         );
 
-        email = {
+        const email = {
             from: config.INVITATION_FROM_EMAIL,
             subject: `Invitation to join ${organizationName}`,
             text: `${inviterName} invited you to join ${organizationName} on Grid Governor.`
                 + ` Accept the invitation: ${acceptUrl.href}`,
             to: invitation.email,
         };
+
+        try {
+            const { error } = await emails.send(email);
+
+            if (error) {
+                return deliveryFailed(error.name, logger);
+            }
+        } catch (error) {
+            return deliveryFailed(error instanceof Error ? error.name : 'unknown', logger);
+        }
+
+        return response;
     } catch (error) {
         const errorName = error instanceof Error ? error.name : 'unknown';
         logger.error({ error_name: errorName }, 'Invitation processing failed');
@@ -75,18 +85,6 @@ export const createInviteHandler = (
             { status: 500 },
         );
     }
-
-    try {
-        const { error } = await emails.send(email);
-
-        if (error) {
-            return deliveryFailed(error.name, logger);
-        }
-    } catch (error) {
-        return deliveryFailed(error instanceof Error ? error.name : 'unknown', logger);
-    }
-
-    return response;
 };
 
 function deliveryFailed(errorName: string, logger: Logger) {

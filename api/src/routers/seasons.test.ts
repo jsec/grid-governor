@@ -13,11 +13,18 @@ const seasonBody = {
     poleBonus: 0,
 };
 
+type TestRequest = {
+    body?: object;
+    email: string;
+    method: string;
+    path: string;
+};
+
 describe('season routes', () => {
     let fixture: TestDatabase;
     let leagueId: string;
     let seasonsPath: string;
-    let request: (method: string, path: string, email: string, body?: object) => Promise<Response>;
+    let request: (options: TestRequest) => Promise<Response>;
 
     beforeEach(async () => {
         fixture = await createTestDatabase();
@@ -48,7 +55,7 @@ describe('season routes', () => {
 
         const { app, auth } = createTestApp(fixture.db);
 
-        request = async (method, path, email, body) => {
+        request = async ({ body, email, method, path }) => {
             const cookie = await signIn(auth, email);
 
             return app.request(path, {
@@ -129,7 +136,11 @@ describe('season routes', () => {
             await insertSeason('2027');
             await addResult(firstId);
 
-            const response = await request('GET', seasonsPath, 'driver@example.test');
+            const response = await request({
+                email: 'driver@example.test',
+                method: 'GET',
+                path: seasonsPath,
+            });
             const body = await response.json();
             const { seasons } = seasonListSchema.parse(body);
 
@@ -141,7 +152,11 @@ describe('season routes', () => {
         });
 
         it('should respond 404 to a user who is not a member', async () => {
-            const response = await request('GET', seasonsPath, 'global-admin@example.test');
+            const response = await request({
+                email: 'global-admin@example.test',
+                method: 'GET',
+                path: seasonsPath,
+            });
 
             expect(response.status).toBe(404);
         });
@@ -154,7 +169,12 @@ describe('season routes', () => {
             ['member', 'manager'],
         ])('should let %s create a season as %s and record it', async (userId, role) => {
             const email = `${userId}@example.test`;
-            const response = await request('POST', seasonsPath, email, seasonBody);
+            const response = await request({
+                body: seasonBody,
+                email,
+                method: 'POST',
+                path: seasonsPath,
+            });
             const body = await response.json();
 
             const entries = await auditEntries();
@@ -174,7 +194,12 @@ describe('season routes', () => {
         });
 
         it('should respond 403 to a steward and record nothing', async () => {
-            const response = await request('POST', seasonsPath, 'driver@example.test', seasonBody);
+            const response = await request({
+                body: seasonBody,
+                email: 'driver@example.test',
+                method: 'POST',
+                path: seasonsPath,
+            });
 
             const entries = await auditEntries();
 
@@ -183,21 +208,26 @@ describe('season routes', () => {
         });
 
         it('should respond 404 to a global admin who is not a member', async () => {
-            const response = await request(
-                'POST',
-                seasonsPath,
-                'global-admin@example.test',
-                seasonBody,
-            );
+            const response = await request({
+                body: seasonBody,
+                email: 'global-admin@example.test',
+                method: 'POST',
+                path: seasonsPath,
+            });
 
             expect(response.status).toBe(404);
         });
 
         it('should respond 400 with the issues for an invalid body', async () => {
-            const response = await request('POST', seasonsPath, 'owner@example.test', {
-                ...seasonBody,
-                expiryRounds: 0,
-                pointsScheme: [],
+            const response = await request({
+                body: {
+                    ...seasonBody,
+                    expiryRounds: 0,
+                    pointsScheme: [],
+                },
+                email: 'owner@example.test',
+                method: 'POST',
+                path: seasonsPath,
             });
             const body = await response.json();
 
@@ -214,7 +244,12 @@ describe('season routes', () => {
         it('should respond 409 to a duplicate name in the league', async () => {
             await insertSeason('2027');
 
-            const response = await request('POST', seasonsPath, 'owner@example.test', seasonBody);
+            const response = await request({
+                body: seasonBody,
+                email: 'owner@example.test',
+                method: 'POST',
+                path: seasonsPath,
+            });
 
             expect(response.status).toBe(409);
         });
@@ -226,7 +261,11 @@ describe('season routes', () => {
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
 
-            const response = await request('GET', path, 'driver@example.test');
+            const response = await request({
+                email: 'driver@example.test',
+                method: 'GET',
+                path,
+            });
             const body = await response.json();
 
             expect(response.status).toBe(200);
@@ -243,7 +282,11 @@ describe('season routes', () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
-            const response = await request('GET', path, 'global-admin@example.test');
+            const response = await request({
+                email: 'global-admin@example.test',
+                method: 'GET',
+                path,
+            });
 
             expect(response.status).toBe(404);
         });
@@ -252,7 +295,11 @@ describe('season routes', () => {
             '/api/seasons/999',
             '/api/seasons/abc',
         ])('should respond 404 to %s', async (path) => {
-            const response = await request('GET', path, 'owner@example.test');
+            const response = await request({
+                email: 'owner@example.test',
+                method: 'GET',
+                path,
+            });
 
             expect(response.status).toBe(404);
         });
@@ -265,7 +312,12 @@ describe('season routes', () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
-            const response = await request('PUT', path, 'member@example.test', seasonBody);
+            const response = await request({
+                body: seasonBody,
+                email: 'member@example.test',
+                method: 'PUT',
+                path,
+            });
             const body = await response.json();
 
             const changes = await auditChanges();
@@ -288,9 +340,14 @@ describe('season routes', () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
-            const response = await request('PUT', path, 'owner@example.test', {
-                ...unchanged,
-                pointsScheme: [10, 5],
+            const response = await request({
+                body: {
+                    ...unchanged,
+                    pointsScheme: [10, 5],
+                },
+                email: 'owner@example.test',
+                method: 'PUT',
+                path,
             });
             const body = await response.json();
 
@@ -314,7 +371,12 @@ describe('season routes', () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
-            const response = await request('PUT', path, 'owner@example.test', unchanged);
+            const response = await request({
+                body: unchanged,
+                email: 'owner@example.test',
+                method: 'PUT',
+                path,
+            });
 
             const changes = await auditChanges();
 
@@ -333,9 +395,14 @@ describe('season routes', () => {
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
 
-            const response = await request('PUT', path, 'owner@example.test', {
-                ...unchanged,
-                [field]: value,
+            const response = await request({
+                body: {
+                    ...unchanged,
+                    [field]: value,
+                },
+                email: 'owner@example.test',
+                method: 'PUT',
+                path,
             });
 
             const changes = await auditChanges();
@@ -349,7 +416,12 @@ describe('season routes', () => {
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
 
-            const response = await request('PUT', path, 'owner@example.test', seasonBody);
+            const response = await request({
+                body: seasonBody,
+                email: 'owner@example.test',
+                method: 'PUT',
+                path,
+            });
             const body = await response.json();
 
             expect(response.status).toBe(200);
@@ -361,9 +433,14 @@ describe('season routes', () => {
             const path = `/api/seasons/${seasonId}`;
             await addResult(seasonId);
 
-            const response = await request('PUT', path, 'driver@example.test', {
-                ...unchanged,
-                poleBonus: 1,
+            const response = await request({
+                body: {
+                    ...unchanged,
+                    poleBonus: 1,
+                },
+                email: 'driver@example.test',
+                method: 'PUT',
+                path,
             });
 
             const changes = await auditChanges();
@@ -376,7 +453,12 @@ describe('season routes', () => {
             const seasonId = await insertSeason('2026');
             const path = `/api/seasons/${seasonId}`;
 
-            const response = await request('PUT', path, 'global-admin@example.test', unchanged);
+            const response = await request({
+                body: unchanged,
+                email: 'global-admin@example.test',
+                method: 'PUT',
+                path,
+            });
 
             expect(response.status).toBe(404);
         });
