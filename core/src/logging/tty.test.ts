@@ -17,7 +17,7 @@ function format(fields: Record<string, unknown>): string {
 }
 
 describe('prettify', () => {
-    it('prints the time, level, message and fields', () => {
+    it('should print the time, level, message and fields', () => {
         const result = format({
             league_id: '42',
             user_id: 'u_3',
@@ -26,17 +26,17 @@ describe('prettify', () => {
         expect(result).toBe('21:14:03 INFO  league created league_id=42 user_id=u_3');
     });
 
-    it('prints nothing after the message when there are no other fields', () => {
+    it('should print nothing after the message when there are no other fields', () => {
         expect(format({})).toBe('21:14:03 INFO  league created');
     });
 
-    it('pads every level to the same width', () => {
+    it('should pad every level to the same width', () => {
         expect(format({ level: 'warn' })).toBe('21:14:03 WARN  league created');
         expect(format({ level: 'error' })).toBe('21:14:03 ERROR league created');
         expect(format({ level: 'debug' })).toBe('21:14:03 DEBUG league created');
     });
 
-    it('quotes strings with spaces and prints other values as JSON', () => {
+    it('should quote strings with spaces and print other values as JSON', () => {
         expect(format({
             count: 3,
             name: 'Grid Club',
@@ -48,7 +48,7 @@ describe('prettify', () => {
             + ' scope={"league_id":"42"} verified=true');
     });
 
-    it('prints an error stack on indented lines after the message', () => {
+    it('should print an error stack on indented lines after the message', () => {
         expect(format({
             err: {
                 message: 'connection refused',
@@ -62,7 +62,7 @@ describe('prettify', () => {
             + '      at connect (db.ts:4:2)');
     });
 
-    it('rejects a line without the fields createLogger always writes', () => {
+    it('should reject a line without the fields createLogger always writes', () => {
         expect(() => prettify(JSON.stringify({ msg: 'no level' }))).toThrow(z.ZodError);
     });
 });

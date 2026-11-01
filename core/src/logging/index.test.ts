@@ -20,7 +20,7 @@ const capture = ({ isTTY }: { isTTY: boolean }) => {
 };
 
 describe('createLogger', () => {
-    it('writes structured logs with level, time, message, service, and release', () => {
+    it('should write structured logs with level, time, message, service, and release', () => {
         const { destination, lines } = capture({ isTTY: false });
 
         const logger = createLogger({
@@ -44,7 +44,7 @@ describe('createLogger', () => {
         });
     });
 
-    it('skips logs below the configured log level', () => {
+    it('should skip logs below the configured log level', () => {
         const { destination, lines } = capture({ isTTY: false });
 
         const logger = createLogger({
@@ -65,7 +65,7 @@ describe('createLogger', () => {
         expect(line.level).toEqual('error');
     });
 
-    it(`adds a child logger's fields to the log`, () => {
+    it(`should add a child logger's fields to the log`, () => {
         const { destination, lines } = capture({ isTTY: false });
 
         const logger = createLogger({
@@ -84,7 +84,7 @@ describe('createLogger', () => {
         });
     });
 
-    it('uses a friendly log format in TTY environments', () => {
+    it('should use a friendly log format in TTY environments', () => {
         const { destination, lines } = capture({ isTTY: true });
 
         const logger = createLogger({
@@ -102,7 +102,7 @@ describe('createLogger', () => {
         );
     });
 
-    it('redacts sensitive fields', () => {
+    it('should redact sensitive fields', () => {
         const { destination, lines } = capture({ isTTY: false });
 
         const logger = createLogger({

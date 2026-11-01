@@ -10,7 +10,11 @@ describe('league_membership', () => {
         fixture = await createTestDatabase();
 
         await fixture.db.insertInto('user')
-            .values({ email: 'member@example.test', id: 'member', name: 'Member' })
+            .values({
+                email: 'member@example.test',
+                id: 'member',
+                name: 'Member',
+            })
             .execute();
 
         await fixture.db.insertInto('organization')
@@ -35,17 +39,26 @@ describe('league_membership', () => {
         await fixture.destroy();
     });
 
-    it.each(['manager', 'steward', 'appeals'])('accepts the %s role', async (role) => {
-        const insert = fixture.db.insertInto('leagueMembership')
-            .values({ leagueId, role, userId: 'member' })
-            .execute();
+    it.each(['manager', 'steward', 'appeals'])('should accept the %s role', async (role) => {
+        const membership = await fixture.db.insertInto('leagueMembership')
+            .values({
+                leagueId,
+                role,
+                userId: 'member',
+            })
+            .returning('role')
+            .executeTakeFirstOrThrow();
 
-        await expect(insert).resolves.toBeDefined();
+        expect(membership.role).toBe(role);
     });
 
-    it('rejects any other role', async () => {
+    it('should reject any other role', async () => {
         const insert = fixture.db.insertInto('leagueMembership')
-            .values({ leagueId, role: 'owner', userId: 'member' })
+            .values({
+                leagueId,
+                role: 'owner',
+                userId: 'member',
+            })
             .execute();
 
         await expect(insert).rejects.toThrow(/league_membership_role_check/);
