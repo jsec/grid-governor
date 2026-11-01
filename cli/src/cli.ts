@@ -26,7 +26,11 @@ function exitCancelled(message: string): never {
 
 const createAdmin = defineCommand({
     args: {
-        email: { description: 'Email address', required: false, type: 'positional' },
+        email: {
+            description: 'Email address',
+            required: false,
+            type: 'positional',
+        },
         name: { description: 'Display name', type: 'string' },
     },
     meta: { description: 'Create a new admin user (password is prompted)', name: 'create-admin' },
