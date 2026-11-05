@@ -1,7 +1,7 @@
 import { createTestDatabase, type TestDatabase } from '@grid-governor/core/testing/database';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { createTestApp, signIn, testPassword } from '../test/helpers.ts';
+import { createTestApp, seedOrganization, signIn, testPassword } from '../test/helpers.ts';
 
 describe('createApp', () => {
     let fixture: TestDatabase;
@@ -87,6 +87,27 @@ describe('createApp', () => {
                     status: 500,
                 },
             ]);
+        });
+    });
+
+    describe('unmatched routes', () => {
+        it.each([
+            ['GET', '/api/seasons/abc'],
+            ['GET', '/api/nowhere'],
+            ['PATCH', '/api/seasons/1'],
+        ])('should respond to %s %s with a JSON 404', async (method, path) => {
+            const { app, auth } = createTestApp(fixture.db);
+            await seedOrganization(fixture.db);
+            const cookie = await signIn(auth, 'owner@example.test');
+
+            const response = await app.request(path, {
+                headers: { 'content-type': 'application/json', cookie },
+                method,
+            });
+            const body = await response.json();
+
+            expect(response.status).toBe(404);
+            expect(body).toEqual({ error: 'Not Found' });
         });
     });
 

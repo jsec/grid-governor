@@ -2,13 +2,11 @@ import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
 import { roundInputSchema } from '@grid-governor/core/schemas';
-import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { isDeepStrictEqual } from 'node:util';
 
-import type { SessionEnv } from '../middleware/session.ts';
-
 import { requireLeague, requireLeaguePermission, requireMember } from '../auth/access.ts';
+import { factory } from '../factory.ts';
 import { validateBody } from '../middleware/validator.ts';
 
 const roundColumns = [
@@ -24,7 +22,7 @@ const updatableFields = ['startsAt', 'track'] as const;
 const deletedFields = ['ordinal', 'startsAt', 'track'] as const;
 
 export const seasonRoundRouter = (db: Kysely<DB>) => {
-    const router = new Hono<SessionEnv>();
+    const router = factory.createApp();
 
     router.get('/:seasonId{[0-9]+}/rounds', async (ctx) => {
         const seasonId = ctx.req.param('seasonId');
@@ -114,7 +112,7 @@ export const seasonRoundRouter = (db: Kysely<DB>) => {
 };
 
 export const roundRouter = (db: Kysely<DB>) => {
-    const router = new Hono<SessionEnv>();
+    const router = factory.createApp();
 
     router.put('/:roundId{[0-9]+}', validateBody(roundInputSchema), async (ctx) => {
         const body = ctx.req.valid('json');

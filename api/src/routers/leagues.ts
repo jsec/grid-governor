@@ -7,12 +7,10 @@ import {
     grantLeagueRoleSchema,
     updateLeagueSchema,
 } from '@grid-governor/core/schemas';
-import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-import type { SessionEnv } from '../middleware/session.ts';
-
 import { requireLeague, requireMember, requirePermission } from '../auth/access.ts';
+import { factory } from '../factory.ts';
 import { validateBody } from '../middleware/validator.ts';
 
 const leagueColumns = [
@@ -40,7 +38,7 @@ const leagueMembershipColumns = [
 ] as const;
 
 export const organizationLeagueRouter = (db: Kysely<DB>) => {
-    const router = new Hono<SessionEnv>();
+    const router = factory.createApp();
 
     router.get('/:organizationId/leagues', async (ctx) => {
         const organizationId = ctx.req.param('organizationId');
@@ -101,7 +99,7 @@ export const organizationLeagueRouter = (db: Kysely<DB>) => {
 };
 
 export const leagueRouter = (db: Kysely<DB>) => {
-    const router = new Hono<SessionEnv>();
+    const router = factory.createApp();
 
     router.get('/:leagueId{[0-9]+}', async (ctx) => {
         const league = await db

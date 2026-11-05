@@ -1,15 +1,13 @@
 import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
-import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-import type { SessionEnv } from '../middleware/session.ts';
-
 import { requirePermission } from '../auth/access.ts';
+import { factory } from '../factory.ts';
 
 export const leagueMembershipRouter = (db: Kysely<DB>) => {
-    const router = new Hono<SessionEnv>();
+    const router = factory.createApp();
 
     router.delete('/:membershipId{[0-9]+}', async (ctx) => {
         const userId = ctx.var.user.id;

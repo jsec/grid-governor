@@ -4,7 +4,6 @@ import type { Logger } from '@grid-governor/core/logging';
 import type { Kysely } from 'kysely';
 import type { Resend } from 'resend';
 
-import { Hono } from 'hono';
 import { except } from 'hono/combine';
 import { csrf } from 'hono/csrf';
 import { HTTPException } from 'hono/http-exception';
@@ -15,8 +14,9 @@ import { z } from 'zod';
 import type { ApiConfig } from './config/config.ts';
 
 import { createInviteHandler } from './auth/invite-handler.ts';
+import { factory } from './factory.ts';
 import { requestLogger } from './middleware/logger.ts';
-import { requireSession, type SessionEnv } from './middleware/session.ts';
+import { requireSession } from './middleware/session.ts';
 import { leagueMembershipRouter } from './routers/league-memberships.ts';
 import { leagueRouter, organizationLeagueRouter } from './routers/leagues.ts';
 import { roundRouter, seasonRoundRouter } from './routers/rounds.ts';
@@ -35,7 +35,7 @@ type AppDependencies = {
 };
 
 export const createApp = ({ auth, config, db, emails, logger }: AppDependencies) => {
-    const app = new Hono<SessionEnv>();
+    const app = factory.createApp();
 
     const inviteHandler = createInviteHandler({
         authHandler: auth.handler,
@@ -64,6 +64,8 @@ export const createApp = ({ auth, config, db, emails, logger }: AppDependencies)
     app.route('/api/seasons', seasonRouter(db));
     app.route('/api/seasons', seasonRoundRouter(db));
     app.route('/api/rounds', roundRouter(db));
+
+    app.notFound(ctx => ctx.json({ error: STATUS_CODES[404] }, 404));
 
     app.onError((error, ctx) => {
         if (error instanceof HTTPException) {

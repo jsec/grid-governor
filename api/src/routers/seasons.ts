@@ -2,13 +2,11 @@ import type { DB } from '@grid-governor/core/db/types';
 import type { ExpressionBuilder, Kysely } from 'kysely';
 
 import { seasonInputSchema } from '@grid-governor/core/schemas';
-import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { isDeepStrictEqual } from 'node:util';
 
-import type { SessionEnv } from '../middleware/session.ts';
-
 import { requireLeague, requireLeaguePermission, requireMember } from '../auth/access.ts';
+import { factory } from '../factory.ts';
 import { validateBody } from '../middleware/validator.ts';
 
 const seasonColumns = [
@@ -41,7 +39,7 @@ const hasResults = (eb: ExpressionBuilder<DB, 'season'>) => {
 };
 
 export const leagueSeasonRouter = (db: Kysely<DB>) => {
-    const router = new Hono<SessionEnv>();
+    const router = factory.createApp();
 
     router.get('/:leagueId{[0-9]+}/seasons', async (ctx) => {
         const leagueId = ctx.req.param('leagueId');
@@ -106,7 +104,7 @@ export const leagueSeasonRouter = (db: Kysely<DB>) => {
 };
 
 export const seasonRouter = (db: Kysely<DB>) => {
-    const router = new Hono<SessionEnv>();
+    const router = factory.createApp();
 
     router.get('/:seasonId{[0-9]+}', async (ctx) => {
         const season = await db
