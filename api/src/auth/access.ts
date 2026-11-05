@@ -4,7 +4,7 @@ import type { Kysely } from 'kysely';
 import { leagueRoles, roles } from '@grid-governor/core/access';
 import { HTTPException } from 'hono/http-exception';
 
-import type { Actor } from '../audit.ts';
+import type { Actor, OrganizationActor } from '../audit.ts';
 
 type LeaguePermissions = Parameters<typeof leagueRoles.manager.authorize>[0];
 type Permissions = Parameters<typeof roles.member.authorize>[0];
@@ -41,7 +41,7 @@ type PermissionCheck = {
 
 export const requirePermission = async (
     { db, organizationId, permissions, userId }: PermissionCheck,
-) => {
+): Promise<OrganizationActor> => {
     const role = await requireMember(db, userId, organizationId);
 
     const { success: isAuthorized } = roles[role].authorize(permissions);
@@ -50,7 +50,11 @@ export const requirePermission = async (
         throw new HTTPException(403);
     }
 
-    return role;
+    return {
+        organizationId,
+        role,
+        userId,
+    };
 };
 
 export const requireLeaguePermission = async (
@@ -154,4 +158,36 @@ export const lockRound = async (tx: Kysely<DB>, roundId: string) => {
     }
 
     return round.leagueId;
+};
+
+export const lockLeague = async (tx: Kysely<DB>, leagueId: string) => {
+    const league = await tx
+        .selectFrom('league')
+        .select('organizationId')
+        .where('leagueId', '=', leagueId)
+        .forUpdate()
+        .executeTakeFirst();
+
+    if (!league) {
+        throw new HTTPException(404);
+    }
+
+    return league.organizationId;
+};
+
+export const lockMembership = async (tx: Kysely<DB>, membershipId: string) => {
+    const membership = await tx
+        .selectFrom('leagueMembership')
+        .innerJoin('league', 'league.leagueId', 'leagueMembership.leagueId')
+        .select(['league.organizationId', 'leagueMembership.leagueId'])
+        .where('leagueMembership.membershipId', '=', membershipId)
+        .where('leagueMembership.revokedAt', 'is', null)
+        .forUpdate()
+        .executeTakeFirst();
+
+    if (!membership) {
+        throw new HTTPException(404);
+    }
+
+    return membership;
 };

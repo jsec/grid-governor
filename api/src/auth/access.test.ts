@@ -85,7 +85,7 @@ describe('organization access checks', () => {
     it.each([
         'owner',
         'admin',
-    ])('should return the %s role when it allows the action', async (role) => {
+    ])('should return the actor as %s when the role allows the action', async (role) => {
         const result = await requirePermission({
             db: fixture.db,
             organizationId: 'grid-club',
@@ -93,7 +93,11 @@ describe('organization access checks', () => {
             userId: role,
         });
 
-        expect(result).toBe(role);
+        expect(result).toEqual({
+            organizationId: 'grid-club',
+            role,
+            userId: role,
+        });
     });
 
     it('should respond 403 to a member without the permission', async () => {

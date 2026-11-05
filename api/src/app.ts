@@ -15,12 +15,12 @@ import type { ApiConfig } from './config/config.ts';
 
 import { createInviteHandler } from './auth/invite-handler.ts';
 import { factory } from './factory.ts';
+import { leagueMembershipRouter, membershipRouter } from './league-memberships/router.ts';
+import { leagueRouter, organizationLeagueRouter } from './leagues/router.ts';
 import { requestLogger } from './middleware/logger.ts';
 import { requireSession } from './middleware/session.ts';
 import { roundRouter, seasonRoundRouter } from './rounds/router.ts';
-import { leagueMembershipRouter } from './routers/league-memberships.ts';
-import { leagueRouter, organizationLeagueRouter } from './routers/leagues.ts';
-import { leagueSeasonRouter, seasonRouter } from './routers/seasons.ts';
+import { leagueSeasonRouter, seasonRouter } from './seasons/router.ts';
 
 const constraintViolation = z.object({
     code: z.enum(['23503', '23505']),
@@ -60,7 +60,8 @@ export const createApp = ({ auth, config, db, emails, logger }: AppDependencies)
     app.route('/api/organizations', organizationLeagueRouter(db));
     app.route('/api/leagues', leagueRouter(db));
     app.route('/api/leagues', leagueSeasonRouter(db));
-    app.route('/api/league-memberships', leagueMembershipRouter(db));
+    app.route('/api/leagues', leagueMembershipRouter(db));
+    app.route('/api/league-memberships', membershipRouter(db));
     app.route('/api/seasons', seasonRouter(db));
     app.route('/api/seasons', seasonRoundRouter(db));
     app.route('/api/rounds', roundRouter(db));
@@ -70,7 +71,7 @@ export const createApp = ({ auth, config, db, emails, logger }: AppDependencies)
     app.onError((error, ctx) => {
         if (error instanceof HTTPException) {
             return ctx.json({
-                error: STATUS_CODES[error.status],
+                error: error.message || STATUS_CODES[error.status],
             }, error.status);
         }
 

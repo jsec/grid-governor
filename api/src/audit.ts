@@ -10,6 +10,8 @@ export type Actor = {
     userId: string;
 };
 
+export type OrganizationActor = Omit<Actor, 'leagueId'>;
+
 type AuditRecord = {
     action: string;
     actor: Actor;
