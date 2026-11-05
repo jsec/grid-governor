@@ -19,9 +19,12 @@ import { requestLogger } from './middleware/logger.ts';
 import { requireSession, type SessionEnv } from './middleware/session.ts';
 import { leagueMembershipRouter } from './routers/league-memberships.ts';
 import { leagueRouter, organizationLeagueRouter } from './routers/leagues.ts';
+import { roundRouter, seasonRoundRouter } from './routers/rounds.ts';
 import { leagueSeasonRouter, seasonRouter } from './routers/seasons.ts';
 
-const uniqueViolation = z.object({ code: z.literal('23505') });
+const constraintViolation = z.object({
+    code: z.enum(['23503', '23505']),
+});
 
 type AppDependencies = {
     auth: Auth;
@@ -59,6 +62,8 @@ export const createApp = ({ auth, config, db, emails, logger }: AppDependencies)
     app.route('/api/leagues', leagueSeasonRouter(db));
     app.route('/api/league-memberships', leagueMembershipRouter(db));
     app.route('/api/seasons', seasonRouter(db));
+    app.route('/api/seasons', seasonRoundRouter(db));
+    app.route('/api/rounds', roundRouter(db));
 
     app.onError((error, ctx) => {
         if (error instanceof HTTPException) {
@@ -67,7 +72,7 @@ export const createApp = ({ auth, config, db, emails, logger }: AppDependencies)
             }, error.status);
         }
 
-        if (uniqueViolation.safeParse(error).success) {
+        if (constraintViolation.safeParse(error).success) {
             return ctx.json({ error: STATUS_CODES[409] }, 409);
         }
 
