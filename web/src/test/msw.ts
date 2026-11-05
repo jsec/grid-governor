@@ -1,6 +1,11 @@
 import type { z } from 'zod';
 
-import { leagueRolesSchema, leagueSchema, seasonSchema } from '@grid-governor/core/schemas';
+import {
+    leagueRolesSchema,
+    leagueSchema,
+    roundSchema,
+    seasonSchema,
+} from '@grid-governor/core/schemas';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
@@ -56,6 +61,10 @@ export function mockMemberRole(role: string) {
         HttpResponse.json({ role })));
 }
 
+export function mockRounds(rounds: z.infer<typeof roundSchema>[]) {
+    server.use(http.get('*/api/seasons/7/rounds', () => HttpResponse.json({ rounds })));
+}
+
 export function mockSeasons(seasons: z.infer<typeof seasonSchema>[]) {
     server.use(http.get('*/api/leagues/1/seasons', () => HttpResponse.json({ seasons })));
 }
@@ -87,6 +96,18 @@ export function mockSession(email?: string) {
             },
         });
     }));
+}
+
+export function roundFixture(overrides: Partial<z.infer<typeof roundSchema>> = {}) {
+    return roundSchema.parse({
+        createdAt: '2026-10-01T12:00:00.000Z',
+        id: '3',
+        ordinal: 1,
+        seasonId: '7',
+        startsAt: null,
+        track: 'Spa',
+        ...overrides,
+    });
 }
 
 export function seasonFixture(overrides: Partial<z.infer<typeof seasonSchema>> = {}) {

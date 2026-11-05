@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import {
     leagueFixture,
     mockLeagueRoles,
+    mockRounds,
     mockSeasons,
     mockSession,
     seasonFixture,
@@ -22,6 +23,7 @@ function mockSeason(overrides: Parameters<typeof seasonFixture>[0] = {}) {
 beforeEach(() => {
     server.use(http.get('*/api/leagues/1', () => HttpResponse.json(leagueFixture())));
     mockSession('member@example.com');
+    mockRounds([]);
 });
 
 describe('league route seasons', () => {

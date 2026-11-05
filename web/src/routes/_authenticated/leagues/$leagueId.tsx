@@ -11,7 +11,7 @@ import { AnchorLink } from '../../../components/anchor-link';
 import { LeagueForm } from '../../../components/league-form';
 import { SeasonForm } from '../../../components/season-form';
 import { api } from '../../../lib/api';
-import { hasSeasonPermission } from '../../../lib/season-permission';
+import { hasLeaguePermission } from '../../../lib/league-permission';
 import { leagueListQuery, leagueQuery, leagueRolesQuery } from '../../../queries/leagues';
 import { seasonListQuery } from '../../../queries/seasons';
 
@@ -77,7 +77,7 @@ function LeagueRoute() {
         permissions: { league: ['update'] },
         role: roles.organizationRole,
     });
-    const hasCreateSeasonPermission = hasSeasonPermission(roles, 'create');
+    const hasCreateSeasonPermission = hasLeaguePermission(roles, { season: ['create'] });
     const [latestSeason] = seasons;
 
     const update = useMutation({

@@ -17,6 +17,7 @@ import { Route as AuthenticatedLeaguesLeagueIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedSeasonsSeasonIdRouteImport } from './routes/_authenticated/seasons/$seasonId'
 import { Route as AuthenticatedLeaguesLeagueIdStaffRouteImport } from './routes/_authenticated/leagues/$leagueId_.staff'
 import { Route as AuthenticatedOrganizationsOrganizationIdLeaguesRouteImport } from './routes/_authenticated/organizations/$organizationId/leagues'
+import { Route as AuthenticatedSeasonsSeasonIdRoundsRoundIdRouteImport } from './routes/_authenticated/seasons/$seasonId_.rounds.$roundId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -62,6 +63,12 @@ const AuthenticatedOrganizationsOrganizationIdLeaguesRoute =
     path: '/organizations/$organizationId/leagues',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute =
+  AuthenticatedSeasonsSeasonIdRoundsRoundIdRouteImport.update({
+    id: '/seasons/$seasonId_/rounds/$roundId',
+    path: '/seasons/$seasonId/rounds/$roundId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/seasons/$seasonId': typeof AuthenticatedSeasonsSeasonIdRoute
   '/leagues/$leagueId/staff': typeof AuthenticatedLeaguesLeagueIdStaffRoute
   '/organizations/$organizationId/leagues': typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
+  '/seasons/$seasonId/rounds/$roundId': typeof AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute
 }
 export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
@@ -80,6 +88,7 @@ export interface FileRoutesByTo {
   '/seasons/$seasonId': typeof AuthenticatedSeasonsSeasonIdRoute
   '/leagues/$leagueId/staff': typeof AuthenticatedLeaguesLeagueIdStaffRoute
   '/organizations/$organizationId/leagues': typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
+  '/seasons/$seasonId/rounds/$roundId': typeof AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -91,6 +100,7 @@ export interface FileRoutesById {
   '/_authenticated/seasons/$seasonId': typeof AuthenticatedSeasonsSeasonIdRoute
   '/_authenticated/leagues/$leagueId_/staff': typeof AuthenticatedLeaguesLeagueIdStaffRoute
   '/_authenticated/organizations/$organizationId/leagues': typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
+  '/_authenticated/seasons/$seasonId_/rounds/$roundId': typeof AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
     | '/seasons/$seasonId'
     | '/leagues/$leagueId/staff'
     | '/organizations/$organizationId/leagues'
+    | '/seasons/$seasonId/rounds/$roundId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/sign-in'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '/seasons/$seasonId'
     | '/leagues/$leagueId/staff'
     | '/organizations/$organizationId/leagues'
+    | '/seasons/$seasonId/rounds/$roundId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -121,6 +133,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seasons/$seasonId'
     | '/_authenticated/leagues/$leagueId_/staff'
     | '/_authenticated/organizations/$organizationId/leagues'
+    | '/_authenticated/seasons/$seasonId_/rounds/$roundId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrganizationsOrganizationIdLeaguesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/seasons/$seasonId_/rounds/$roundId': {
+      id: '/_authenticated/seasons/$seasonId_/rounds/$roundId'
+      path: '/seasons/$seasonId/rounds/$roundId'
+      fullPath: '/seasons/$seasonId/rounds/$roundId'
+      preLoaderRoute: typeof AuthenticatedSeasonsSeasonIdRoundsRoundIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -196,6 +216,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSeasonsSeasonIdRoute: typeof AuthenticatedSeasonsSeasonIdRoute
   AuthenticatedLeaguesLeagueIdStaffRoute: typeof AuthenticatedLeaguesLeagueIdStaffRoute
   AuthenticatedOrganizationsOrganizationIdLeaguesRoute: typeof AuthenticatedOrganizationsOrganizationIdLeaguesRoute
+  AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute: typeof AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -208,6 +229,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedLeaguesLeagueIdStaffRoute,
   AuthenticatedOrganizationsOrganizationIdLeaguesRoute:
     AuthenticatedOrganizationsOrganizationIdLeaguesRoute,
+  AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute:
+    AuthenticatedSeasonsSeasonIdRoundsRoundIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

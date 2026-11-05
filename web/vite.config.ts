@@ -14,6 +14,7 @@ export default defineConfig({
         },
     },
     test: {
+        env: { TZ: 'UTC' },
         environment: 'jsdom',
         globals: true,
         setupFiles: ['./src/test/setup.ts'],
