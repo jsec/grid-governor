@@ -159,7 +159,7 @@ describe('organization access checks', () => {
         it.each([
             'owner',
             'admin',
-        ])('should return the %s role without a league role', async (role) => {
+        ])('should return the actor with the %s role and no league role', async (role) => {
             const result = await requireLeaguePermission({
                 db: fixture.db,
                 leagueId,
@@ -167,13 +167,18 @@ describe('organization access checks', () => {
                 userId: role,
             });
 
-            expect(result).toEqual({ organizationId: 'grid-club', role });
+            expect(result).toEqual({
+                leagueId,
+                organizationId: 'grid-club',
+                role,
+                userId: role,
+            });
         });
 
         it.each([
             ['steward', { ruling: ['create'] }],
             ['appeals', { appeal: ['decide'] }],
-        ] as const)('should return the %s role allowing the action', async (role, permissions) => {
+        ] as const)('should return the actor as %s for the action', async (role, permissions) => {
             const result = await requireLeaguePermission({
                 db: fixture.db,
                 leagueId,
@@ -181,7 +186,12 @@ describe('organization access checks', () => {
                 userId: 'member',
             });
 
-            expect(result).toEqual({ organizationId: 'grid-club', role });
+            expect(result).toEqual({
+                leagueId,
+                organizationId: 'grid-club',
+                role,
+                userId: 'member',
+            });
         });
 
         it('should respond 403 when only a revoked role allows the action', async () => {

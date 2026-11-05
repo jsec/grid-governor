@@ -4,6 +4,8 @@ import type { Kysely } from 'kysely';
 import { leagueRoles, roles } from '@grid-governor/core/access';
 import { HTTPException } from 'hono/http-exception';
 
+import type { Actor } from '../audit.ts';
+
 type LeaguePermissions = Parameters<typeof leagueRoles.manager.authorize>[0];
 type Permissions = Parameters<typeof roles.member.authorize>[0];
 
@@ -53,26 +55,29 @@ export const requirePermission = async (
 
 export const requireLeaguePermission = async (
     { db, leagueId, permissions, userId }: LeaguePermissionCheck,
-) => {
+): Promise<Actor> => {
     const organizationId = await requireLeague(db, leagueId);
     const organizationRole = await requireMember(db, userId, organizationId);
 
     if (organizationRole === 'owner' || organizationRole === 'admin') {
-        return { organizationId, role: organizationRole };
+        return {
+            leagueId,
+            organizationId,
+            role: organizationRole,
+            userId,
+        };
     }
 
-    const grants = await db
-        .selectFrom('leagueMembership')
-        .select('role')
-        .$narrowType<{ role: keyof typeof leagueRoles }>()
-        .where('leagueId', '=', leagueId)
-        .where('userId', '=', userId)
-        .where('revokedAt', 'is', null)
-        .execute();
+    const roles = await listLeagueRoles(db, leagueId, userId);
 
-    for (const { role } of grants) {
+    for (const role of roles) {
         if (leagueRoles[role].authorize(permissions).success) {
-            return { organizationId, role };
+            return {
+                leagueId,
+                organizationId,
+                role,
+                userId,
+            };
         }
     }
 
@@ -91,4 +96,62 @@ export const requireLeague = async (db: Kysely<DB>, leagueId: string) => {
     }
 
     return league.organizationId;
+};
+
+export const listLeagueRoles = async (db: Kysely<DB>, leagueId: string, userId: string) => {
+    const grants = await db
+        .selectFrom('leagueMembership')
+        .select('role')
+        .$narrowType<{ role: keyof typeof leagueRoles }>()
+        .where('leagueId', '=', leagueId)
+        .where('userId', '=', userId)
+        .where('revokedAt', 'is', null)
+        .execute();
+
+    return grants.map(grant => grant.role);
+};
+
+export const requireSeason = async (db: Kysely<DB>, seasonId: string) => {
+    const season = await db
+        .selectFrom('season')
+        .select('leagueId')
+        .where('seasonId', '=', seasonId)
+        .executeTakeFirst();
+
+    if (!season) {
+        throw new HTTPException(404);
+    }
+
+    return season.leagueId;
+};
+
+export const lockSeason = async (tx: Kysely<DB>, seasonId: string) => {
+    const season = await tx
+        .selectFrom('season')
+        .select('leagueId')
+        .where('seasonId', '=', seasonId)
+        .forUpdate()
+        .executeTakeFirst();
+
+    if (!season) {
+        throw new HTTPException(404);
+    }
+
+    return season.leagueId;
+};
+
+export const lockRound = async (tx: Kysely<DB>, roundId: string) => {
+    const round = await tx
+        .selectFrom('round')
+        .innerJoin('season', 'season.seasonId', 'round.seasonId')
+        .select('season.leagueId')
+        .where('round.roundId', '=', roundId)
+        .forUpdate()
+        .executeTakeFirst();
+
+    if (!round) {
+        throw new HTTPException(404);
+    }
+
+    return round.leagueId;
 };

@@ -1,4 +1,3 @@
-import type { leagueRoles } from '@grid-governor/core/access';
 import type { DB } from '@grid-governor/core/db/types';
 import type { Kysely } from 'kysely';
 
@@ -9,7 +8,12 @@ import {
 } from '@grid-governor/core/schemas';
 import { HTTPException } from 'hono/http-exception';
 
-import { requireLeague, requireMember, requirePermission } from '../auth/access.ts';
+import {
+    listLeagueRoles,
+    requireLeague,
+    requireMember,
+    requirePermission,
+} from '../auth/access.ts';
 import { factory } from '../factory.ts';
 import { validateBody } from '../middleware/validator.ts';
 
@@ -269,19 +273,9 @@ export const leagueRouter = (db: Kysely<DB>) => {
         const organizationId = await requireLeague(db, leagueId);
         const organizationRole = await requireMember(db, userId, organizationId);
 
-        const grants = await db
-            .selectFrom('leagueMembership')
-            .select('role')
-            .$narrowType<{ role: keyof typeof leagueRoles }>()
-            .where('leagueId', '=', leagueId)
-            .where('userId', '=', userId)
-            .where('revokedAt', 'is', null)
-            .execute();
+        const leagueRoles = await listLeagueRoles(db, leagueId, userId);
 
-        return ctx.json({
-            leagueRoles: grants.map(grant => grant.role),
-            organizationRole,
-        });
+        return ctx.json({ leagueRoles, organizationRole });
     });
 
     return router;
