@@ -15,12 +15,13 @@ import type { ApiConfig } from './config/config.ts';
 
 import { createInviteHandler } from './auth/invite-handler.ts';
 import { factory } from './factory.ts';
-import { leagueMembershipRouter, membershipRouter } from './league-memberships/router.ts';
-import { leagueRouter, organizationLeagueRouter } from './leagues/router.ts';
+import { leagueMembershipRouter } from './league-memberships/router.ts';
+import { leagueRouter } from './leagues/router.ts';
 import { requestLogger } from './middleware/logger.ts';
 import { requireSession } from './middleware/session.ts';
-import { roundRouter, seasonRoundRouter } from './rounds/router.ts';
-import { leagueSeasonRouter, seasonRouter } from './seasons/router.ts';
+import { organizationRouter } from './organizations/router.ts';
+import { roundRouter } from './rounds/router.ts';
+import { seasonRouter } from './seasons/router.ts';
 
 const constraintViolation = z.object({
     code: z.enum(['23503', '23505']),
@@ -57,13 +58,10 @@ export const createApp = ({ auth, config, db, emails, logger }: AppDependencies)
     app.get('/api/health', ctx => ctx.json({ status: 'ok' }));
     app.on(['GET', 'POST'], '/api/auth/*', ctx => inviteHandler(ctx.req.raw, ctx.var.logger));
 
-    app.route('/api/organizations', organizationLeagueRouter(db));
+    app.route('/api/organizations', organizationRouter(db));
     app.route('/api/leagues', leagueRouter(db));
-    app.route('/api/leagues', leagueSeasonRouter(db));
-    app.route('/api/leagues', leagueMembershipRouter(db));
-    app.route('/api/league-memberships', membershipRouter(db));
+    app.route('/api/league-memberships', leagueMembershipRouter(db));
     app.route('/api/seasons', seasonRouter(db));
-    app.route('/api/seasons', seasonRoundRouter(db));
     app.route('/api/rounds', roundRouter(db));
 
     app.notFound(ctx => ctx.json({ error: STATUS_CODES[404] }, 404));
