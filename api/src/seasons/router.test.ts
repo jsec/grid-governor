@@ -9,6 +9,7 @@ const seasonBody = {
     expiryRounds: null,
     fastestLapBonus: 1,
     name: '2027',
+    platform: 'iracing',
     pointsScheme: [25, 18, 15],
     poleBonus: 0,
 };
@@ -88,7 +89,11 @@ describe('season routes', () => {
 
     async function addResult(seasonId: string) {
         const { driverId } = await fixture.db.insertInto('driver')
-            .values({ displayName: 'Dee Driver', simId: 'sim-1' })
+            .values({
+                displayName: 'Dee Driver',
+                platform: 'iracing',
+                simId: 'sim-1',
+            })
             .returning('driverId')
             .executeTakeFirstOrThrow();
 
@@ -96,6 +101,7 @@ describe('season routes', () => {
             .values({
                 carNumber: 7,
                 driverId,
+                platform: 'iracing',
                 seasonId,
             })
             .returning('entryId')
@@ -259,6 +265,7 @@ describe('season routes', () => {
             ['dropWorst', 1],
             ['expiryRounds', 3],
             ['fastestLapBonus', 0],
+            ['platform', 'acc'],
             ['pointsScheme', [25, 18, 15, 12]],
             ['poleBonus', 1],
         ])('should respond 409 to a %s change on a scored season', async (field, value) => {
@@ -270,6 +277,61 @@ describe('season routes', () => {
                 body: {
                     ...unchanged,
                     [field]: value,
+                },
+                email: 'owner@example.test',
+                method: 'PUT',
+                path,
+            });
+
+            const changes = await auditChanges();
+
+            expect(response.status).toBe(409);
+            expect(changes).toEqual([]);
+        });
+
+        it('should change the platform of a season without entries', async () => {
+            const seasonId = await insertSeason('2026');
+            const path = `/api/seasons/${seasonId}`;
+
+            const response = await request({
+                body: {
+                    ...unchanged,
+                    platform: 'acc',
+                },
+                email: 'owner@example.test',
+                method: 'PUT',
+                path,
+            });
+            const body = await response.json();
+
+            expect(response.status).toBe(200);
+            expect(seasonSchema.parse(body)).toMatchObject({ platform: 'acc' });
+        });
+
+        it('should respond 409 to a platform change on a season with entries', async () => {
+            const seasonId = await insertSeason('2026');
+            const path = `/api/seasons/${seasonId}`;
+            const { driverId } = await fixture.db.insertInto('driver')
+                .values({
+                    displayName: 'Dee Driver',
+                    platform: 'iracing',
+                    simId: 'sim-1',
+                })
+                .returning('driverId')
+                .executeTakeFirstOrThrow();
+            await fixture.db.insertInto('entry')
+                .values({
+                    carNumber: 7,
+                    driverId,
+                    platform: 'iracing',
+                    seasonId,
+                })
+                .execute();
+
+            const response = await request({
+                body: {
+                    ...unchanged,
+                    platform: 'acc',
                 },
                 email: 'owner@example.test',
                 method: 'PUT',
@@ -370,6 +432,7 @@ describe('season round routes', () => {
             .values({
                 leagueId,
                 name: '2026',
+                platform: 'iracing',
                 pointsScheme: [25, 18, 15],
             })
             .returning('seasonId')

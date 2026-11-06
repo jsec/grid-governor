@@ -23,6 +23,7 @@ const seasonBody = {
     expiryRounds: null,
     fastestLapBonus: 1,
     name: '2027',
+    platform: 'iracing',
     pointsScheme: [25, 18, 15],
     poleBonus: 0,
 };
@@ -292,7 +293,11 @@ describe('league season routes', () => {
 
     async function addResult(seasonId: string) {
         const { driverId } = await fixture.db.insertInto('driver')
-            .values({ displayName: 'Dee Driver', simId: 'sim-1' })
+            .values({
+                displayName: 'Dee Driver',
+                platform: 'iracing',
+                simId: 'sim-1',
+            })
             .returning('driverId')
             .executeTakeFirstOrThrow();
 
@@ -300,6 +305,7 @@ describe('league season routes', () => {
             .values({
                 carNumber: 7,
                 driverId,
+                platform: 'iracing',
                 seasonId,
             })
             .returning('entryId')

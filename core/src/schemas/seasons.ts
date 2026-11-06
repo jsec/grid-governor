@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { platformSchema } from './platforms.ts';
+
 const nonNegativeIntSchema = z.number()
     .int()
     .nonnegative();
@@ -15,6 +17,7 @@ export const seasonSchema = z.object({
     id: z.string(),
     leagueId: z.string(),
     name: z.string(),
+    platform: platformSchema,
     pointsScheme: z.array(z.number().int()),
     poleBonus: z.number().int(),
 });
@@ -33,6 +36,7 @@ export const seasonInputSchema = z.object({
     name: z.string()
         .trim()
         .min(1),
+    platform: platformSchema,
     pointsScheme: z.array(nonNegativeIntSchema).min(1),
     poleBonus: nonNegativeIntSchema,
 });

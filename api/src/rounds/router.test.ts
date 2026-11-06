@@ -50,6 +50,7 @@ describe('round routes', () => {
             .values({
                 leagueId,
                 name: '2026',
+                platform: 'iracing',
                 pointsScheme: [25, 18, 15],
             })
             .returning('seasonId')
@@ -97,7 +98,11 @@ describe('round routes', () => {
 
     async function insertEntry() {
         const { driverId } = await fixture.db.insertInto('driver')
-            .values({ displayName: 'Dee Driver', simId: 'sim-1' })
+            .values({
+                displayName: 'Dee Driver',
+                platform: 'iracing',
+                simId: 'sim-1',
+            })
             .returning('driverId')
             .executeTakeFirstOrThrow();
 
@@ -105,6 +110,7 @@ describe('round routes', () => {
             .values({
                 carNumber: 7,
                 driverId,
+                platform: 'iracing',
                 seasonId,
             })
             .returning('entryId')

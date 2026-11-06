@@ -1,5 +1,5 @@
 import type { DB } from '@grid-governor/core/db/types';
-import type { seasonInputSchema } from '@grid-governor/core/schemas';
+import type { Platform, seasonInputSchema } from '@grid-governor/core/schemas';
 import type { ExpressionBuilder, Kysely } from 'kysely';
 import type { z } from 'zod';
 
@@ -16,6 +16,7 @@ const seasonColumns = [
     'season.fastestLapBonus',
     'season.leagueId',
     'season.name',
+    'season.platform',
     'season.pointsScheme',
     'season.poleBonus',
     'season.seasonId as id',
@@ -26,6 +27,7 @@ const updatableFields = [
     'expiryRounds',
     'fastestLapBonus',
     'name',
+    'platform',
     'pointsScheme',
     'poleBonus',
 ] as const;
@@ -72,6 +74,7 @@ export const getSeason = (db: Kysely<DB>, seasonId: string) => {
             hasResults,
         ])
         .where('season.seasonId', '=', seasonId)
+        .$narrowType<{ platform: Platform }>()
         .executeTakeFirstOrThrow();
 };
 

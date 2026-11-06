@@ -93,6 +93,7 @@ export interface Driver {
   createdAt: Generated<Timestamp>;
   displayName: string;
   driverId: Generated<Int8>;
+  platform: string;
   simId: string;
   userId: string | null;
 }
@@ -102,6 +103,7 @@ export interface Entry {
   createdAt: Generated<Timestamp>;
   driverId: Int8;
   entryId: Generated<Int8>;
+  platform: string;
   seasonId: Int8;
   status: Generated<string>;
 }
@@ -288,6 +290,7 @@ export interface Season {
   gridLimit: number | null;
   leagueId: Int8;
   name: string;
+  platform: string;
   pointsScheme: number[];
   poleBonus: Generated<number>;
   registrationClosesAt: Timestamp | null;
@@ -310,7 +313,7 @@ export interface Session {
 
 export interface User {
   banExpires: Timestamp | null;
-  banned: Generated<boolean>;
+  banned: Generated<boolean | null>;
   banReason: string | null;
   createdAt: Generated<Timestamp>;
   email: string;
