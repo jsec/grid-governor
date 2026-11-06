@@ -1,12 +1,13 @@
 import type { seasonInputSchema } from '@grid-governor/core/schemas';
 import type { FormEvent } from 'react';
 
-import { errorBodySchema } from '@grid-governor/core/schemas';
+import { errorBodySchema, platformSchema } from '@grid-governor/core/schemas';
 import {
     Alert,
     Button,
     Group,
     Input,
+    NativeSelect,
     NumberInput,
     Stack,
     Text,
@@ -16,6 +17,8 @@ import { HTTPError } from 'ky';
 import { useState } from 'react';
 import { z } from 'zod';
 
+import { PLATFORM_LABELS } from '../lib/platforms';
+
 const optionalNumber = z.string().transform((value) => {
     if (value === '') {
         return null;
@@ -24,11 +27,17 @@ const optionalNumber = z.string().transform((value) => {
     return Number(value);
 });
 
+const PLATFORM_OPTIONS = Object.entries(PLATFORM_LABELS).map(([value, label]) => ({
+    label,
+    value,
+}));
+
 const seasonFormSchema = z.object({
     dropWorst: z.coerce.number(),
     expiryRounds: optionalNumber,
     fastestLapBonus: z.coerce.number(),
     name: z.string(),
+    platform: platformSchema,
     pointsScheme: z.array(z.coerce.number()),
     poleBonus: z.coerce.number(),
 });
@@ -36,6 +45,7 @@ const seasonFormSchema = z.object({
 export type SeasonFormValues = z.input<typeof seasonInputSchema>;
 
 type SeasonFormProps = {
+    conflictMessage: string;
     error: Error | null;
     isPending: boolean;
     isScoringLocked: boolean;
@@ -45,6 +55,7 @@ type SeasonFormProps = {
 };
 
 export function SeasonForm({
+    conflictMessage,
     error,
     isPending,
     isScoringLocked,
@@ -61,7 +72,7 @@ export function SeasonForm({
 
     const isConflict = error instanceof HTTPError && error.response.status === 409;
     const errorMessage = isConflict
-        ? 'A season with that name already exists in this league.'
+        ? conflictMessage
         : errorBody.data?.error ?? error?.message;
 
     const positions = Array.from({ length: positionCount }, (_, index) => index);
@@ -75,6 +86,7 @@ export function SeasonForm({
             expiryRounds: formData.get('expiryRounds'),
             fastestLapBonus: formData.get('fastestLapBonus'),
             name: formData.get('name'),
+            platform: formData.get('platform'),
             pointsScheme: formData.getAll('pointsScheme'),
             poleBonus: formData.get('poleBonus'),
         });
@@ -92,8 +104,19 @@ export function SeasonForm({
                     name="name"
                     required
                 />
+                <NativeSelect
+                    data={PLATFORM_OPTIONS}
+                    defaultValue={season.platform}
+                    disabled={isScoringLocked}
+                    error={fieldError('platform')}
+                    label="Platform"
+                    name="platform"
+                />
                 {isScoringLocked && (
-                    <Text>The scoring can't change because this season has results.</Text>
+                    <>
+                        <input name="platform" type="hidden" value={season.platform} />
+                        <Text>The scoring can't change because this season has results.</Text>
+                    </>
                 )}
                 <Input.Wrapper
                     error={fieldError('pointsScheme')}

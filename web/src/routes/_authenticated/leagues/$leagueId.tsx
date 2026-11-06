@@ -20,6 +20,7 @@ const FIRST_SEASON_VALUES = {
     expiryRounds: null,
     fastestLapBonus: 0,
     name: '',
+    platform: 'iracing',
     pointsScheme: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1],
     poleBonus: 0,
 } satisfies SeasonFormValues;
@@ -55,6 +56,7 @@ function CreateSeason({ latestSeason, leagueId }: {
         <Stack>
             <Title order={2}>Create a season</Title>
             <SeasonForm
+                conflictMessage="A season with that name already exists in this league."
                 error={creation.error}
                 isPending={creation.isPending}
                 isScoringLocked={false}

@@ -11,10 +11,14 @@ import { RoundForm } from '../../../components/round-form';
 import { SeasonForm } from '../../../components/season-form';
 import { api } from '../../../lib/api';
 import { hasLeaguePermission } from '../../../lib/league-permission';
+import { PLATFORM_LABELS } from '../../../lib/platforms';
 import { formatRoundStart } from '../../../lib/round-start';
 import { leagueQuery, leagueRolesQuery } from '../../../queries/leagues';
 import { roundListQuery } from '../../../queries/rounds';
 import { seasonListQuery, seasonQuery } from '../../../queries/seasons';
+
+const UPDATE_CONFLICT_MESSAGE = 'That name is taken in this league, or the platform '
+    + 'can\'t change because the season has entries.';
 
 const NEW_ROUND_VALUES = {
     startsAt: null,
@@ -97,6 +101,10 @@ function SeasonRoute() {
                 <Table>
                     <Table.Tbody>
                         <Table.Tr>
+                            <Table.Th>Platform</Table.Th>
+                            <Table.Td>{PLATFORM_LABELS[season.platform]}</Table.Td>
+                        </Table.Tr>
+                        <Table.Tr>
                             <Table.Th>Points by finishing position</Table.Th>
                             <Table.Td>{season.pointsScheme.join(', ')}</Table.Td>
                         </Table.Tr>
@@ -152,6 +160,7 @@ function SeasonRoute() {
                     <Stack>
                         <Title order={2}>Edit season</Title>
                         <SeasonForm
+                            conflictMessage={UPDATE_CONFLICT_MESSAGE}
                             error={update.error}
                             isPending={update.isPending}
                             isScoringLocked={season.hasResults}

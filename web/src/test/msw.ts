@@ -120,6 +120,7 @@ export function seasonFixture(overrides: Partial<z.infer<typeof seasonSchema>> =
         id: '7',
         leagueId: '1',
         name: '2026',
+        platform: 'iracing',
         pointsScheme: [25, 18, 15],
         poleBonus: 0,
         ...overrides,

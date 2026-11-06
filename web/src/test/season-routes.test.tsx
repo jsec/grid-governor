@@ -77,12 +77,14 @@ describe('league route seasons', () => {
             expect(screen.queryByLabelText(/^Position 11\b/)).not.toBeInTheDocument();
             expect(screen.getByLabelText(/^Pole bonus/)).toHaveValue('0');
             expect(screen.getByLabelText(/^Penalty points expire/)).toHaveValue('');
+            expect(screen.getByLabelText(/^Platform/)).toHaveValue('iracing');
         });
 
         it('should start from the latest season with an empty name', async () => {
             mockLeagueRoles({ leagueRoles: ['manager'], organizationRole: 'member' });
             mockSeasons([seasonFixture({
                 expiryRounds: 4,
+                platform: 'acc',
                 pointsScheme: [10, 5],
                 poleBonus: 1,
             })]);
@@ -95,6 +97,7 @@ describe('league route seasons', () => {
             expect(screen.queryByLabelText(/^Position 3\b/)).not.toBeInTheDocument();
             expect(screen.getByLabelText(/^Pole bonus/)).toHaveValue('1');
             expect(screen.getByLabelText(/^Penalty points expire/)).toHaveValue('4');
+            expect(screen.getByLabelText(/^Platform/)).toHaveValue('acc');
             expect(screen.getByLabelText(/^Name/)).toHaveValue('');
         });
 
@@ -122,6 +125,7 @@ describe('league route seasons', () => {
                 expiryRounds: null,
                 fastestLapBonus: 0,
                 name: '2027',
+                platform: 'iracing',
                 pointsScheme: [25, 18, 15],
                 poleBonus: 0,
             });
@@ -184,6 +188,7 @@ describe('season route', () => {
         expect(screen.getByRole('link', { name: 'Sunday Cup' }))
             .toHaveAttribute('href', '/leagues/1');
         expect(screen.getByText('25, 18, 15')).toBeInTheDocument();
+        expect(screen.getByText('iRacing')).toBeInTheDocument();
         expect(screen.getByText('End of season')).toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Save changes' })).not.toBeInTheDocument();
     });
@@ -211,6 +216,7 @@ describe('season route', () => {
             expiryRounds: 3,
             fastestLapBonus: 0,
             name: '2026 Spring',
+            platform: 'iracing',
             pointsScheme: [25, 18, 15],
             poleBonus: 0,
         });
@@ -227,8 +233,57 @@ describe('season route', () => {
         expect(screen.getByLabelText(/^Position 1\b/)).toHaveAttribute('readonly');
         expect(screen.getByLabelText(/^Pole bonus/)).toHaveAttribute('readonly');
         expect(screen.getByLabelText(/^Penalty points expire/)).toHaveAttribute('readonly');
+        expect(screen.getByLabelText(/^Platform/)).toBeDisabled();
         expect(screen.getByRole('button', { name: 'Add position' })).toBeDisabled();
         expect(screen.getByText(/scoring can't change/)).toBeInTheDocument();
+    });
+
+    it('should send the locked fields when renaming a season with results', async () => {
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
+        mockSeason({ hasResults: true, platform: 'lmu' });
+        let saved: unknown;
+        server.use(http.put('*/api/seasons/7', async ({ request }) => {
+            saved = await request.json();
+
+            return HttpResponse.json(seasonFixture({
+                hasResults: true,
+                name: '2026 Spring',
+                platform: 'lmu',
+            }));
+        }));
+        renderRoute(seasonPath);
+
+        const name = await screen.findByLabelText(/^Name/);
+        fireEvent.change(name, { target: { value: '2026 Spring' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+
+        const heading = await screen.findByRole('heading', { name: '2026 Spring' });
+
+        expect(heading).toBeInTheDocument();
+        expect(saved).toEqual({
+            dropWorst: 0,
+            expiryRounds: null,
+            fastestLapBonus: 0,
+            name: '2026 Spring',
+            platform: 'lmu',
+            pointsScheme: [25, 18, 15],
+            poleBonus: 0,
+        });
+    });
+
+    it('should name both causes when a save gets 409', async () => {
+        mockLeagueRoles({ leagueRoles: [], organizationRole: 'owner' });
+        mockSeason();
+        server.use(http.put('*/api/seasons/7', () =>
+            HttpResponse.json({ error: 'Conflict' }, { status: 409 })));
+        renderRoute(seasonPath);
+
+        const button = await screen.findByRole('button', { name: 'Save changes' });
+        fireEvent.click(button);
+
+        const alert = await screen.findByRole('alert');
+
+        expect(alert).toHaveTextContent(/name is taken.*platform can't change/);
     });
 
     it('should show the not-found view for an unknown season', async () => {
